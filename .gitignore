@@ -1,0 +1,45 @@
+# Flutter/Dart
+CalAI-App/.dart_tool/
+CalAI-App/.flutter-plugins
+CalAI-App/.flutter-plugins-dependencies
+CalAI-App/.packages
+CalAI-App/build/
+CalAI-App/.pub-cache/
+CalAI-App/.pub/
+
+# Python (if backend is Python)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
+
+# Node modules (if any Node.js)
+node_modules/
+EOF

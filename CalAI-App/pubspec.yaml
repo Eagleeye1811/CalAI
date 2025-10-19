@@ -1,0 +1,63 @@
+name: CalAI
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.2+40
+
+environment:
+  sdk: ">=3.3.2 <4.0.0"
+
+dependencies:
+  before_after: ^3.2.0
+  cached_network_image: null
+  # camera: ^0.11.0+2
+  change_app_package_name: ^1.5.0
+  cloud_firestore: ^5.6.7
+  confetti: ^0.8.0
+  davinci: ^2.5.1
+  firebase_auth: ^5.5.0
+  firebase_core: ^3.12.0
+  firebase_remote_config: ^5.4.5
+  firebase_storage: ^12.2.0
+  fl_chart: 0.69.0
+  flutter:
+    sdk: flutter
+  flutter_bounceable: ^1.2.0
+  flutter_easyloading: ^3.0.5
+  flutter_image_compress: ^2.4.0
+  flutter_markdown: ^0.7.4+1
+  flutter_native_splash: ^2.4.4
+  flutter_svg: ^2.0.17
+  get: ^4.7.2
+  get_it: ^8.0.3
+  google_fonts: ^6.2.1
+  google_sign_in: ^6.2.2
+  icons_launcher: ^3.0.3
+  image_picker: ^1.1.2
+  intl: ^0.19.0
+  linear_progress_bar: ^1.2.0
+  logger: ^2.4.0
+  lottie: ^3.3.1
+  material_symbols_icons: ^4.2808.0
+  percent_indicator: ^4.2.5
+  photo_view: ^0.15.0
+  share_plus: ^7.2.2
+  shared_preferences: ^2.5.2
+  sizer: ^3.0.5
+  smooth_page_indicator: ^1.2.1
+  timeline_date_picker_plus: ^0.0.3
+  http: ^1.1.0
+
+dev_dependencies:
+  build_runner: ^2.8.0
+  custom_lint: ^0.8.1
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/svg/
+    - assets/lottie/
+    - assets/png/
+    - shorebird.yaml

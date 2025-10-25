@@ -8,6 +8,7 @@ import 'scan_options_sheet.dart';
 import 'package:CalAI/app/modules/FoodDatabase/views/food_database_page.dart';
 import 'package:CalAI/app/modules/FoodDatabase/views/saved_foods_page.dart';
 import 'package:CalAI/app/modules/Scanner/views/enhanced_scan_view.dart';
+import 'package:CalAI/app/modules/Chat/Views/chat_view.dart';  
 
 
 class ActionMenuBottomSheet extends StatelessWidget {
@@ -36,7 +37,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 16),
           
           // Title
           Text(
@@ -47,7 +48,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
               color: context.textColor,
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 16),
           
           // 2x2 Grid of options
           GridView.count(
@@ -101,7 +102,21 @@ class ActionMenuBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
+          
+          // Full-width AI Chatbot button
+          _buildFullWidthActionBox(
+            context: context,
+            icon: Icons.chat_bubble_outline,
+            title: 'AI Nutrition Assistant',
+            color: Colors.teal,
+            onTap: () {
+              Navigator.pop(context);
+              Get.to(() => const CalAIAgentView());
+            },
+          ),
+          
+          SizedBox(height: 16),
         ],
       ),
     );
@@ -146,6 +161,57 @@ class ActionMenuBottomSheet extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: context.textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Full-width button for AI Chatbot
+  Widget _buildFullWidthActionBox({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        decoration: BoxDecoration(
+          color: context.cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: context.textColor,
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: context.textColor.withOpacity(0.03),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 28,
+              color: context.textColor,
+            ),
+            SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: context.textColor,
               ),

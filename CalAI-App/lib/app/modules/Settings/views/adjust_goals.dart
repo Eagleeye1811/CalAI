@@ -1,5 +1,4 @@
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/Auth/user.dart';

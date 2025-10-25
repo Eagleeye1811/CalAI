@@ -344,40 +344,6 @@ class NutritionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNutritionBadgesRow(
-      BuildContext context, Map<String, int> totals) {
-    return Row(
-      children: [
-        Expanded(
-            child: _buildMacroNutrientBadge(
-          context,
-          "PROTEIN",
-          "${totals['protein']}g",
-          MealAIColors.proteinColor,
-          Icons.fitness_center_rounded,
-        )),
-        SizedBox(width: 2.w),
-        Expanded(
-            child: _buildMacroNutrientBadge(
-          context,
-          "CARBS",
-          "${totals['carbs']}g",
-          MealAIColors.carbsColor,
-          Icons.grain_rounded,
-        )),
-        SizedBox(width: 2.w),
-        Expanded(
-            child: _buildMacroNutrientBadge(
-          context,
-          "FAT",
-          "${totals['fat']}g",
-          MealAIColors.fatColor,
-          Icons.opacity_rounded,
-        )),
-      ],
-    );
-  }
-
   Widget _buildMacroNutrientBadge(BuildContext context, String label,
       String value, Color color, IconData icon) {
     return Container(
@@ -417,26 +383,6 @@ class NutritionCard extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildChevron(BuildContext context) {
-    return Container(
-      width: 8.w,
-      decoration: BoxDecoration(
-        color: context.textColor.withOpacity(0.08),
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(16),
-          bottomRight: Radius.circular(16),
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.chevron_right_rounded,
-          color: context.textColor,
-          size: 24,
-        ),
       ),
     );
   }

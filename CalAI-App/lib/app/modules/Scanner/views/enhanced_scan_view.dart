@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:CalAI/app/modules/DashBoard/view/widgets/scan_options_sheet.dart';

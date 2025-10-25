@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 import 'package:CalAI/app/repo/firebase_user_repo.dart';
 
 class WeightHistoryView extends StatefulWidget {

@@ -1,11 +1,9 @@
 import 'package:CalAI/app/components/empty.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sizer/sizer.dart';
-import 'package:timeline_date_picker_plus/timeline_date_picker_plus.dart';
 import 'package:CalAI/app/components/nutritionTrackerCard.dart'
     show NutritionTrackerCard;
 import 'package:CalAI/app/constants/colors.dart';
@@ -14,10 +12,7 @@ import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/controllers/user_controller.dart';
 import 'package:CalAI/app/modules/Home/component/nutrition_card.dart';
-import 'package:CalAI/app/modules/Home/views/nutrition_view.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/modules/Settings/views/settings.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
 import 'package:CalAI/app/repo/nutrition_record_repo.dart';
 import 'package:CalAI/app/utility/registry_service.dart';
 import 'package:CalAI/app/components/custom_date_selector.dart';
@@ -43,7 +38,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   DateTime _selectedDate = DateTime.now();
 
   late AuthController authController;
-  final FirebaseUserRepo _userRepository = FirebaseUserRepo();
 
   UserModel? userModel;
   bool _isLoading = true;
@@ -541,8 +535,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       builder: (controller) {
         int steps = 0;
         int caloriesBurned = controller.burnedCalories.value;
-        int waterConsumed = 0;
-        int waterGoal = 2500;
 
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.w),

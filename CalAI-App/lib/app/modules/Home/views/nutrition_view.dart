@@ -7,20 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
-import 'package:sizer/sizer.dart';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/AI/nutrition_output.dart';
 import 'package:CalAI/app/models/AI/nutrition_record.dart';
 import 'package:CalAI/app/utility/date_utility.dart';
 import 'package:CalAI/app/repo/saved_foods_repo.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/components/social_media_share_widget.dart';
 import 'package:gal/gal.dart';
 import 'package:dio/dio.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:CalAI/app/components/social_media_share_widget.dart';
 
 class NutritionView extends StatefulWidget {
   final NutritionRecord nutritionRecord;
@@ -354,7 +352,7 @@ class _NutritionViewState extends State<NutritionView> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(height: 180),
+                      SizedBox(height: 260),
                       
                       Container(
                         decoration: BoxDecoration(
@@ -390,192 +388,275 @@ class _NutritionViewState extends State<NutritionView> {
               ),
             ],
           ),
+          
+          // MOVED TO LAST POSITION - Top buttons now appear on top of everything
+          _buildTopButtons(),
         ],
       ),
     );
   }
 
-  // Around line 399 - Update _buildHeaderImage method
-Widget _buildHeaderImage() {
-  final query = nutritionRecord.nutritionInputQuery;
-  final hasImage = (query?.imageFilePath != null && query!.imageFilePath!.isNotEmpty) ||
-                   (query?.imageUrl != null && query!.imageUrl!.isNotEmpty);
-
-  return Positioned(
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 300,
-    child: Hero(
-      tag: 'food-image-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.isDarkMode ? Colors.black87 : Colors.black54,
-        ),
-        child: hasImage
-            ? Stack(
-                fit: StackFit.expand,
+  // NEW METHOD - Top buttons (Back, Share, 3-dot menu)
+  Widget _buildTopButtons() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Back button
+              GestureDetector(
+                onTap: () => Navigator.pop(context, _isSaved),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+              
+              // Share and More buttons
+              Row(
                 children: [
-                  if (query!.imageFilePath != null)
-                    Image.file(
-                      File(query.imageFilePath!),
-                      fit: BoxFit.cover,
-                    )
-                  else if (query.imageUrl != null)
-                    CachedNetworkImage(
-                      imageUrl: query.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(color: Colors.white),
+                  // Share button
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to SocialMediaShareWidget
+                      Get.to(() => SocialMediaShareWidget(
+                        nutritionRecord: nutritionRecord,
+                        userName: userModel.name,
+                      ));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
                       ),
-                      errorWidget: (context, url, error) => Icon(
-                        Icons.restaurant,
-                        size: 80,
-                        color: Colors.white54,
+                      child: Icon(
+                        Icons.share,
+                        color: Colors.white,
+                        size: 24,
                       ),
                     ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.5),
-                          Colors.black.withOpacity(0.3),
-                          Colors.transparent,
-                        ],
+                  ),
+                  
+                  SizedBox(width: 12),
+                  
+                  // 3-dot menu button
+                  GestureDetector(
+                    onTap: () => _showOptionsMenu(context),
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 24,
                       ),
                     ),
                   ),
                 ],
-              )
-            : Center(
-                child: Icon(
-                  Icons.restaurant,
-                  size: 100,
-                  color: Colors.white54,
-                ),
               ),
-      ),
-    ),
-  );
-}
-
-// Around line 541 - Update _buildFoodHeader method
-Widget _buildFoodHeader(String foodName, String time) {
-  return Padding(
-    padding: EdgeInsets.all(20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: _toggleSave,
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(
-                    scale: animation,
-                    child: child,
-                  );
-                },
-                child: Icon(
-                  _isSaved ? Icons.bookmark : Icons.bookmark_outline,
-                  key: ValueKey(_isSaved),
-                  size: 28,
-                  color: context.textColor,
-                ),
-              ),
-            ),
-            Text(
-              time,
-              style: TextStyle(
-                fontSize: 14,
-                color: context.textColor.withOpacity(0.6),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-        
-        SizedBox(height: 16),
-        
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Hero(
-                tag: 'food-name-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    foodName,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: context.textColor,
-                      letterSpacing: -0.5,
+      ),
+    );
+  }
+
+  Widget _buildHeaderImage() {
+    final query = nutritionRecord.nutritionInputQuery;
+    final hasImage = (query?.imageFilePath != null && query!.imageFilePath!.isNotEmpty) ||
+                     (query?.imageUrl != null && query!.imageUrl!.isNotEmpty);
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 300,
+      child: Hero(
+        tag: 'food-image-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
+        child: Container(
+          decoration: BoxDecoration(
+            color: context.isDarkMode ? Colors.black87 : Colors.black54,
+          ),
+          child: hasImage
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (query!.imageFilePath != null)
+                      Image.file(
+                        File(query.imageFilePath!),
+                        fit: BoxFit.cover,
+                      )
+                    else if (query.imageUrl != null)
+                      CachedNetworkImage(
+                        imageUrl: query.imageUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        ),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.restaurant,
+                          size: 80,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.5),
+                            Colors.black.withOpacity(0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Center(
+                  child: Icon(
+                    Icons.restaurant,
+                    size: 100,
+                    color: Colors.white54,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFoodHeader(String foodName, String time) {
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: _toggleSave,
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    );
+                  },
+                  child: Icon(
+                    _isSaved ? Icons.bookmark : Icons.bookmark_outline,
+                    key: ValueKey(_isSaved),
+                    size: 28,
+                    color: context.textColor,
+                  ),
+                ),
+              ),
+              Text(
+                time,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: context.textColor.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 16),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Hero(
+                  tag: 'food-name-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Text(
+                      foodName,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: context.textColor,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            
-            SizedBox(width: 16),
-            
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: context.textColor, width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (_quantity > 1) {
+              
+              SizedBox(width: 16),
+              
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: context.textColor, width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (_quantity > 1) {
+                          setState(() {
+                            _quantity--;
+                            // Reset edits when quantity changes
+                            _hasEdits = false;
+                            _editedTotals.clear();
+                          });
+                        }
+                      },
+                      child: Icon(Icons.remove, size: 20, color: context.textColor),
+                    ),
+                    SizedBox(width: 20),
+                    Text(
+                      '$_quantity',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: context.textColor,
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {
                         setState(() {
-                          _quantity--;
+                          _quantity++;
                           // Reset edits when quantity changes
                           _hasEdits = false;
                           _editedTotals.clear();
                         });
-                      }
-                    },
-                    child: Icon(Icons.remove, size: 20, color: context.textColor),
-                  ),
-                  SizedBox(width: 20),
-                  Text(
-                    '$_quantity',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: context.textColor,
+                      },
+                      child: Icon(Icons.add, size: 20, color: context.textColor),
                     ),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _quantity++;
-                        // Reset edits when quantity changes
-                        _hasEdits = false;
-                        _editedTotals.clear();
-                      });
-                    },
-                    child: Icon(Icons.add, size: 20, color: context.textColor),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCaloriesBox(int calories) {
     final isEdited = _hasEdits && _editedTotals.containsKey('calories');
@@ -587,48 +668,23 @@ Widget _buildFoodHeader(String foodName, String time) {
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 200),
+        child: Container(
           width: double.infinity,
           padding: EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: isEdited
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      context.tileColor,
-                      Color(0xFFFF6B35).withOpacity(0.1),
-                    ],
-                  )
-                : LinearGradient(
-                    colors: [context.tileColor, context.tileColor],
-                  ),
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(20),
-            border: isEdited
-                ? Border.all(
-                    color: Color(0xFFFF6B35).withOpacity(0.4),
-                    width: 2,
-                  )
-                : Border.all(
-                    color: context.borderColor.withOpacity(0.1),
-                    width: 1,
-                  ),
-            boxShadow: isEdited
-                ? [
-                    BoxShadow(
-                      color: Color(0xFFFF6B35).withOpacity(0.15),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: context.textColor.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+            border: Border.all(
+              color: context.borderColor.withOpacity(0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: context.textColor.withOpacity(0.04),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -794,45 +850,27 @@ Widget _buildFoodHeader(String foodName, String time) {
     
     return GestureDetector(
       onTap: () {
-        // Extract numeric value from string (e.g., "50g" -> 50)
         final numericValue = int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
         final isMg = value.contains('mg');
-        
-        // Haptic feedback
         HapticFeedback.lightImpact();
-        
         _showEditMacroDialog(label, numericValue, isMg: isMg);
       },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+      child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
-          border: isEdited
-              ? Border.all(
-                  color: color.withOpacity(0.6),
-                  width: 2,
-                )
-              : Border.all(
-                  color: context.borderColor.withOpacity(0.1),
-                  width: 1,
-                ),
-          boxShadow: isEdited
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: context.textColor.withOpacity(0.03),
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+          border: Border.all(
+            color: context.borderColor.withOpacity(0.1),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: context.textColor.withOpacity(0.03),
+              blurRadius: 4,
+              offset: Offset(0, 1),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -930,19 +968,6 @@ Widget _buildFoodHeader(String foodName, String time) {
                   color: context.textColor,
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  // TODO: Add ingredient
-                },
-                child: Text(
-                  '+ Add',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: context.textColor.withOpacity(0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
             ],
           ),
           
@@ -997,7 +1022,7 @@ Widget _buildFoodHeader(String foodName, String time) {
         ),
         child: Row(
           children: [
-            Icon(Icons.add, size: 24, color: context.textColor),
+            Icon(Icons.lightbulb_outline, size: 24, color: context.textColor),
             SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -1073,6 +1098,10 @@ Widget _buildFoodHeader(String foodName, String time) {
             child: GestureDetector(
               onTap: () {
                 // TODO: Implement fix functionality
+                AppDialogs.showInfoSnackbar(
+                  title: "Fix",
+                  message: "Nutrition adjustment coming soon!",
+                );
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 16),
@@ -1134,58 +1163,184 @@ Widget _buildFoodHeader(String foodName, String time) {
   void _showOptionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: context.cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (dialogContext) => Container(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        decoration: BoxDecoration(
+          color: context.cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: context.textColor.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              // Title
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      'Options',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: context.textColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              SizedBox(height: 8),
+              
+              // Report Food
+              _buildOptionTile(
+                context: dialogContext,
+                icon: Icons.flag_rounded,
+                iconColor: Colors.orange,
+                title: 'Report Food',
+                subtitle: 'Report incorrect information',
+                onTap: () {
+                  Navigator.pop(dialogContext);
+                  _handleReportFood(context);
+                },
+              ),
+              
+              // Divider
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Divider(
+                  height: 1,
+                  color: context.borderColor.withOpacity(0.3),
+                ),
+              ),
+              
+              // Save Image
+              _buildOptionTile(
+                context: dialogContext,
+                icon: Icons.download_rounded,
+                iconColor: Colors.blue,
+                title: 'Save Image',
+                subtitle: 'Save to gallery',
+                onTap: () {
+                  Navigator.pop(dialogContext);
+                  _handleSaveImage(context);
+                },
+              ),
+              
+              // Divider
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Divider(
+                  height: 1,
+                  color: context.borderColor.withOpacity(0.3),
+                ),
+              ),
+              
+              // Delete Food
+              _buildOptionTile(
+                context: dialogContext,
+                icon: Icons.delete_rounded,
+                iconColor: Colors.red,
+                title: 'Delete Food',
+                subtitle: 'Remove from your log',
+                onTap: () {
+                  Navigator.pop(dialogContext);
+                  _handleDeleteMeal(context);
+                },
+                isDestructive: true,
+              ),
+              
+              SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build option tiles
+  Widget _buildOptionTile({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Row(
           children: [
-            ListTile(
-              leading: Icon(Icons.flag_outlined, color: Colors.orange),
-              title: Text(
-                'Report Food',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: context.textColor,
-                ),
+            // Icon container
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
               ),
-              onTap: () {
-                Navigator.pop(dialogContext);
-                _handleReportFood(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.download_outlined, color: Colors.blue),
-              title: Text(
-                'Save Image',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: context.textColor,
-                ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 24,
               ),
-              onTap: () {
-                Navigator.pop(dialogContext);
-                _handleSaveImage(context);
-              },
             ),
-            ListTile(
-              leading: Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                'Delete Food',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Colors.red,
-                ),
+            
+            SizedBox(width: 16),
+            
+            // Text content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isDestructive ? Colors.red : context.textColor,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.textColor.withOpacity(0.6),
+                    ),
+                  ),
+                ],
               ),
-              onTap: () {
-                Navigator.pop(dialogContext);
-                _handleDeleteMeal(context);
-              },
             ),
-            SizedBox(height: 20),
+            
+            // Arrow icon
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: context.textColor.withOpacity(0.3),
+            ),
           ],
         ),
       ),
@@ -1319,27 +1474,28 @@ Widget _buildFoodHeader(String foodName, String time) {
                       message: "Please wait...",
                     );
 
-                    // TODO: Implement actual reporting logic here
-                    // You can send this to Firebase or your backend
-                    final reportData = {
-                      'userId': userModel.userId,
-                      'foodName': nutritionRecord.nutritionOutput?.response?.foodName,
-                      'reason': selectedReason,
-                      'details': reportController.text,
-                      'timestamp': DateTime.now().toIso8601String(),
-                      'recordTime': nutritionRecord.recordTime?.toIso8601String(),
-                    };
-                    
-                    print("Report data: $reportData");
-                    
-                    // Simulate network delay
-                    await Future.delayed(Duration(seconds: 1));
-                    
-                    AppDialogs.hideDialog();
-                    AppDialogs.showSuccessSnackbar(
-                      title: "Report Submitted",
-                      message: "Thank you for your feedback. We'll review this report.",
-                    );
+                    try {
+                      await FirebaseFirestore.instance.collection('food_reports').add({
+                        'userId': userModel.userId,
+                        'foodName': nutritionRecord.nutritionOutput?.response?.foodName,
+                        'reason': selectedReason,
+                        'details': reportController.text,
+                        'timestamp': FieldValue.serverTimestamp(),
+                        'recordTime': nutritionRecord.recordTime?.toIso8601String(),
+                      });
+                      
+                      AppDialogs.hideDialog();
+                      AppDialogs.showSuccessSnackbar(
+                        title: "Report Submitted",
+                        message: "Thank you for your feedback. We'll review this report.",
+                      );
+                    } catch (e) {
+                      AppDialogs.hideDialog();
+                      AppDialogs.showErrorSnackbar(
+                        title: "Error",
+                        message: "Failed to submit report: $e",
+                      );
+                    }
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.orange,
@@ -1383,7 +1539,6 @@ Widget _buildFoodHeader(String foodName, String time) {
         message: "Please wait...",
       );
 
-      // Request storage permission
       if (!await Gal.hasAccess()) {
         final hasAccess = await Gal.requestAccess();
         if (!hasAccess) {
@@ -1398,13 +1553,11 @@ Widget _buildFoodHeader(String foodName, String time) {
 
       try {
         if (query.imageFilePath != null && query.imageFilePath!.isNotEmpty) {
-          // Save local file
           final file = File(query.imageFilePath!);
           if (await file.exists()) {
             await Gal.putImage(query.imageFilePath!);
           }
         } else if (query.imageUrl != null && query.imageUrl!.isNotEmpty) {
-          // Download and save network image
           final tempDir = await getTemporaryDirectory();
           final tempFilePath = '${tempDir.path}/CalAI_${DateTime.now().millisecondsSinceEpoch}.jpg';
           
@@ -1415,7 +1568,6 @@ Widget _buildFoodHeader(String foodName, String time) {
           
           await Gal.putImage(tempFilePath);
           
-          // Clean up temp file
           await File(tempFilePath).delete();
         }
 

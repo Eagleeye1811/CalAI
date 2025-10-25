@@ -5,7 +5,6 @@ import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/controllers/theme_controller.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:CalAI/app/modules/Settings/views/adjust_goals.dart';
 import 'package:CalAI/app/repo/firebase_user_repo.dart';
 import 'weight_history_view.dart';
@@ -21,10 +20,8 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   bool isCaloriesBurnedEnabled = false;
 
-  late ScannerController _scannerController;
   late String _userId;
 
-  DateTime _selectedDate = DateTime.now();
   String _selectedLanguage = 'English';
   bool _isEditingName = false;
   late TextEditingController _nameController;
@@ -33,21 +30,15 @@ class _SettingsViewState extends State<SettingsView> {
   final FirebaseUserRepo _userRepository = FirebaseUserRepo();
 
   UserModel? userModel;
-  bool _isLoading = true;
-  String? _errorMessage;
+  
 
   @override
   void initState() {
     super.initState();
     authController = Get.find<AuthController>();
-    _scannerController = Get.find<ScannerController>();
     _nameController = TextEditingController();
 
     if (!authController.isAuthenticated) {
-      setState(() {
-        _errorMessage = 'User not authenticated. Please log in again.';
-        _isLoading = false;
-      });
       return;
     }
 

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/modules/Auth/views/sign_in_screen.dart';
 import 'package:CalAI/app/utility/user_utility.dart';
 

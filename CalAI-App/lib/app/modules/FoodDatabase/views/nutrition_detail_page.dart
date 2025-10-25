@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:sizer/sizer.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/components/dialogs.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
@@ -44,15 +42,6 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
   Map<String, int> _editedValues = {};
   bool _hasEdits = false;
 
-  // Store original values for comparison
-  late int _originalCalories;
-  late int _originalProtein;
-  late int _originalCarbs;
-  late int _originalFat;
-  late int _originalFiber;
-  late int _originalSugar;
-  late int _originalSodium;
-
   @override
   void initState() {
     super.initState();
@@ -61,16 +50,6 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     // If editing existing record, set initial serving amount and store original values
     if (widget.existingRecord != null) {
       final record = widget.existingRecord!;
-      final ingredient = record.nutritionOutput?.response?.ingredients?.first;
-      if (ingredient != null) {
-        _originalCalories = ingredient.calories ?? 0;
-        _originalProtein = ingredient.protein ?? 0;
-        _originalCarbs = ingredient.carbs ?? 0;
-        _originalFat = ingredient.fat ?? 0;
-        _originalFiber = ingredient.fiber ?? 0;
-        _originalSugar = ingredient.sugar ?? 0;
-        _originalSodium = ingredient.sodium ?? 0;
-      }
     }
   }
 

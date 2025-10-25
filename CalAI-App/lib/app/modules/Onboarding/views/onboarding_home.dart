@@ -4,8 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:CalAI/app/components/buttons.dart';
 import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Onboarding/views/onboarding_progress_view.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
 import 'package:CalAI/app/modules/Auth/views/sign_in_screen.dart';
 
 class OnboardingHome extends StatefulWidget {

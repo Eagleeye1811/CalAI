@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/components/dialogs.dart';

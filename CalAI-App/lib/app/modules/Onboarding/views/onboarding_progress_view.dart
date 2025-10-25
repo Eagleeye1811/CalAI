@@ -15,7 +15,6 @@ import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/models/Onboarding/onboarding_model.dart';
 import 'package:CalAI/app/modules/Onboarding/views/calorie_required.dart';
 import 'package:CalAI/app/utility/user_utility.dart';
-import 'package:get/get.dart';
 
 class OnboardingQuestionaries extends StatefulWidget {
   const OnboardingQuestionaries({super.key});

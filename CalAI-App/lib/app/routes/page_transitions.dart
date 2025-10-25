@@ -1,8 +1,7 @@
-// lib/app/routes/page_transitions.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class FadeTransition extends CustomTransition {
+class FadePageTransition extends CustomTransition {
   @override
   Widget buildTransition(
     BuildContext context,

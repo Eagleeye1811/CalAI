@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sizer/sizer.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/components/dialogs.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';

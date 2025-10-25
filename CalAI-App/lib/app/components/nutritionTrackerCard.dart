@@ -147,18 +147,25 @@ class NutritionTrackerCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  CircularPercentIndicator(
-                    radius: 50,
-                    lineWidth: 8,
-                    percent: progress,
-                    center: Icon(
-                      Icons.local_fire_department,
-                      color: context.textColor,
-                      size: 32,
-                    ),
-                    progressColor: context.textColor,
-                    backgroundColor: context.borderColor,
-                    circularStrokeCap: CircularStrokeCap.round,
+                  TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: progress),
+                    duration: Duration(milliseconds: 800),
+                    curve: Curves.easeInOut,
+                    builder: (context, animatedProgress, child) {
+                      return CircularPercentIndicator(
+                        radius: 50,
+                        lineWidth: 8,
+                        percent: animatedProgress,
+                        center: Icon(
+                          Icons.local_fire_department,
+                          color: context.textColor,
+                          size: 32,
+                        ),
+                        progressColor: context.textColor,
+                        backgroundColor: context.borderColor,
+                        circularStrokeCap: CircularStrokeCap.round,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -282,14 +289,21 @@ class NutritionTrackerCard extends StatelessWidget {
               ),
             ],
             SizedBox(height: 2.h),
-            CircularPercentIndicator(
-              radius: 35,
-              lineWidth: 6,
-              percent: progress,
-              center: Icon(icon, color: color, size: 24),
-              progressColor: color,
-              backgroundColor: context.borderColor,
-              circularStrokeCap: CircularStrokeCap.round,
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: progress),
+              duration: Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+              builder: (context, animatedProgress, child) {
+                return CircularPercentIndicator(
+                  radius: 35,
+                  lineWidth: 6,
+                  percent: animatedProgress,
+                  center: Icon(icon, color: color, size: 24),
+                  progressColor: color,
+                  backgroundColor: context.borderColor,
+                  circularStrokeCap: CircularStrokeCap.round,
+                );
+              },
             ),
           ],
         ),

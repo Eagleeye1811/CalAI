@@ -322,6 +322,147 @@ class NutritionRecordRepo {
     }
   }
 
+  /// Delete a specific nutrition record by recordTime (for swipe-to-delete)
+  Future<QueryStatus> deleteNutritionRecord(
+      DateTime recordTime, String userId) async {
+    try {
+      final date = DateTime(recordTime.year, recordTime.month, recordTime.day);
+      final recordId = getRecordId(date);
+
+      // Get the current nutrition data for this date
+      final currentData = await getNutritionData(userId, date);
+
+      // Find the record to delete
+      int recordIndex = -1;
+      for (int i = 0; i < currentData.dailyRecords.length; i++) {
+        if (currentData.dailyRecords[i].recordTime != null &&
+            currentData.dailyRecords[i].recordTime!
+                .isAtSameMomentAs(recordTime)) {
+          recordIndex = i;
+          break;
+        }
+      }
+
+      // If record not found, consider it already deleted (success)
+      if (recordIndex == -1) {
+        return QueryStatus.SUCCESS;
+      }
+
+      // Get the record to calculate nutritional values to subtract
+      final recordToDelete = currentData.dailyRecords[recordIndex];
+
+      // Calculate nutritional values
+      int totalCalories = 0;
+      int totalProtein = 0;
+      int totalFat = 0;
+      int totalCarbs = 0;
+
+      if (recordToDelete.nutritionOutput != null &&
+          recordToDelete.nutritionOutput!.response != null &&
+          recordToDelete.nutritionOutput!.response!.ingredients != null) {
+        for (var ingredient
+            in recordToDelete.nutritionOutput!.response!.ingredients!) {
+          totalCalories += ingredient.calories ?? 0;
+          totalProtein += ingredient.protein ?? 0;
+          totalFat += ingredient.fat ?? 0;
+          totalCarbs += ingredient.carbs ?? 0;
+        }
+      }
+
+      // Remove the record from the list
+      currentData.dailyRecords.removeAt(recordIndex);
+
+      // Update daily totals
+      currentData.dailyConsumedCalories -= totalCalories;
+      currentData.dailyConsumedProtein -= totalProtein;
+      currentData.dailyConsumedFat -= totalFat;
+      currentData.dailyConsumedCarb -= totalCarbs;
+
+      // Ensure values don't go below zero
+      currentData.dailyConsumedCalories =
+          currentData.dailyConsumedCalories.clamp(0, double.infinity).toInt();
+      currentData.dailyConsumedProtein =
+          currentData.dailyConsumedProtein.clamp(0, double.infinity).toInt();
+      currentData.dailyConsumedFat =
+          currentData.dailyConsumedFat.clamp(0, double.infinity).toInt();
+      currentData.dailyConsumedCarb =
+          currentData.dailyConsumedCarb.clamp(0, double.infinity).toInt();
+
+      // Save the updated data back to Firestore
+      await usersCollection
+          .doc(userId)
+          .collection('nutritionRecords')
+          .doc(recordId)
+          .set(currentData.toJson());
+
+      // Update monthly analytics
+      await _updateMonthlyAnalyticsForDate(userId, date);
+
+      return QueryStatus.SUCCESS;
+    } catch (e) {
+      print('Error deleting nutrition record: $e');
+      return QueryStatus.FAILED;
+    }
+  }
+
+  /// Add a nutrition record (for undo functionality)
+  Future<QueryStatus> addNutritionRecord(
+      NutritionRecord record, String userId) async {
+    try {
+      if (record.recordTime == null) {
+        return QueryStatus.FAILED;
+      }
+
+      final date =
+          DateTime(record.recordTime!.year, record.recordTime!.month, record.recordTime!.day);
+      final recordId = getRecordId(date);
+
+      // Get the current nutrition data for this date
+      final currentData = await getNutritionData(userId, date);
+
+      // Calculate nutritional values to add
+      int totalCalories = 0;
+      int totalProtein = 0;
+      int totalFat = 0;
+      int totalCarbs = 0;
+
+      if (record.nutritionOutput != null &&
+          record.nutritionOutput!.response != null &&
+          record.nutritionOutput!.response!.ingredients != null) {
+        for (var ingredient in record.nutritionOutput!.response!.ingredients!) {
+          totalCalories += ingredient.calories ?? 0;
+          totalProtein += ingredient.protein ?? 0;
+          totalFat += ingredient.fat ?? 0;
+          totalCarbs += ingredient.carbs ?? 0;
+        }
+      }
+
+      // Add the record to the list
+      currentData.dailyRecords.add(record);
+
+      // Update daily totals
+      currentData.dailyConsumedCalories += totalCalories;
+      currentData.dailyConsumedProtein += totalProtein;
+      currentData.dailyConsumedFat += totalFat;
+      currentData.dailyConsumedCarb += totalCarbs;
+
+      // Save the updated data back to Firestore
+      await usersCollection
+          .doc(userId)
+          .collection('nutritionRecords')
+          .doc(recordId)
+          .set(currentData.toJson());
+
+      // Update monthly analytics
+      await _updateMonthlyAnalyticsForDate(userId, date);
+
+      return QueryStatus.SUCCESS;
+    } catch (e) {
+      print('Error adding nutrition record: $e');
+      return QueryStatus.FAILED;
+    }
+  }
+
   Future<MonthlyAnalytics?> getMonthlyAnalytics(
       String userId, DateTime forMonth) async {
     try {

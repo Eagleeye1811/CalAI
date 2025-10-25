@@ -3,6 +3,7 @@ import 'package:CalAI/app/constants/colors.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:CalAI/app/repo/firebase_user_repo.dart';
 
 class WeightHistoryView extends StatefulWidget {
   final String userId;
@@ -32,19 +33,21 @@ class _WeightHistoryViewState extends State<WeightHistoryView> {
   }
 
   Future<void> _fetchWeightHistory() async {
-    // Removed the initial setState since _isLoading is already true
-    
     try {
-      // TODO: Fetch weight history from database
-      // Example: 
-      // final firebaseRepo = FirebaseUserRepo();
-      // final history = await firebaseRepo.getWeightHistory(widget.userId);
-      // if (mounted) {
-      //   setState(() => _weightHistory = history);
-      // }
+      final firebaseRepo = FirebaseUserRepo();
+      final history = await firebaseRepo.getWeightHistory(widget.userId);
       
-      await Future.delayed(Duration(milliseconds: 500)); // Simulate loading
-      
+      if (mounted) {
+        setState(() {
+          _weightHistory.clear();
+          _weightHistory.addAll(
+            history.map((entry) => WeightEntry(
+              date: entry['date'] as DateTime,
+              weight: entry['weight'] as double,
+            )).toList()
+          );
+        });
+      }
     } catch (e) {
       print('Error fetching weight history: $e');
       if (mounted) {
@@ -281,31 +284,40 @@ class _WeightHistoryViewState extends State<WeightHistoryView> {
         final weight = result['weight'] as double;
         final date = result['date'] as DateTime;
 
-        // TODO: Save to Firebase
-        // final firebaseRepo = FirebaseUserRepo();
-        // await firebaseRepo.addWeightEntry(widget.userId, weight, date);
-
-        setState(() {
-          _weightHistory.add(WeightEntry(date: date, weight: weight));
-          _weightHistory.sort((a, b) => b.date.compareTo(a.date));
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 2.w),
-                Text('Weight entry added successfully!'),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
+        // Save to Firebase
+        try {
+          final firebaseRepo = FirebaseUserRepo();
+          await firebaseRepo.addWeightEntry(widget.userId, weight, date);
+          
+          setState(() {
+            _weightHistory.add(WeightEntry(date: date, weight: weight));
+            _weightHistory.sort((a, b) => b.date.compareTo(a.date));
+          });
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Weight entry added successfully'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to add weight entry'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       }
     }
   }

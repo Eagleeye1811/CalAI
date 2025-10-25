@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from app.models.nutrition_output_payload import NutritionResponseModel
 from app.services.image_service import ImageService
 from app.services.prompt_service import PromptService
+from app.services.barcode_service import BarcodeService
 from app.models.nutrition_input_payload import NutritionInputPayload
 from app.models.service_response import (
     NutritionServiceResponse,
@@ -68,18 +69,148 @@ class NutritionService:
         return cls._client
 
     @staticmethod
+    def _handle_barcode_scan(
+        query: NutritionInputPayload,
+        start_time: float
+    ) -> NutritionServiceResponse:
+        """
+        Handle barcode scanning by using Gemini to extract barcode 
+        and looking it up in product database.
+        
+        Args:
+            query: NutritionInputPayload containing image URL and scan mode
+            start_time: Start time of the request
+            
+        Returns:
+            NutritionServiceResponse with product nutrition data
+        """
+        try:
+            client = NutritionService._get_client()
+            
+            # Download image
+            image_path = query.imageUrl
+            if '/uploads/' in image_path:
+                filename = image_path.split('/uploads/')[-1]
+                local_file_path = os.path.join('uploads', filename)
+                
+                if not os.path.exists(local_file_path):
+                    raise ImageProcessingException(
+                        message=f"Image file not found: {filename}",
+                        error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+                    )
+                
+                with open(local_file_path, 'rb') as f:
+                    image_bytes = f.read()
+            else:
+                response = requests.get(image_path, timeout=10)
+                response.raise_for_status()
+                image_bytes = response.content
+            
+            image = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+            
+            # Use Gemini to extract barcode number
+            ocr_prompt = "Extract the barcode number from this image. Look for any numeric barcode (UPC, EAN, etc.). Return ONLY the numeric barcode value, nothing else. If you cannot find a barcode, respond with 'NO_BARCODE'."
+            
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=[ocr_prompt, image],
+            )
+            
+            barcode_text = response.text.strip()
+            
+            if barcode_text == "NO_BARCODE":
+                raise ValidationException(
+                    message="Could not detect barcode in image. Please ensure the barcode is clearly visible and try again.",
+                    error_code=ErrorCode.MISSING_REQUIRED_FIELD,
+                    field="barcode",
+                    suggestion="Make sure the barcode is in focus and well-lit.",
+                )
+            
+            barcode = BarcodeService.extract_barcode_from_text(barcode_text)
+            
+            if not barcode:
+                raise ValidationException(
+                    message=f"Could not parse barcode from detected text: {barcode_text}. Please try again.",
+                    error_code=ErrorCode.MISSING_REQUIRED_FIELD,
+                    field="barcode",
+                    suggestion="Ensure the barcode is clearly visible in the image.",
+                )
+            
+            print(f"🔍 Detected barcode: {barcode}")
+            
+            # Look up product in database
+            product_data = BarcodeService.lookup_product_by_barcode(barcode)
+            
+            if not product_data:
+                raise ValidationException(
+                    message=f"Product with barcode {barcode} not found in the Open Food Facts database.",
+                    error_code=ErrorCode.MISSING_REQUIRED_FIELD,
+                    field="barcode",
+                    suggestion="Try scanning a different product or use regular food scanning.",
+                )
+            
+            print(f"✅ Product found: {product_data.get('product_name')}")
+            
+            # Convert Open Food Facts data to NutritionResponseModel format
+            from app.models.nutrition_output_payload import NutritionInfo, Portion
+            
+            nutriments = product_data.get("nutriments", {})
+            
+            # Create nutrition info from product data
+            nutrition_info = NutritionInfo(
+                name=product_data.get("product_name", "Unknown Product"),
+                calories=int(nutriments.get("energy-kcal_100g", 0)),
+                protein=int(nutriments.get("proteins_100g", 0)),
+                carbs=int(nutriments.get("carbohydrates_100g", 0)),
+                fat=int(nutriments.get("fat_100g", 0)),
+                fiber=int(nutriments.get("fiber_100g", 0)),
+                healthScore=75,  # Default for packaged products
+                healthComments=f"Packaged product: {product_data.get('brands', 'Unknown brand')}"
+            )
+            
+            # Create nutrition response matching your schema
+            nutrition_data = NutritionResponseModel(
+                foodName=product_data.get("product_name", "Unknown Product"),
+                portion=Portion.GRAM,
+                portionSize=100.0,  # Open Food Facts provides per 100g/100ml
+                confidenceScore=10,  # High confidence for barcode lookup
+                ingredients=[nutrition_info],
+                primaryConcerns=[],
+                suggestAlternatives=[],
+                overallHealthScore=75,
+                overallHealthComments=f"Scanned product from barcode database. Brand: {product_data.get('brands', 'Unknown')}. Nutritional values are per 100g/100ml.",
+            )
+            
+            execution_time = time.time() - start_time
+            metadata = ServiceMetadata(
+                execution_time_seconds=round(execution_time, 4)
+            )
+            
+            return NutritionServiceResponse(
+                response=nutrition_data,
+                status=200,
+                message=f"SUCCESS - Product found: {product_data.get('product_name')}",
+                metadata=metadata,
+            )
+            
+        except (ValidationException, ImageProcessingException) as e:
+            raise e
+        except Exception as e:
+            raise NutritionAnalysisException(
+                message=f"Error processing barcode scan: {str(e)}",
+                error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+            ) from e
+
+    @staticmethod
     def get_nutrition_data(
         query: NutritionInputPayload,
     ) -> NutritionServiceResponse:
         """
-        Analyze food image and extract nutritional information using Gemini AI with comprehensive error handling.
+        Analyze food image and extract nutritional information using Gemini AI 
+        or barcode lookup with comprehensive error handling.
 
         Args:
-            base64_img: Base64 encoded image data
-            user_message: Optional user message about the food
-            selectedGoal: List of user's health goals
-            selectedDiet: List of user's dietary preferences
-            selectedAllergy: List of user's allergies
+            query: NutritionInputPayload containing image data and user preferences
 
         Returns:
             Union[NutritionServiceResponse, ErrorResponse]: Structured response with nutrition data and metadata
@@ -87,7 +218,11 @@ class NutritionService:
         start_time = time.time()
 
         try:
+            # Handle barcode scanning mode
+            if query.scanMode == "barcode":
+                return NutritionService._handle_barcode_scan(query, start_time)
 
+            # Regular food image analysis
             try:
                 prompt = PromptService.get_nutrition_analysis_prompt_for_image(
                     user_message=query.food_description,

@@ -22,6 +22,9 @@ import 'package:CalAI/app/repo/nutrition_record_repo.dart';
 import 'package:CalAI/app/utility/registry_service.dart';
 import 'package:CalAI/app/components/custom_date_selector.dart';
 import 'package:CalAI/app/components/streak_dialog.dart';
+import 'package:CalAI/app/components/animated_number.dart';
+import 'package:CalAI/app/components/shimmer_loading.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -326,9 +329,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: context.textColor,
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            ...List.generate(
+              3,
+              (index) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: ShimmerLoading(
+                  width: double.infinity,
+                  height: 140,
+                  borderRadius: 16,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -601,13 +617,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Column(
           children: [
             if (_showLeftView) ...[
-              Text(
-                '$left${label == "Sodium" ? "mg" : "g"}',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: context.textColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  AnimatedNumber(
+                    value: left,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: context.textColor,
+                    ),
+                  ),
+                  Text(
+                    label == "Sodium" ? "mg" : "g",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: context.textColor,
+                    ),
+                  ),
+                ],
               ),
               Text(
                 '$label left',
@@ -617,27 +648,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
               ),
             ] else ...[
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$consumed',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: exceeded ? Colors.red : context.textColor,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  AnimatedNumber(
+                    value: consumed,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: exceeded ? Colors.red : context.textColor,
                     ),
-                    TextSpan(
-                      text: ' /$maximum${label == "Sodium" ? "mg" : "g"}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: context.textColor.withOpacity(0.4),
-                      ),
+                  ),
+                  Text(
+                    ' /$maximum${label == "Sodium" ? "mg" : "g"}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: context.textColor.withOpacity(0.4),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               Text(
                 '$label eaten',
@@ -1165,9 +1197,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         GetBuilder<ScannerController>(
           builder: (controller) {
             if (controller.isLoading && controller.dailyRecords.isEmpty) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: context.textColor,
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 12),
+                    ...List.generate(
+                      2,
+                      (index) => Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: ShimmerLoading(
+                          width: double.infinity,
+                          height: 140,
+                          borderRadius: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -1188,137 +1233,170 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               );
             }
 
-            return ListView.builder(
-              itemCount: controller.dailyRecords.length,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-              itemBuilder: (context, index) {
-                NutritionRecord record = controller.dailyRecords[index];
-                
-                return Dismissible(
-                  key: Key('${record.recordTime?.toIso8601String()}_${record.hashCode}'),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.delete, color: Colors.white, size: 32),
-                        SizedBox(height: 4),
-                        Text(
-                          'Delete',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await showDialog<bool>(
-                      context: context,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          backgroundColor: context.cardColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          title: Text(
-                            'Delete Entry?',
-                            style: TextStyle(
-                              color: context.textColor,
-                              fontWeight: FontWeight.w700,
+            return AnimationLimiter(
+              child: ListView.builder(
+                itemCount: controller.dailyRecords.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+                itemBuilder: (context, index) {
+                  NutritionRecord record = controller.dailyRecords[index];
+                  
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(
+                        child: Dismissible(
+                          key: Key('${record.recordTime?.toIso8601String()}_${record.hashCode}'),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.delete, color: Colors.white, size: 32),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          content: Text(
-                            'Are you sure you want to delete this ${record.isExercise ? "exercise" : "food"} entry?',
-                            style: TextStyle(color: context.textColor),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(false),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(color: context.textColor),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(true),
-                              child: Text(
-                                'Delete',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w600,
+                          confirmDismiss: (direction) async {
+                            return await showDialog<bool>(
+                              context: context,
+                              builder: (BuildContext dialogContext) {
+                                return AlertDialog(
+                                  backgroundColor: context.cardColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  title: Text(
+                                    'Delete Entry?',
+                                    style: TextStyle(
+                                      color: context.textColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    'Are you sure you want to delete this ${record.isExercise ? "exercise" : "food"} entry?',
+                                    style: TextStyle(color: context.textColor),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(color: context.textColor),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          onDismissed: (direction) async {
+                            final deletedRecord = record;
+                            final deletedIndex = index;
+                            final authController = Get.find<AuthController>();
+                            
+                            // Remove from controller
+                            controller.removeRecord(record);
+                            
+                            // Delete from Firebase
+                            try {
+                              final nutritionRecordRepo = NutritionRecordRepo();
+                              await nutritionRecordRepo.deleteNutritionRecord(
+                                record.recordTime!,
+                                authController.userId!,
+                              );
+                            } catch (e) {
+                              print('Error deleting from Firebase: $e');
+                            }
+                            
+                            // Show snackbar with undo option
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text('${record.isExercise ? "Exercise" : "Food"} entry deleted'),
+                                  ],
+                                ),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                duration: Duration(seconds: 4),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  textColor: Colors.white,
+                                  onPressed: () async {
+                                    // Re-add to controller
+                                    if (!controller.dailyRecords.any((r) => r.recordTime == deletedRecord.recordTime)) {
+                                      controller.dailyRecords.insert(
+                                        deletedIndex < controller.dailyRecords.length ? deletedIndex : controller.dailyRecords.length,
+                                        deletedRecord,
+                                      );
+                                      controller.update();
+                                    }
+                                    
+                                    // Re-add to Firebase
+                                    try {
+                                      final nutritionRecordRepo = NutritionRecordRepo();
+                                      await nutritionRecordRepo.addNutritionRecord(
+                                        deletedRecord,
+                                        authController.userId!,
+                                      );
+                                    } catch (e) {
+                                      print('Error re-adding to Firebase: $e');
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Failed to restore entry'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  onDismissed: (direction) async {
-                    final deletedRecord = record;
-                    final deletedIndex = index;
-                    
-                    // Remove from controller
-                    controller.removeRecord(record);
-                    
-                    // TODO: Delete from Firebase
-                    // final nutritionRecordRepo = NutritionRecordRepo();
-                    // await nutritionRecordRepo.deleteNutritionRecord(record.recordTime!);
-                    
-                    // Show snackbar with undo option
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            Icon(Icons.check_circle, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text('${record.isExercise ? "Exercise" : "Food"} entry deleted'),
-                          ],
-                        ),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        duration: Duration(seconds: 4),
-                        action: SnackBarAction(
-                          label: 'Undo',
-                          textColor: Colors.white,
-                          onPressed: () {
-                            // Re-add the record using the controller's method
-                            // Since there's no addRecord method visible, we'll need to update the controller
-                            final key = controller.selectedDate;
-                            if (!controller.dailyRecords.any((r) => r.recordTime == deletedRecord.recordTime)) {
-                              controller.dailyRecords.insert(
-                                deletedIndex < controller.dailyRecords.length ? deletedIndex : controller.dailyRecords.length,
-                                deletedRecord,
-                              );
-                              controller.update();
-                            }
-                            // TODO: Re-add to Firebase if deleted
+                            );
                           },
+                          child: NutritionCard(
+                            nutritionRecord: record,
+                            userModel: userModel!,
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: NutritionCard(
-                    nutritionRecord: record,
-                    userModel: userModel!,
-                  ),
-                );
-              },
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

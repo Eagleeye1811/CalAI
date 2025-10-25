@@ -11,6 +11,9 @@ class NutritionInputPayload(BaseModel):
     imageUrl: Optional[str] = Field(
         None, description="URL of the image for nutrition analysis"
     )
+    scanMode: Optional[str] = Field(
+        None, description="Scan mode: food, barcode, or gallery"
+    )
     food_description: Optional[str] = Field(
         None, description="Description of the food item"
     )
@@ -28,6 +31,7 @@ class NutritionInputPayload(BaseModel):
         json_schema_extra = {
             "example": {
                 "imageUrl": "https://example.com/image.jpg",
+                "scanMode": "food",
                 "food_description": "Chicken Caesar Salad with croutons",
                 "dietaryPreferences": ["low-carb", "high-protein"],
                 "allergies": ["nuts", "shellfish"],

@@ -7,6 +7,7 @@ import 'exercise_options_sheet.dart';
 import 'scan_options_sheet.dart';
 import 'package:CalAI/app/modules/FoodDatabase/views/food_database_page.dart';
 import 'package:CalAI/app/modules/FoodDatabase/views/saved_foods_page.dart';
+import 'package:CalAI/app/modules/Scanner/views/enhanced_scan_view.dart';
 
 
 class ActionMenuBottomSheet extends StatelessWidget {
@@ -94,7 +95,8 @@ class ActionMenuBottomSheet extends StatelessWidget {
                 color: Colors.purple,
                 onTap: () {
                   Navigator.pop(context);
-                  _showScanOptions(context);
+                  // Navigate directly to camera screen
+                  Get.to(() => EnhancedScanView(scanType: ScanType.scanFood));
                 },
               ),
             ],

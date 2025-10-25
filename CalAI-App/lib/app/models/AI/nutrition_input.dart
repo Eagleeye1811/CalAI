@@ -47,6 +47,7 @@ class NutritionInputQuery {
 
   Map<String, dynamic> toJsonForMealAIBackend() => {
         "imageUrl": imageUrl,
+        "scanMode": scanMode?.name, // ✅ ADDED: Send scan mode to backend
         "food_description": food_description,
         "dietaryPreferences": dietaryPreferences,
         "allergies": allergies,

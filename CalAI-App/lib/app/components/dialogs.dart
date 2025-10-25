@@ -150,18 +150,28 @@ class AppDialogs {
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
       maxWidth: 300,
-      icon: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: context.cardColor.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.check,
-          color: context.cardColor,
-          size: 16,
-        ),
+      icon: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: Duration(milliseconds: 500),
+        curve: Curves.elasticOut,
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: value,
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: context.cardColor.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check,
+                color: context.cardColor,
+                size: 16,
+              ),
+            ),
+          );
+        },
       ),
       shouldIconPulse: false,
       snackPosition: SnackPosition.BOTTOM,

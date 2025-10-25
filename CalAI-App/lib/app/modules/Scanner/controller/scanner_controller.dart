@@ -131,6 +131,7 @@ class ScannerController extends GetxController {
           imageFilePath: image.path,
         ),
         processingStatus: ProcessingStatus.PROCESSING,
+        entrySource: EntrySource.SCANNER,
       );
 
       addRecord(nutritionRecord);
@@ -182,6 +183,7 @@ class ScannerController extends GetxController {
           ),
           processingStatus: ProcessingStatus.FAILED,
           nutritionOutput: rawNutritionData, // Include the error response
+          entrySource: EntrySource.SCANNER,
         ));
 
         AppDialogs.showErrorSnackbar(
@@ -305,6 +307,7 @@ class ScannerController extends GetxController {
             imageFilePath: image.path,
           ),
           processingStatus: ProcessingStatus.FAILED,
+          entrySource: EntrySource.SCANNER,
         ),
       );
 
@@ -313,6 +316,7 @@ class ScannerController extends GetxController {
         nutritionInputQuery: failedRecord.nutritionInputQuery,
         processingStatus: ProcessingStatus.FAILED,
         nutritionOutput: failedRecord.nutritionOutput,
+        entrySource: EntrySource.SCANNER,
       ));
 
       AppDialogs.showErrorSnackbar(
@@ -419,6 +423,7 @@ class ScannerController extends GetxController {
       recordTime: failedRecord.recordTime,
       nutritionInputQuery: failedRecord.nutritionInputQuery,
       processingStatus: ProcessingStatus.PROCESSING,
+      entrySource: EntrySource.SCANNER,
     ));
 
     final imageFile = File(failedRecord.nutritionInputQuery!.imageFilePath!);
@@ -442,6 +447,7 @@ class ScannerController extends GetxController {
           message: "Original image file not found",
           response: null,
         ),
+        entrySource: EntrySource.SCANNER,
       ));
 
       AppDialogs.showErrorSnackbar(

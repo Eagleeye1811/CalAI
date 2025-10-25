@@ -153,16 +153,22 @@ class NutritionCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                foodName ?? "Unknown Food",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: context.textColor,
-                  letterSpacing: -0.3,
+              child: Hero(
+                tag: 'food-name-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    foodName ?? "Unknown Food",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: context.textColor,
+                      letterSpacing: -0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             SizedBox(width: 8),
@@ -265,46 +271,48 @@ class NutritionCard extends StatelessWidget {
   }
 
   Widget _buildFoodImage(BuildContext context, double width, double height) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(16),
-        bottomLeft: Radius.circular(16),
-      ),
-      child: Container(
-        width: width,
-        height: height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (nutritionRecord.nutritionInputQuery?.imageFilePath != null)
-              Image.file(
-                File(nutritionRecord.nutritionInputQuery!.imageFilePath!),
-                fit: BoxFit.cover,
-              )
-            else if (nutritionRecord.nutritionInputQuery?.imageUrl != null &&
-                nutritionRecord.nutritionInputQuery!.imageUrl!.isNotEmpty)
-              CachedNetworkImage(
-                imageUrl:
-                    nutritionRecord.nutritionInputQuery!.imageUrl.toString(),
-                fit: BoxFit.cover,
-                placeholder: (context, url) => _buildImagePlaceholder(context),
-                errorWidget: (context, url, error) => _buildImageError(context),
-              )
-            else
-              _buildImagePlaceholder(context),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    context.textColor.withOpacity(0.2),
-                    Colors.transparent,
-                  ],
+    return Hero(
+      tag: 'food-image-${nutritionRecord.recordTime?.toIso8601String() ?? DateTime.now().toIso8601String()}',
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          bottomLeft: Radius.circular(16),
+        ),
+        child: Container(
+          width: width,
+          height: height,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (nutritionRecord.nutritionInputQuery?.imageFilePath != null)
+                Image.file(
+                  File(nutritionRecord.nutritionInputQuery!.imageFilePath!),
+                  fit: BoxFit.cover,
+                )
+              else if (nutritionRecord.nutritionInputQuery?.imageUrl != null &&
+                  nutritionRecord.nutritionInputQuery!.imageUrl!.isNotEmpty)
+                CachedNetworkImage(
+                  imageUrl: nutritionRecord.nutritionInputQuery!.imageUrl.toString(),
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => _buildImagePlaceholder(context),
+                  errorWidget: (context, url, error) => _buildImageError(context),
+                )
+              else
+                _buildImagePlaceholder(context),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      context.textColor.withOpacity(0.2),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -623,8 +631,6 @@ class NutritionCard extends StatelessWidget {
     }
   }
 
-  // ... existing code ...
-
   void _navigateToDetailPage() {
     if (nutritionRecord.entrySource == EntrySource.FOOD_DATABASE) {
       final ingredient = nutritionRecord.nutritionOutput?.response?.ingredients?.first;
@@ -649,11 +655,8 @@ class NutritionCard extends StatelessWidget {
     } else {
       Get.to(() => NutritionView(
         nutritionRecord: nutritionRecord,
-        userModel: userModel,  // Add the userModel parameter
-        // Remove: shouldRefreshOnPop: false,
+        userModel: userModel,
       ));
     }
-}
-
-  
+  }
 }

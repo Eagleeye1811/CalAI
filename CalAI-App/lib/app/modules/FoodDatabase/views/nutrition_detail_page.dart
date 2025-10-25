@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,11 @@ import 'package:CalAI/app/repo/nutrition_record_repo.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/repo/saved_foods_repo.dart';
 import 'package:CalAI/app/repo/custom_foods_repo.dart';
+import 'package:gal/gal.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NutritionDetailPage extends StatefulWidget {
   final Map<String, dynamic> food;
@@ -680,17 +687,29 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
             ),
             TextButton(
               onPressed: () {
+                final details = reportController.text.trim();
+                if (details.isEmpty) {
+                  AppDialogs.showErrorSnackbar(
+                    title: "Details Required",
+                    message: "Please provide details about the issue.",
+                  );
+                  return;
+                }
                 Navigator.pop(context);
-                AppDialogs.showSuccessSnackbar(
-                  title: "Report Submitted",
-                  message: "Thank you for helping us improve our database!",
-                );
+                _submitReport(selectedReason, details);
               },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: Text(
-                'Submit',
+                'Submit Report',
                 style: TextStyle(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -700,7 +719,51 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     );
   }
 
-  void _saveImage() {
+  Future<void> _submitReport(String reason, String details) async {
+    try {
+      // Get current user
+      final authController = Get.find<AuthController>();
+      if (!authController.isAuthenticated) {
+        AppDialogs.showErrorSnackbar(
+          title: "Authentication Required",
+          message: "Please sign in to report foods.",
+        );
+        return;
+      }
+      
+      final userId = authController.userId!;
+      final userEmail = authController.userModel?.email ?? 'unknown';
+      
+      // Submit to Firestore
+      await FirebaseFirestore.instance.collection('food_reports').add({
+        'foodName': widget.food['name'],
+        'foodId': widget.food['id'] ?? widget.food['name'],
+        'reason': reason,
+        'details': details,
+        'reportedBy': userId,
+        'reportedByEmail': userEmail,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'pending', // pending, reviewed, resolved
+      });
+      
+      if (mounted) {
+        AppDialogs.showSuccessSnackbar(
+          title: "Report Submitted",
+          message: "Thank you for your feedback. We'll review this shortly.",
+        );
+      }
+    } catch (e) {
+      print('Error submitting report: $e');
+      if (mounted) {
+        AppDialogs.showErrorSnackbar(
+          title: "Submission Failed",
+          message: "Could not submit report. Please try again.",
+        );
+      }
+    }
+  }
+
+  Future<void> _saveImage() async {
     if (widget.food['imageUrl'] == null || widget.food['imageUrl'] == '') {
       AppDialogs.showErrorSnackbar(
         title: "No Image",
@@ -709,10 +772,56 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
       return;
     }
     
-    AppDialogs.showSuccessSnackbar(
-      title: "Coming Soon",
-      message: "Image saving feature will be available in the next update!",
-    );
+    try {
+      // Request permission
+      if (Platform.isAndroid || Platform.isIOS) {
+        final status = await Permission.photos.request();
+        if (!status.isGranted) {
+          AppDialogs.showErrorSnackbar(
+            title: "Permission Denied",
+            message: "Please grant photo library access to save images.",
+          );
+          return;
+        }
+      }
+      
+      AppDialogs.showLoadingDialog(
+        title: "Saving Image",
+        message: "Downloading and saving to gallery...",
+      );
+      
+      // Download image
+      final imageUrl = widget.food['imageUrl'];
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'food_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final filePath = '${tempDir.path}/$fileName';
+      
+      await Dio().download(imageUrl, filePath);
+      
+      // Save to gallery
+      await Gal.putImage(filePath);
+      
+      // Clean up temp file
+      await File(filePath).delete();
+      
+      AppDialogs.hideDialog();
+      
+      if (mounted) {
+        AppDialogs.showSuccessSnackbar(
+          title: "Image Saved",
+          message: "Food image saved to your gallery!",
+        );
+      }
+    } catch (e) {
+      print('Error saving image: $e');
+      AppDialogs.hideDialog();
+      if (mounted) {
+        AppDialogs.showErrorSnackbar(
+          title: "Save Failed",
+          message: "Could not save image. Please try again.",
+        );
+      }
+    }
   }
 
   Future<void> _deleteFood() async {
@@ -850,24 +959,40 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          widget.food['name'],
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: context.textColor,
-                            height: 1.2,
+                        child: Hero(
+                          tag: 'food-name-${widget.existingRecord?.recordTime?.toIso8601String() ?? widget.food['name']}',
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              widget.food['name'],
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: context.textColor,
+                                height: 1.2,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                       GestureDetector(
-                        onTap: _toggleSave,
+                      onTap: _toggleSave,
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          );
+                        },
                         child: Icon(
                           _isSaved ? Icons.bookmark : Icons.bookmark_border,
+                          key: ValueKey(_isSaved),
                           color: context.textColor,
                           size: 32,
                         ),
                       ),
+                    ),
                     ],
                   ),
                   SizedBox(height: 32),

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,13 +13,19 @@ import 'package:CalAI/app/utility/registry_service.dart';
 import 'package:CalAI/firebase_options.dart';
 import 'package:CalAI/app/config/environment.dart';
 import 'package:CalAI/app/repo/agent_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Preserve splash screen during initialization
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize Remote Config
   var remoteConfigService = await RemoteConfigService.getInstance();
   await remoteConfigService!.initialise();
   configLoading();
@@ -31,6 +38,7 @@ void main() async {
 
   Environment.printConfig();
 
+  // Backend health check
   final isHealthy = await AgentService.healthCheck();
   print('Backend Health Check: ${isHealthy ? "✅ HEALTHY" : "❌ UNAVAILABLE"}');
   if (isHealthy) {
@@ -40,7 +48,26 @@ void main() async {
     }
   }
 
+  // Global error handling
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    print('Flutter Error: ${details.exception}');
+    print('Stack Trace: ${details.stack}');
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    print('Platform Error: $error');
+    print('Stack Trace: $stack');
+    return true;
+  };
+
   runApp(const MyApp());
+  
+  // Remove splash screen after a minimum duration (2 seconds)
+  // This ensures users see your beautiful splash screen
+  Future.delayed(const Duration(seconds: 2), () {
+    FlutterNativeSplash.remove();
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -79,6 +106,10 @@ class MyAppView extends StatelessWidget {
             darkTheme: themeController.darkTheme,
             themeMode: themeController.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             builder: EasyLoading.init(),
+            defaultTransition: Transition.cupertino,
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              physics: const BouncingScrollPhysics(),
+            ),
             
             // Use GetX Obx for reactive navigation
             home: Obx(() {

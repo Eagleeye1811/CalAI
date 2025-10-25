@@ -145,4 +145,59 @@ class FirebaseUserRepo implements UserRepository {
       rethrow;
     }
   }
+
+  // Add at the end of the FirebaseUserRepo class, before the closing brace
+
+  /// Get weight history for a user
+  Future<List<Map<String, dynamic>>> getWeightHistory(String userId) async {
+    try {
+      final snapshot = await usersCollection
+          .doc(userId)
+          .collection('weightHistory')
+          .orderBy('date', descending: true)
+          .get();
+      
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'date': (data['date'] as Timestamp).toDate(),
+          'weight': (data['weight'] as num).toDouble(),
+        };
+      }).toList();
+    } catch (e) {
+      log('Error fetching weight history: $e');
+      rethrow;
+    }
+  }
+
+  /// Add a weight entry
+  Future<void> addWeightEntry(String userId, double weight, DateTime date) async {
+    try {
+      await usersCollection
+          .doc(userId)
+          .collection('weightHistory')
+          .doc(date.millisecondsSinceEpoch.toString())
+          .set({
+        'weight': weight,
+        'date': Timestamp.fromDate(date),
+      });
+    } catch (e) {
+      log('Error adding weight entry: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete a weight entry
+  Future<void> deleteWeightEntry(String userId, DateTime date) async {
+    try {
+      await usersCollection
+          .doc(userId)
+          .collection('weightHistory')
+          .doc(date.millisecondsSinceEpoch.toString())
+          .delete();
+    } catch (e) {
+      log('Error deleting weight entry: $e');
+      rethrow;
+    }
+  }
 }

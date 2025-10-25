@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-// Helper widget to reduce repetition
+  // Helper widget to reduce repetition
   Widget _buildNavItem({
     required int index,
     required String label,
@@ -51,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
               isSelected ? selectedIcon : unselectedIcon,
               size: 26,
               color: isSelected
-                  ? MealAIColors.blackText
-                  : MealAIColors.grey,
+                  ? context.textColor
+                  : context.textColor.withOpacity(0.5),
             ),
             const SizedBox(height: 2),
             Text(
@@ -60,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 11,
                 color: isSelected
-                    ? MealAIColors.blackText
-                    : MealAIColors.grey,
+                    ? context.textColor
+                    : context.textColor.withOpacity(0.5),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -71,19 +71,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: context.isDarkMode  
+          ? Brightness.light 
+          : Brightness.dark,
     ));
 
     return Scaffold(
-      backgroundColor: MealAIColors.lightBackground,
+      backgroundColor: context.surfaceColor,
       extendBody: true,
       bottomNavigationBar: BottomAppBar(
         height: 65,
-        color: MealAIColors.switchWhiteColor,
+        color: context.cardColor,
         elevation: 20,
         padding: EdgeInsets.zero,
         child: Row(
@@ -108,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
               unselectedIcon: Icons.settings_outlined,
             ),
             // Scan button with plus icon
-            
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -124,11 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 56,
                   margin: EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: context.textColor.withOpacity(0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Icon(
                     Icons.add,
                     size: 32,
-                    color: Colors.white,
+                    color: context.cardColor,
                   ),
                 ),
               ),

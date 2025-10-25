@@ -74,8 +74,12 @@ class _OnboardingHomeState extends State<OnboardingHome> {
                 dotWidth: 10,
                 dotHeight: 10,
                 spacing: 16,
-                dotColor: MealAIColors.lightPrimaryVariant,
-                activeDotColor: MealAIColors.darkPrimary,
+                dotColor: isDarkMode 
+                    ? MealAIColors.darkSecondaryVariant
+                    : MealAIColors.lightPrimaryVariant,
+                activeDotColor: isDarkMode
+                    ? MealAIColors.darkPrimary
+                    : MealAIColors.lightPrimary,
               ),
             ),
             const SizedBox(height: 24),
@@ -131,6 +135,8 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -142,7 +148,9 @@ class OnboardingPage extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: MealAIColors.lightSecondary,
+                  color: isDarkMode
+                      ? MealAIColors.darkOnSurface
+                      : MealAIColors.lightOnSurface,
                 ),
             textAlign: TextAlign.center,
           ),
@@ -150,7 +158,9 @@ class OnboardingPage extends StatelessWidget {
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: MealAIColors.lightSecondaryVariant,
+                  color: isDarkMode
+                      ? MealAIColors.darkSecondaryVariant
+                      : MealAIColors.lightSecondaryVariant,
                 ),
             textAlign: TextAlign.center,
           ),

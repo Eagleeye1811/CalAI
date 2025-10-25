@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:CalAI/app/constants/colors.dart';
 
 class StreakDialog extends StatelessWidget {
   final int streakCount;
@@ -15,11 +16,11 @@ class StreakDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white, // ← ADD THIS
+      backgroundColor: context.cardColor,
       child: Container(
         padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
-          color: Colors.white, // ← ADD THIS
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -31,13 +32,18 @@ class StreakDialog extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.apple, size: 24),
+                    Icon(
+                      Icons.apple, 
+                      size: 24,
+                      color: context.textColor,
+                    ),
                     SizedBox(width: 2.w),
                     Text(
                       'Cal AI',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: context.textColor,
                       ),
                     ),
                   ],
@@ -101,7 +107,7 @@ class StreakDialog extends StatelessWidget {
                       entry.value,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: context.textColor.withOpacity(0.6),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -111,7 +117,7 @@ class StreakDialog extends StatelessWidget {
                       height: 8.w,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isActive ? Colors.orange : Colors.grey[300],
+                        color: isActive ? Colors.orange : context.borderColor,
                       ),
                     ),
                   ],
@@ -126,7 +132,7 @@ class StreakDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
             SizedBox(height: 3.h),
@@ -138,7 +144,7 @@ class StreakDialog extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: context.textColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -146,7 +152,7 @@ class StreakDialog extends StatelessWidget {
                 child: Text(
                   'Continue',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.cardColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

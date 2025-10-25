@@ -49,20 +49,31 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: context.cardColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Food Name', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('Food Name', style: TextStyle(fontWeight: FontWeight.bold, color: context.textColor)),
           content: TextField(
             controller: controller,
             autofocus: true,
+            style: TextStyle(color: context.textColor),
             decoration: InputDecoration(
               hintText: 'Enter food name',
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.5)),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: context.borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: context.textColor),
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+              child: Text('Cancel', style: TextStyle(color: context.textColor.withOpacity(0.6))),
             ),
             ElevatedButton(
               onPressed: () {
@@ -74,10 +85,10 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: context.textColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: Text('Save', style: TextStyle(color: Colors.white)),
+              child: Text('Save', style: TextStyle(color: context.cardColor)),
             ),
           ],
         );
@@ -118,7 +129,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
     }
 
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.showErrorSnackbar(
           title: "Error",
@@ -170,6 +181,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
         nutritionOutput: nutritionOutput,
         recordTime: DateTime.now(),
         processingStatus: ProcessingStatus.COMPLETED,
+        entrySource: EntrySource.MANUAL_ENTRY,
       );
 
       scannerController.dailyRecords.insert(0, nutritionRecord);
@@ -229,18 +241,18 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24),
+          icon: Icon(Icons.arrow_back, color: context.textColor, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Nutrition',
           style: TextStyle(
-            color: Colors.black,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -248,7 +260,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black, size: 24),
+            icon: Icon(Icons.more_vert, color: context.textColor, size: 24),
             onPressed: () {},
           ),
         ],
@@ -272,7 +284,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                         },
                         child: Icon(
                           _isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: Colors.black,
+                          color: context.textColor,
                           size: 32,
                         ),
                       ),
@@ -281,7 +293,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                         DateFormat('hh:mm a').format(DateTime.now()),
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.black,
+                          color: context.textColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -301,7 +313,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: context.textColor,
                               height: 1.2,
                             ),
                           ),
@@ -310,7 +322,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!, width: 2),
+                          border: Border.all(color: context.borderColor, width: 2),
                           borderRadius: BorderRadius.circular(40),
                         ),
                         child: Row(
@@ -325,7 +337,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                               },
                               child: Container(
                                 padding: EdgeInsets.all(8),
-                                child: Icon(Icons.remove, size: 24, color: Colors.black),
+                                child: Icon(Icons.remove, size: 24, color: context.textColor),
                               ),
                             ),
                             SizedBox(width: 24),
@@ -334,7 +346,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: context.textColor,
                               ),
                             ),
                             SizedBox(width: 24),
@@ -346,7 +358,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                               },
                               child: Container(
                                 padding: EdgeInsets.all(8),
-                                child: Icon(Icons.add, size: 24, color: Colors.black),
+                                child: Icon(Icons.add, size: 24, color: context.textColor),
                               ),
                             ),
                           ],
@@ -394,7 +406,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                       GestureDetector(
@@ -403,7 +415,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                           '+ Add',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey[500],
+                            color: context.textColor.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -425,7 +437,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                               margin: EdgeInsets.only(bottom: 12),
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Color(0xFFF5F5F5),
+                                color: context.tileColor,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Row(
@@ -439,7 +451,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.black,
+                                            color: context.textColor,
                                           ),
                                         ),
                                         SizedBox(height: 4),
@@ -447,7 +459,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                                           '${ingredient['calories']} cal • ${ingredient['protein']}g P • ${ingredient['carbs']}g C • ${ingredient['fat']}g F',
                                           style: TextStyle(
                                             fontSize: 13,
-                                            color: Colors.grey[600],
+                                            color: context.textColor.withOpacity(0.6),
                                           ),
                                         ),
                                       ],
@@ -455,7 +467,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                                   ),
                                   GestureDetector(
                                     onTap: () => _removeIngredient(index),
-                                    child: Icon(Icons.close, color: Colors.grey[600], size: 20),
+                                    child: Icon(Icons.close, color: context.textColor.withOpacity(0.6), size: 20),
                                   ),
                                 ],
                               ),
@@ -472,10 +484,10 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: context.textColor.withOpacity(0.05),
                   blurRadius: 10,
                   offset: Offset(0, -3),
                 ),
@@ -488,7 +500,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                 child: ElevatedButton(
                   onPressed: _logFood,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
+                    backgroundColor: context.textColor.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -499,7 +511,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -519,12 +531,12 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
           width: double.infinity,
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Color(0xFFF5F5F5),
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
             children: [
-              Icon(Icons.local_fire_department, color: Colors.black, size: 40),
+              Icon(Icons.local_fire_department, color: context.textColor, size: 40),
               SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -534,7 +546,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       'Calories',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: context.textColor.withOpacity(0.6),
                       ),
                     ),
                     SizedBox(height: 4),
@@ -543,7 +555,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: context.textColor,
                       ),
                     ),
                   ],
@@ -588,7 +600,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
           width: double.infinity,
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Color(0xFFF5F5F5),
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -596,8 +608,9 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardColor,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Icon(Icons.favorite_border, color: Colors.red, size: 32),
               ),
@@ -610,7 +623,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       'Health score',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.black,
+                        color: context.textColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -618,7 +631,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                     Container(
                       height: 6,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: context.borderColor,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -631,7 +644,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -645,7 +658,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -656,7 +669,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[700],
+              color: context.textColor.withOpacity(0.7),
             ),
           ),
           SizedBox(height: 4),
@@ -665,7 +678,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: context.textColor,
             ),
           ),
         ],
@@ -677,7 +690,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -688,7 +701,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[700],
+              color: context.textColor.withOpacity(0.7),
             ),
           ),
           SizedBox(height: 4),
@@ -697,7 +710,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: context.textColor,
             ),
           ),
         ],
@@ -711,7 +724,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
       height: 8,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: _currentPage == index ? Colors.black : Colors.grey[300],
+        color: _currentPage == index ? context.textColor : context.borderColor,
       ),
     );
   }
@@ -728,7 +741,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -750,7 +763,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: context.borderColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -761,7 +774,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                 ),
                 SizedBox(height: 20),
@@ -820,7 +833,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: context.textColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -830,7 +843,7 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: context.cardColor,
                       ),
                     ),
                   ),
@@ -853,26 +866,26 @@ class _ManualFoodEntryPageState extends State<ManualFoodEntryPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: context.textColor,
           ),
         ),
         SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Color(0xFFF5F5F5),
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: TextField(
             controller: controller,
             keyboardType: isNumber ? TextInputType.number : TextInputType.text,
             inputFormatters: isNumber ? [FilteringTextInputFormatter.digitsOnly] : null,
+            style: TextStyle(fontSize: 15, color: context.textColor),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.4), fontSize: 14),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            style: TextStyle(fontSize: 15, color: Colors.black),
           ),
         ),
       ],

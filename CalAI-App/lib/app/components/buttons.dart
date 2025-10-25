@@ -14,8 +14,8 @@ class PrimaryButton extends StatelessWidget {
         onPressed();
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: MealAIColors.darkPrimary,
-        foregroundColor: MealAIColors.lightPrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -60,6 +60,8 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: width ?? double.infinity,
       height: height,
@@ -68,7 +70,7 @@ class SecondaryButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(borderRadius),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -78,9 +80,10 @@ class SecondaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? MealAIColors.black,
-          foregroundColor: foregroundColor ?? Colors.white,
-          disabledBackgroundColor: disabledBackgroundColor ?? MealAIColors.grey,
+          backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.onSurface,
+          foregroundColor: foregroundColor ?? Theme.of(context).colorScheme.surface,
+          disabledBackgroundColor: disabledBackgroundColor ?? 
+              (isDarkMode ? MealAIColors.darkSecondaryVariant : MealAIColors.lightSecondaryVariant),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
@@ -93,7 +96,7 @@ class SecondaryButton extends StatelessWidget {
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(
-                    color: foregroundColor ?? Colors.white,
+                    color: foregroundColor ?? Theme.of(context).colorScheme.surface,
                     strokeWidth: 2,
                   ),
                 )

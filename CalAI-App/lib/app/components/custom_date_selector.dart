@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
+import 'package:CalAI/app/constants/colors.dart';
 
 class CustomDateSelector extends StatelessWidget {
   final DateTime selectedDate;
   final Function(DateTime) onDateSelected;
-  final Map<String, bool> datesWithActivity; // New parameter for tracking activity
+  final Map<String, bool> datesWithActivity;
   
   const CustomDateSelector({
     Key? key,
     required this.selectedDate,
     required this.onDateSelected,
-    this.datesWithActivity = const {}, // Optional parameter with default empty map
+    this.datesWithActivity = const {},
   }) : super(key: key);
 
   @override
@@ -34,7 +35,6 @@ class CustomDateSelector extends StatelessWidget {
               date.month == selectedDate.month &&
               date.year == selectedDate.year;
           
-          // Check if this date has activity (food uploaded)
           final dateKey = DateFormat('yyyy-MM-dd').format(date);
           final hasActivity = datesWithActivity[dateKey] ?? false;
           
@@ -51,7 +51,7 @@ class CustomDateSelector extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.black : Colors.grey[600],
+                      color: isSelected ? context.textColor : context.textColor.withOpacity(0.6),
                     ),
                   ),
                   SizedBox(height: 0.8.h),
@@ -64,13 +64,13 @@ class CustomDateSelector extends StatelessWidget {
                       border: Border.all(
                         color: isSelected 
                             ? Colors.green 
-                            : (hasActivity ? Colors.green : Colors.grey[300]!),
+                            : (hasActivity ? Colors.green : context.borderColor),
                         width: isSelected ? 2 : (hasActivity ? 2 : 1.5),
                         style: (isSelected || hasActivity) ? BorderStyle.solid : BorderStyle.none,
                       ),
                     ),
                     child: CustomPaint(
-                      painter: (isSelected || hasActivity) ? null : DottedCirclePainter(),
+                      painter: (isSelected || hasActivity) ? null : DottedCirclePainter(context: context),
                       child: Center(
                         child: Text(
                           '${date.day}',
@@ -79,7 +79,7 @@ class CustomDateSelector extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: isSelected 
                                 ? Colors.white 
-                                : (hasActivity ? Colors.green : Colors.grey[400]),
+                                : (hasActivity ? Colors.green : context.textColor.withOpacity(0.4)),
                           ),
                         ),
                       ),
@@ -96,10 +96,14 @@ class CustomDateSelector extends StatelessWidget {
 }
 
 class DottedCirclePainter extends CustomPainter {
+  final BuildContext context;
+  
+  const DottedCirclePainter({required this.context});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey[300]!
+      ..color = context.borderColor
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 

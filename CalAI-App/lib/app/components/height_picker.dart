@@ -57,6 +57,8 @@ class _HeightPickerState extends State<HeightPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return LayoutBuilder(builder: (context, constraints) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -88,9 +90,9 @@ class _HeightPickerState extends State<HeightPicker> {
               ),
               SizedBox(width: 5.w),
               Switch(
-                  activeTrackColor: MealAIColors.switchBlackColor,
-                  inactiveTrackColor: MealAIColors.lightPrimary,
-                  activeColor: MealAIColors.switchWhiteColor,
+                  activeTrackColor: context.textColor,
+                  inactiveTrackColor: isDarkMode ? MealAIColors.darkPrimary : MealAIColors.lightPrimary,
+                  activeColor: context.cardColor,
                   value: _selectedUnit == HeightUnit.FEET,
                   onChanged: (value) {
                     setState(() {
@@ -125,7 +127,7 @@ class _HeightPickerState extends State<HeightPicker> {
               height: 40,
               width: 25.w,
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.2),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -169,7 +171,7 @@ class _HeightPickerState extends State<HeightPicker> {
           height: 40,
           width: 20.w,
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.2),
+            color: context.textColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),

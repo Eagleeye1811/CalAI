@@ -121,18 +121,18 @@ class _CreateMealPageState extends State<CreateMealPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Meal',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -185,25 +185,25 @@ class _CreateMealPageState extends State<CreateMealPage> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
         SizedBox(height: 1.h),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: context.borderColor),
           ),
           child: TextField(
             controller: _mealNameController,
             decoration: InputDecoration(
               hintText: 'e.g., Breakfast Bowl, Post-Workout Meal',
-              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.4), fontSize: 15),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            style: TextStyle(fontSize: 16, color: Colors.black87),
+            style: TextStyle(fontSize: 16, color: context.textColor),
           ),
         ),
       ],
@@ -323,7 +323,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             Bounceable(
@@ -366,20 +366,20 @@ class _CreateMealPageState extends State<CreateMealPage> {
     return Container(
       padding: EdgeInsets.all(6.w),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200, style: BorderStyle.solid),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
-          Icon(Icons.restaurant_menu, size: 48, color: Colors.grey.shade400),
+          Icon(Icons.restaurant_menu, size: 48, color: context.textColor.withOpacity(0.4)),
           SizedBox(height: 1.h),
           Text(
             'No items added yet',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: context.textColor.withOpacity(0.6),
             ),
           ),
           SizedBox(height: 0.5.h),
@@ -388,7 +388,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey.shade500,
+              color: context.textColor.withOpacity(0.5),
             ),
           ),
         ],
@@ -413,12 +413,12 @@ class _CreateMealPageState extends State<CreateMealPage> {
       margin: EdgeInsets.only(bottom: 2.h),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: context.textColor.withOpacity(0.03),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -435,7 +435,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: context.textColor,
                   ),
                 ),
                 SizedBox(height: 0.5.h),
@@ -443,7 +443,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
                   '${item['calories']} cal • P: ${item['protein']}g • C: ${item['carbs']}g • F: ${item['fat']}g',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: context.textColor.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -465,11 +465,11 @@ class _CreateMealPageState extends State<CreateMealPage> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: MealAIColors.blackText,
+          color: context.textColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: context.textColor.withOpacity(0.1),
               blurRadius: 8,
               offset: Offset(0, 4),
             ),
@@ -481,7 +481,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: context.cardColor,
             ),
           ),
         ),
@@ -495,7 +495,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
     return Container(
       height: 70.h,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
@@ -509,7 +509,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -521,7 +521,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 20),
@@ -531,19 +531,20 @@ class _CreateMealPageState extends State<CreateMealPage> {
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: context.borderColor),
               ),
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
                   hintText: 'Search foods...',
-                  hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 15),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                  hintStyle: TextStyle(color: context.textColor.withOpacity(0.5), fontSize: 15),
+                  prefixIcon: Icon(Icons.search, color: context.textColor.withOpacity(0.6)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
+                style: TextStyle(color: context.textColor),
               ),
             ),
           ),
@@ -586,9 +587,9 @@ class _CreateMealPageState extends State<CreateMealPage> {
         margin: EdgeInsets.only(bottom: 12),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
@@ -601,7 +602,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: context.textColor,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -609,7 +610,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
                     '$calories cal • P: ${protein}g • C: ${carbs}g • F: ${fat}g',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ],

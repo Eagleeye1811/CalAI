@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:CalAI/app/constants/colors.dart';
@@ -10,13 +11,16 @@ import 'package:CalAI/app/constants/enums.dart';
 import 'package:CalAI/app/repo/nutrition_record_repo.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/repo/saved_foods_repo.dart';
+import 'package:CalAI/app/repo/custom_foods_repo.dart';
 
 class NutritionDetailPage extends StatefulWidget {
   final Map<String, dynamic> food;
+  final NutritionRecord? existingRecord;
 
   const NutritionDetailPage({
     Key? key,
     required this.food,
+    this.existingRecord,
   }) : super(key: key);
 
   @override
@@ -28,16 +32,44 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
   int _servingAmount = 1;
   bool _isSaved = false;
   bool _isLogging = false;
+  
+  // For tracking edited macro values
+  Map<String, int> _editedValues = {};
+  bool _hasEdits = false;
+
+  // Store original values for comparison
+  late int _originalCalories;
+  late int _originalProtein;
+  late int _originalCarbs;
+  late int _originalFat;
+  late int _originalFiber;
+  late int _originalSugar;
+  late int _originalSodium;
 
   @override
   void initState() {
     super.initState();
     _checkIfSaved();
+    
+    // If editing existing record, set initial serving amount and store original values
+    if (widget.existingRecord != null) {
+      final record = widget.existingRecord!;
+      final ingredient = record.nutritionOutput?.response?.ingredients?.first;
+      if (ingredient != null) {
+        _originalCalories = ingredient.calories ?? 0;
+        _originalProtein = ingredient.protein ?? 0;
+        _originalCarbs = ingredient.carbs ?? 0;
+        _originalFat = ingredient.fat ?? 0;
+        _originalFiber = ingredient.fiber ?? 0;
+        _originalSugar = ingredient.sugar ?? 0;
+        _originalSodium = ingredient.sodium ?? 0;
+      }
+    }
   }
 
   Future<void> _checkIfSaved() async {
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) return;
 
       final userId = authController.userId!;
@@ -54,17 +86,169 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     }
   }
 
-  int get calculatedCalories => ((widget.food['calories'] as num) * _servingAmount).toInt();
-  int get calculatedProtein => ((widget.food['protein'] as num) * _servingAmount).toInt();
-  int get calculatedCarbs => ((widget.food['carbs'] as num) * _servingAmount).toInt();
-  int get calculatedFat => ((widget.food['fat'] as num) * _servingAmount).toInt();
-  int get calculatedFiber => ((widget.food['fiber'] as num) * _servingAmount).toInt();
-  int get calculatedSugar => ((widget.food['sugar'] as num) * _servingAmount).toInt();
-  int get calculatedSodium => ((widget.food['sodium'] as num) * _servingAmount).toInt();
+  int get calculatedCalories {
+    if (_hasEdits && _editedValues.containsKey('calories')) {
+      return _editedValues['calories']!;
+    }
+    return ((widget.food['calories'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedProtein {
+    if (_hasEdits && _editedValues.containsKey('protein')) {
+      return _editedValues['protein']!;
+    }
+    return ((widget.food['protein'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedCarbs {
+    if (_hasEdits && _editedValues.containsKey('carbs')) {
+      return _editedValues['carbs']!;
+    }
+    return ((widget.food['carbs'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedFat {
+    if (_hasEdits && _editedValues.containsKey('fat')) {
+      return _editedValues['fat']!;
+    }
+    return ((widget.food['fat'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedFiber {
+    if (_hasEdits && _editedValues.containsKey('fiber')) {
+      return _editedValues['fiber']!;
+    }
+    return ((widget.food['fiber'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedSugar {
+    if (_hasEdits && _editedValues.containsKey('sugar')) {
+      return _editedValues['sugar']!;
+    }
+    return ((widget.food['sugar'] as num) * _servingAmount).toInt();
+  }
+  
+  int get calculatedSodium {
+    if (_hasEdits && _editedValues.containsKey('sodium')) {
+      return _editedValues['sodium']!;
+    }
+    return ((widget.food['sodium'] as num) * _servingAmount).toInt();
+  }
+
+  Future<void> _showEditMacroDialog(String macroName, int currentValue, {bool isMg = false}) async {
+    final TextEditingController controller = TextEditingController(
+      text: currentValue.toString(),
+    );
+
+    final result = await showDialog<int>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: context.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Edit $macroName',
+            style: TextStyle(
+              color: context.textColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            style: TextStyle(color: context.textColor),
+            decoration: InputDecoration(
+              labelText: '$macroName (${isMg ? "mg" : "g"})',
+              labelStyle: TextStyle(color: context.textColor.withOpacity(0.7)),
+              hintText: 'Enter value',
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: context.borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              filled: true,
+              fillColor: context.tileColor,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: context.textColor.withOpacity(0.7)),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = int.tryParse(controller.text);
+                if (value != null && value >= 0) {
+                  Navigator.pop(dialogContext, value);
+                } else {
+                  AppDialogs.showErrorSnackbar(
+                    title: "Invalid Input",
+                    message: "Please enter a valid number",
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Save',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+    });
+
+    if (result != null && mounted) {
+      setState(() {
+        _editedValues[macroName.toLowerCase()] = result;
+        _hasEdits = true;
+        
+        // Recalculate calories if macros changed
+        if (macroName != 'Calories' && macroName != 'Sodium' && macroName != 'Fiber' && macroName != 'Sugar') {
+          int protein = _editedValues['protein'] ?? calculatedProtein;
+          int carbs = _editedValues['carbs'] ?? calculatedCarbs;
+          int fat = _editedValues['fat'] ?? calculatedFat;
+          _editedValues['calories'] = (protein * 4) + (carbs * 4) + (fat * 9);
+        }
+      });
+      
+      AppDialogs.showSuccessSnackbar(
+        title: "Updated",
+        message: "$macroName updated to $result${isMg ? 'mg' : 'g'}",
+      );
+    }
+  }
 
   Future<void> _toggleSave() async {
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.showErrorSnackbar(
           title: "Error",
@@ -113,12 +297,16 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     });
 
     try {
+      final isUpdating = widget.existingRecord != null;
+      
       AppDialogs.showLoadingDialog(
-        title: "Adding Food",
-        message: "Adding ${widget.food['name']} to your meals...",
+        title: isUpdating ? "Updating Food" : "Adding Food",
+        message: isUpdating 
+            ? "Updating ${widget.food['name']}..."
+            : "Adding ${widget.food['name']} to your meals...",
       );
 
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.hideDialog();
         AppDialogs.showErrorSnackbar(
@@ -130,90 +318,178 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
 
       final userId = authController.userId!;
       final scannerController = Get.find<ScannerController>();
-    
-      final ingredient = Ingredient(
-        name: widget.food['name'],
-        calories: calculatedCalories,
-        protein: calculatedProtein,
-        carbs: calculatedCarbs,
-        fat: calculatedFat,
-        fiber: calculatedFiber,
-        sugar: calculatedSugar,
-        sodium: calculatedSodium,
-        healthScore: 7,
-        healthComments: 'Added from food database',
-      );
 
-      final nutritionResponse = NutritionResponse(
-        foodName: widget.food['name'],
-        portion: '${widget.food['serving']} x$_servingAmount',
-        portionSize: _servingAmount.toDouble(),
-        confidenceScore: 100,
-        ingredients: [ingredient],
-        overallHealthScore: 7,
-        overallHealthComments: 'Logged from food database',
-      );
+      if (isUpdating) {
+        // Update existing record
+        final existingRecord = widget.existingRecord!;
+        final oldIngredient = existingRecord.nutritionOutput?.response?.ingredients?.first;
+        
+        // Remove old values from consumed totals
+        if (oldIngredient != null) {
+          scannerController.consumedCalories.value -= oldIngredient.calories ?? 0;
+          scannerController.consumedProtein.value -= oldIngredient.protein ?? 0;
+          scannerController.consumedCarb.value -= oldIngredient.carbs ?? 0;
+          scannerController.consumedFat.value -= oldIngredient.fat ?? 0;
+          scannerController.consumedFiber.value -= oldIngredient.fiber ?? 0;
+          scannerController.consumedSugar.value -= oldIngredient.sugar ?? 0;
+          scannerController.consumedSodium.value -= oldIngredient.sodium ?? 0;
 
-      final nutritionOutput = NutritionOutput(
-        response: nutritionResponse,
-        status: 1,
-        message: 'Food added from database',
-      );
+          if (scannerController.existingNutritionRecords != null) {
+            scannerController.existingNutritionRecords!.dailyConsumedCalories -= oldIngredient.calories ?? 0;
+            scannerController.existingNutritionRecords!.dailyConsumedProtein -= oldIngredient.protein ?? 0;
+            scannerController.existingNutritionRecords!.dailyConsumedCarb -= oldIngredient.carbs ?? 0;
+            scannerController.existingNutritionRecords!.dailyConsumedFat -= oldIngredient.fat ?? 0;
+            scannerController.existingNutritionRecords!.dailyConsumedFiber = 
+                (scannerController.existingNutritionRecords!.dailyConsumedFiber ?? 0) - (oldIngredient.fiber ?? 0);
+            scannerController.existingNutritionRecords!.dailyConsumedSugar = 
+                (scannerController.existingNutritionRecords!.dailyConsumedSugar ?? 0) - (oldIngredient.sugar ?? 0);
+            scannerController.existingNutritionRecords!.dailyConsumedSodium = 
+                (scannerController.existingNutritionRecords!.dailyConsumedSodium ?? 0) - (oldIngredient.sodium ?? 0);
+          }
+        }
 
-      final nutritionRecord = NutritionRecord(
-        nutritionOutput: nutritionOutput,
-        recordTime: DateTime.now(),
-        processingStatus: ProcessingStatus.COMPLETED,
-      );
-
-      scannerController.dailyRecords.insert(0, nutritionRecord);
-      scannerController.consumedCalories.value += calculatedCalories;
-      scannerController.consumedProtein.value += calculatedProtein;
-      scannerController.consumedCarb.value += calculatedCarbs;
-      scannerController.consumedFat.value += calculatedFat;
-      scannerController.consumedFiber.value += calculatedFiber;
-      scannerController.consumedSugar.value += calculatedSugar;
-      scannerController.consumedSodium.value += calculatedSodium;
-
-      if (scannerController.existingNutritionRecords != null) {
-        scannerController.existingNutritionRecords!.dailyRecords.insert(0, nutritionRecord);
-        scannerController.existingNutritionRecords!.dailyConsumedCalories += calculatedCalories;
-        scannerController.existingNutritionRecords!.dailyConsumedProtein += calculatedProtein;
-        scannerController.existingNutritionRecords!.dailyConsumedCarb += calculatedCarbs;
-        scannerController.existingNutritionRecords!.dailyConsumedFat += calculatedFat;
-        scannerController.existingNutritionRecords!.dailyConsumedFiber = 
-            (scannerController.existingNutritionRecords!.dailyConsumedFiber ?? 0) + calculatedFiber;
-        scannerController.existingNutritionRecords!.dailyConsumedSugar = 
-            (scannerController.existingNutritionRecords!.dailyConsumedSugar ?? 0) + calculatedSugar;
-        scannerController.existingNutritionRecords!.dailyConsumedSodium = 
-            (scannerController.existingNutritionRecords!.dailyConsumedSodium ?? 0) + calculatedSodium;
-
-        final repo = NutritionRecordRepo();
-        final result = await repo.saveNutritionData(
-          scannerController.existingNutritionRecords!,
-          userId,
+        // Update ingredient with new values
+        final updatedIngredient = Ingredient(
+          name: widget.food['name'],
+          calories: calculatedCalories,
+          protein: calculatedProtein,
+          carbs: calculatedCarbs,
+          fat: calculatedFat,
+          fiber: calculatedFiber,
+          sugar: calculatedSugar,
+          sodium: calculatedSodium,
+          healthScore: oldIngredient?.healthScore ?? 7,
+          healthComments: oldIngredient?.healthComments ?? 'Added from food database',
         );
 
-        if (result != QueryStatus.SUCCESS) {
-          throw Exception("Failed to save to database");
+        // Update the nutrition response
+        existingRecord.nutritionOutput?.response?.ingredients = [updatedIngredient];
+        existingRecord.nutritionOutput?.response?.portion = '${widget.food['serving']} x$_servingAmount';
+        existingRecord.nutritionOutput?.response?.portionSize = _servingAmount.toDouble();
+
+        // Add new values to consumed totals
+        scannerController.consumedCalories.value += calculatedCalories;
+        scannerController.consumedProtein.value += calculatedProtein;
+        scannerController.consumedCarb.value += calculatedCarbs;
+        scannerController.consumedFat.value += calculatedFat;
+        scannerController.consumedFiber.value += calculatedFiber;
+        scannerController.consumedSugar.value += calculatedSugar;
+        scannerController.consumedSodium.value += calculatedSodium;
+
+        if (scannerController.existingNutritionRecords != null) {
+          scannerController.existingNutritionRecords!.dailyConsumedCalories += calculatedCalories;
+          scannerController.existingNutritionRecords!.dailyConsumedProtein += calculatedProtein;
+          scannerController.existingNutritionRecords!.dailyConsumedCarb += calculatedCarbs;
+          scannerController.existingNutritionRecords!.dailyConsumedFat += calculatedFat;
+          scannerController.existingNutritionRecords!.dailyConsumedFiber = 
+              (scannerController.existingNutritionRecords!.dailyConsumedFiber ?? 0) + calculatedFiber;
+          scannerController.existingNutritionRecords!.dailyConsumedSugar = 
+              (scannerController.existingNutritionRecords!.dailyConsumedSugar ?? 0) + calculatedSugar;
+          scannerController.existingNutritionRecords!.dailyConsumedSodium = 
+              (scannerController.existingNutritionRecords!.dailyConsumedSodium ?? 0) + calculatedSodium;
+
+          final repo = NutritionRecordRepo();
+          final result = await repo.saveNutritionData(
+            scannerController.existingNutritionRecords!,
+            userId,
+          );
+
+          if (result != QueryStatus.SUCCESS) {
+            throw Exception("Failed to update in database");
+          }
         }
+
+        scannerController.update();
+      } else {
+        // Create new record
+        final ingredient = Ingredient(
+          name: widget.food['name'],
+          calories: calculatedCalories,
+          protein: calculatedProtein,
+          carbs: calculatedCarbs,
+          fat: calculatedFat,
+          fiber: calculatedFiber,
+          sugar: calculatedSugar,
+          sodium: calculatedSodium,
+          healthScore: 7,
+          healthComments: 'Added from food database',
+        );
+
+        final nutritionResponse = NutritionResponse(
+          foodName: widget.food['name'],
+          portion: '${widget.food['serving']} x$_servingAmount',
+          portionSize: _servingAmount.toDouble(),
+          confidenceScore: 100,
+          ingredients: [ingredient],
+          overallHealthScore: 7,
+          overallHealthComments: 'Logged from food database',
+        );
+
+        final nutritionOutput = NutritionOutput(
+          response: nutritionResponse,
+          status: 1,
+          message: 'Food added from database',
+        );
+
+        final nutritionRecord = NutritionRecord(
+          nutritionOutput: nutritionOutput,
+          recordTime: DateTime.now(),
+          processingStatus: ProcessingStatus.COMPLETED,
+          entrySource: EntrySource.FOOD_DATABASE,
+        );
+
+        scannerController.dailyRecords.insert(0, nutritionRecord);
+        scannerController.consumedCalories.value += calculatedCalories;
+        scannerController.consumedProtein.value += calculatedProtein;
+        scannerController.consumedCarb.value += calculatedCarbs;
+        scannerController.consumedFat.value += calculatedFat;
+        scannerController.consumedFiber.value += calculatedFiber;
+        scannerController.consumedSugar.value += calculatedSugar;
+        scannerController.consumedSodium.value += calculatedSodium;
+
+        if (scannerController.existingNutritionRecords != null) {
+          scannerController.existingNutritionRecords!.dailyRecords.insert(0, nutritionRecord);
+          scannerController.existingNutritionRecords!.dailyConsumedCalories += calculatedCalories;
+          scannerController.existingNutritionRecords!.dailyConsumedProtein += calculatedProtein;
+          scannerController.existingNutritionRecords!.dailyConsumedCarb += calculatedCarbs;
+          scannerController.existingNutritionRecords!.dailyConsumedFat += calculatedFat;
+          scannerController.existingNutritionRecords!.dailyConsumedFiber = 
+              (scannerController.existingNutritionRecords!.dailyConsumedFiber ?? 0) + calculatedFiber;
+          scannerController.existingNutritionRecords!.dailyConsumedSugar = 
+              (scannerController.existingNutritionRecords!.dailyConsumedSugar ?? 0) + calculatedSugar;
+          scannerController.existingNutritionRecords!.dailyConsumedSodium = 
+              (scannerController.existingNutritionRecords!.dailyConsumedSodium ?? 0) + calculatedSodium;
+
+          final repo = NutritionRecordRepo();
+          final result = await repo.saveNutritionData(
+            scannerController.existingNutritionRecords!,
+            userId,
+          );
+
+          if (result != QueryStatus.SUCCESS) {
+            throw Exception("Failed to save to database");
+          }
+        }
+
+        scannerController.update();
       }
 
-      scannerController.update();
       await Future.delayed(Duration(milliseconds: 300));
       AppDialogs.hideDialog();
       AppDialogs.showSuccessSnackbar(
         title: "Success",
-        message: "${widget.food['name']} added to your meals!",
+        message: isUpdating 
+            ? "${widget.food['name']} updated successfully!"
+            : "${widget.food['name']} added to your meals!",
       );
       await Future.delayed(Duration(milliseconds: 500));
-      Get.back();
-      Get.back();
+
+      Get.until((route) => route.isFirst);
     } catch (e) {
       AppDialogs.hideDialog();
       AppDialogs.showErrorSnackbar(
         title: "Error",
-        message: "Failed to add food: $e",
+        message: "Failed to ${widget.existingRecord != null ? 'update' : 'add'} food: $e",
       );
     } finally {
       setState(() {
@@ -222,21 +498,333 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     }
   }
 
+  void _showOptionsMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: context.cardColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: context.borderColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            ListTile(
+              leading: Icon(Icons.report_outlined, color: Colors.orange),
+              title: Text(
+                'Report Food',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: context.textColor,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _reportFood();
+              },
+            ),
+            Divider(height: 1, color: context.borderColor),
+            
+            ListTile(
+              leading: Icon(Icons.image_outlined, color: Colors.blue),
+              title: Text(
+                'Save Image',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: context.textColor,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _saveImage();
+              },
+            ),
+            Divider(height: 1, color: context.borderColor),
+            
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: Colors.red),
+              title: Text(
+                'Delete Food',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteFood();
+              },
+            ),
+            
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _reportFood() {
+    final TextEditingController reportController = TextEditingController();
+    String selectedReason = 'Incorrect nutrition information';
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: context.cardColor,
+          title: Text(
+            'Report Food',
+            style: TextStyle(
+              color: context.textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'What\'s wrong with this food?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.7),
+                  ),
+                ),
+                SizedBox(height: 16),
+                
+                ...['Incorrect nutrition information', 'Duplicate entry', 'Inappropriate content', 'Other']
+                    .map((reason) => RadioListTile<String>(
+                          title: Text(
+                            reason,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.textColor,
+                            ),
+                          ),
+                          value: reason,
+                          groupValue: selectedReason,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedReason = value!;
+                            });
+                          },
+                        ))
+                    .toList(),
+                
+                SizedBox(height: 16),
+                Text(
+                  'Additional details (optional)',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.7),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: reportController,
+                  maxLines: 3,
+                  style: TextStyle(color: context.textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Provide more details...',
+                    hintStyle: TextStyle(color: context.textColor.withOpacity(0.4)),
+                    filled: true,
+                    fillColor: context.tileColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.borderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: context.textColor.withOpacity(0.7)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                AppDialogs.showSuccessSnackbar(
+                  title: "Report Submitted",
+                  message: "Thank you for helping us improve our database!",
+                );
+              },
+              child: Text(
+                'Submit',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveImage() {
+    if (widget.food['imageUrl'] == null || widget.food['imageUrl'] == '') {
+      AppDialogs.showErrorSnackbar(
+        title: "No Image",
+        message: "This food item doesn't have an image to save.",
+      );
+      return;
+    }
+    
+    AppDialogs.showSuccessSnackbar(
+      title: "Coming Soon",
+      message: "Image saving feature will be available in the next update!",
+    );
+  }
+
+  Future<void> _deleteFood() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: context.cardColor,
+        title: Text(
+          'Delete Food?',
+          style: TextStyle(color: context.textColor),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${widget.food['name']}"? This action cannot be undone.',
+          style: TextStyle(color: context.textColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.textColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      AppDialogs.showLoadingDialog(
+        title: "Deleting",
+        message: "Removing food from database...",
+      );
+
+      final authController = Get.find<AuthController>();
+      if (!authController.isAuthenticated) {
+        AppDialogs.hideDialog();
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "User not authenticated",
+        );
+        return;
+      }
+
+      final userId = authController.userId!;
+      
+      bool isCustomFood = widget.food['isCustom'] == true || 
+                         widget.food['createdBy'] == userId;
+      
+      QueryStatus result;
+      
+      if (isCustomFood) {
+        result = await CustomFoodsRepo().deleteCustomFood(
+          userId, 
+          widget.food['name']
+        );
+      } else {
+        result = await SavedFoodsRepo().removeFoodFromFavorites(
+          userId,
+          widget.food['name']
+        );
+      }
+
+      AppDialogs.hideDialog();
+
+      if (result == QueryStatus.SUCCESS) {
+        AppDialogs.showSuccessSnackbar(
+          title: "Deleted",
+          message: "${widget.food['name']} has been deleted.",
+        );
+        Get.back(result: true);
+      } else {
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "Failed to delete food. Please try again.",
+        );
+      }
+    } catch (e) {
+      AppDialogs.hideDialog();
+      AppDialogs.showErrorSnackbar(
+        title: "Error",
+        message: "Failed to delete food: $e",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24),
+          icon: Icon(Icons.arrow_back, color: context.textColor, size: 24),
           onPressed: () => Navigator.pop(context, _isSaved),
         ),
         title: Text(
           'Nutrition',
           style: TextStyle(
-            color: Colors.black,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -244,10 +832,8 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black, size: 24),
-            onPressed: () {
-              // Menu action
-            },
+            icon: Icon(Icons.more_vert, color: context.textColor, size: 24),
+            onPressed: _showOptionsMenu,
           ),
         ],
       ),
@@ -269,7 +855,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: context.textColor,
                             height: 1.2,
                           ),
                         ),
@@ -278,7 +864,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                         onTap: _toggleSave,
                         child: Icon(
                           _isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: Colors.black,
+                          color: context.textColor,
                           size: 32,
                         ),
                       ),
@@ -292,7 +878,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: context.textColor,
                     ),
                   ),
                   SizedBox(height: 12),
@@ -316,13 +902,13 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!, width: 2),
+                          border: Border.all(color: context.borderColor, width: 2),
                           borderRadius: BorderRadius.circular(40),
                         ),
                         child: Row(
@@ -332,12 +918,15 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                                 if (_servingAmount > 1) {
                                   setState(() {
                                     _servingAmount--;
+                                    // Reset edits when serving changes
+                                    _hasEdits = false;
+                                    _editedValues.clear();
                                   });
                                 }
                               },
                               child: Container(
                                 padding: EdgeInsets.all(8),
-                                child: Icon(Icons.remove, size: 24, color: Colors.black),
+                                child: Icon(Icons.remove, size: 24, color: context.textColor),
                               ),
                             ),
                             SizedBox(width: 24),
@@ -346,7 +935,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: context.textColor,
                               ),
                             ),
                             SizedBox(width: 24),
@@ -354,11 +943,14 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                               onTap: () {
                                 setState(() {
                                   _servingAmount++;
+                                  // Reset edits when serving changes
+                                  _hasEdits = false;
+                                  _editedValues.clear();
                                 });
                               },
                               child: Container(
                                 padding: EdgeInsets.all(8),
-                                child: Icon(Icons.add, size: 24, color: Colors.black),
+                                child: Icon(Icons.add, size: 24, color: context.textColor),
                               ),
                             ),
                           ],
@@ -369,45 +961,79 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   SizedBox(height: 24),
 
                   // Calories Box
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.local_fire_department, color: Colors.black, size: 32),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Calories',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '$calculatedCalories',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      _showEditMacroDialog('Calories', calculatedCalories);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: context.tileColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: context.borderColor.withOpacity(0.1),
+                          width: 1,
                         ),
-                        Icon(Icons.edit_outlined, color: Colors.grey[600], size: 20),
-                      ],
+                        boxShadow: [
+                          BoxShadow(
+                            color: context.textColor.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFF6B35).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.local_fire_department,
+                              color: Color(0xFFFF6B35),
+                              size: 28,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Calories',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: context.textColor.withOpacity(0.6),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '$calculatedCalories',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.textColor,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: context.textColor.withOpacity(0.3),
+                            size: 16,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 20),
 
                   // Macros Row
                   Row(
@@ -422,18 +1048,16 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   SizedBox(height: 32),
 
                   // Other nutrition facts
-                                    // Other nutrition facts
                   Text(
                     'Other nutrition facts',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: context.textColor,
                     ),
                   ),
                   SizedBox(height: 16),
                   
-                  // Fats section
                   _buildNutritionFactRow('Saturated Fat', '1g'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Polyunsaturated Fat', '2g'),
@@ -443,13 +1067,11 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   _buildNutritionFactRow('Trans Fat', '0g'),
                   SizedBox(height: 12),
                   
-                  // Cholesterol & Sodium
                   _buildNutritionFactRow('Cholesterol', '${calculatedSodium > 0 ? "5mg" : "0mg"}'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Sodium', '${calculatedSodium}mg'),
                   SizedBox(height: 12),
                   
-                  // Carbohydrates section
                   _buildNutritionFactRow('Total Carbohydrate', '${calculatedCarbs}g'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Dietary Fiber', '${calculatedFiber}g'),
@@ -459,11 +1081,9 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   _buildNutritionFactRow('Added Sugars', '${(calculatedSugar * 0.5).toInt()}g'),
                   SizedBox(height: 12),
                   
-                  // Protein
                   _buildNutritionFactRow('Protein', '${calculatedProtein}g'),
                   SizedBox(height: 12),
                   
-                  // Minerals
                   _buildNutritionFactRow('Potassium', '${(calculatedSodium * 0.8).toInt()}mg'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Calcium', '${(calculatedProtein * 15).toInt()}mg'),
@@ -475,7 +1095,6 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   _buildNutritionFactRow('Zinc', '${(calculatedProtein * 0.15).toStringAsFixed(1)}mg'),
                   SizedBox(height: 12),
                   
-                  // Vitamins
                   _buildNutritionFactRow('Vitamin A', '${(calculatedCalories * 2).toInt()}IU'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Vitamin C', '${(calculatedCarbs * 0.5).toStringAsFixed(1)}mg'),
@@ -499,7 +1118,6 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                   _buildNutritionFactRow('Vitamin B12', '${(calculatedProtein * 0.1).toStringAsFixed(2)}mcg'),
                   SizedBox(height: 12),
                   
-                  // Other minerals
                   _buildNutritionFactRow('Phosphorus', '${(calculatedProtein * 12).toInt()}mg'),
                   SizedBox(height: 12),
                   _buildNutritionFactRow('Selenium', '${(calculatedProtein * 0.5).toStringAsFixed(1)}mcg'),
@@ -518,10 +1136,10 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: context.textColor.withOpacity(0.05),
                   blurRadius: 10,
                   offset: Offset(0, -3),
                 ),
@@ -534,7 +1152,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                 child: ElevatedButton(
                   onPressed: _isLogging ? null : _saveToLog,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: context.textColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -545,16 +1163,16 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
                           height: 24,
                           width: 24,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: context.cardColor,
                             strokeWidth: 2,
                           ),
                         )
                       : Text(
-                          'Save',
+                          widget.existingRecord != null ? 'Update' : 'Save',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: context.cardColor,
                           ),
                         ),
                 ),
@@ -577,9 +1195,9 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
+          color: isSelected ? context.textColor : context.cardColor,
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[300]!,
+            color: isSelected ? context.textColor : context.borderColor,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(30),
@@ -589,7 +1207,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.black,
+            color: isSelected ? context.cardColor : context.textColor,
           ),
         ),
       ),
@@ -597,40 +1215,59 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
   }
 
   Widget _buildMacroBox(String label, int value, IconData icon, Color color) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _showEditMacroDialog(label, value);
+      },
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.tileColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: context.borderColor.withOpacity(0.1),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: context.textColor.withOpacity(0.03),
+              blurRadius: 4,
+              offset: Offset(0, 1),
             ),
-          ),
-          SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '${value}g',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              SizedBox(width: 4),
-              Icon(Icons.edit_outlined, color: Colors.grey[600], size: 14),
-            ],
-          ),
-        ],
+              child: Icon(icon, color: color, size: 24),
+            ),
+            SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: context.textColor.withOpacity(0.6),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              '${value}g',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: context.textColor,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -639,7 +1276,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -649,7 +1286,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
             label,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.black,
+              color: context.textColor,
             ),
           ),
           Text(
@@ -657,7 +1294,7 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.black,
+              color: context.textColor,
             ),
           ),
         ],

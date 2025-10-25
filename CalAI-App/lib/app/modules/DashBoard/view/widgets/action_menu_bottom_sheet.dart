@@ -5,7 +5,7 @@ import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
 import 'exercise_options_sheet.dart';
 import 'scan_options_sheet.dart';
-import 'package:CalAI/app/modules/FoodDatabase/views/food_database_page.dart'; // ADD THIS LINE
+import 'package:CalAI/app/modules/FoodDatabase/views/food_database_page.dart';
 import 'package:CalAI/app/modules/FoodDatabase/views/saved_foods_page.dart';
 
 
@@ -17,7 +17,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
@@ -31,7 +31,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -43,7 +43,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 20),
@@ -74,7 +74,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
                 color: Colors.blue,
                 onTap: () {
                   Navigator.pop(context);
-                  Get.to(() => const FoodDatabasePage(initialTabIndex: 3));  // ⬅️ FIX: Should go to tab 3
+                  Get.to(() => const FoodDatabasePage(initialTabIndex: 3));
                 },
               ),
               _buildActionBox(
@@ -84,7 +84,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
                 color: Colors.green,
                 onTap: () {
                   Navigator.pop(context);
-                  Get.to(() => const FoodDatabasePage());  // ⬅️ FIX: Should go to tab 0 (default)
+                  Get.to(() => const FoodDatabasePage());
                 },
               ),
               _buildActionBox(
@@ -109,22 +109,22 @@ class ActionMenuBottomSheet extends StatelessWidget {
     required BuildContext context,
     required IconData icon,
     required String title,
-    required Color color, // Keep for potential future use, but won't be used
+    required Color color,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white, // White background
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.black, // Black border
+            color: context.textColor,
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: context.textColor.withOpacity(0.03),
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -136,7 +136,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
             Icon(
               icon,
               size: 36,
-              color: Colors.black, // Black icon
+              color: context.textColor,
             ),
             SizedBox(height: 8),
             Text(
@@ -145,7 +145,7 @@ class ActionMenuBottomSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.black, // Black text
+                color: context.textColor,
               ),
             ),
           ],

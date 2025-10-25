@@ -63,18 +63,18 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Weight Lifting',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -92,7 +92,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 16),
@@ -128,7 +128,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 16),
@@ -160,15 +160,15 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: _duration > 0 ? Colors.black : Colors.grey[300]!,
+                  color: _duration > 0 ? context.textColor : context.borderColor,
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: context.textColor.withOpacity(0.03),
                     blurRadius: 6,
                     offset: Offset(0, 2),
                   ),
@@ -178,7 +178,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                 children: [
                   Icon(
                     Icons.timer,
-                    color: _duration > 0 ? Colors.black : Colors.grey,
+                    color: _duration > 0 ? context.textColor : context.textColor.withOpacity(0.5),
                     size: 24,
                   ),
                   SizedBox(width: 12),
@@ -190,12 +190,12 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: MealAIColors.blackText,
+                        color: context.textColor,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter duration',
                         hintStyle: TextStyle(
-                          color: Colors.grey[400],
+                          color: context.textColor.withOpacity(0.4),
                           fontWeight: FontWeight.normal,
                         ),
                         border: InputBorder.none,
@@ -212,7 +212,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                     'mins',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey[600],
+                      color: context.textColor.withOpacity(0.6),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -241,8 +241,8 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _canContinue
-                      ? MealAIColors.blackText
-                      : Colors.grey[300],
+                      ? context.textColor
+                      : context.textColor.withOpacity(0.3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -253,7 +253,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: _canContinue ? Colors.white : Colors.grey[500],
+                    color: _canContinue ? context.cardColor : context.textColor.withOpacity(0.5),
                   ),
                 ),
               ),
@@ -282,15 +282,15 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[300]!,
+            color: isSelected ? context.textColor : context.borderColor,
             width: isSelected ? 2 : 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.06 : 0.02),
+              color: context.textColor.withOpacity(isSelected ? 0.06 : 0.02),
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -301,16 +301,16 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
             Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.black : Colors.white,
+                color: isSelected ? context.textColor : context.cardColor,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isSelected ? Colors.black : Colors.grey[300]!,
+                  color: isSelected ? context.textColor : context.borderColor,
                   width: 1.5,
                 ),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected ? context.cardColor : context.textColor,
                 size: 24,
               ),
             ),
@@ -324,7 +324,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: context.textColor,
                     ),
                   ),
                   SizedBox(height: 2),
@@ -332,7 +332,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -340,7 +340,7 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
             ),
             Icon(
               isSelected ? Icons.check_circle : Icons.circle_outlined,
-              color: isSelected ? Colors.black : Colors.grey[400],
+              color: isSelected ? context.textColor : context.textColor.withOpacity(0.4),
               size: 28,
             ),
           ],
@@ -362,15 +362,15 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
+          color: isSelected ? context.textColor : context.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[300]!,
+            color: isSelected ? context.textColor : context.borderColor,
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: context.textColor.withOpacity(0.03),
               blurRadius: 6,
               offset: Offset(0, 2),
             ),
@@ -383,14 +383,14 @@ class _WeightLiftingExercisePageState extends State<WeightLiftingExercisePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected ? context.cardColor : context.textColor,
               ),
             ),
             Text(
               'mins',
               style: TextStyle(
                 fontSize: 11,
-                color: isSelected ? Colors.white : Colors.grey[600],
+                color: isSelected ? context.cardColor : context.textColor.withOpacity(0.6),
               ),
             ),
           ],

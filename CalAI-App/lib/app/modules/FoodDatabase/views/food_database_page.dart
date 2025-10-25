@@ -210,7 +210,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
     });
 
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         setState(() {
           _loadingSavedFoods = false;
@@ -240,7 +240,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
     });
 
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         setState(() {
           _loadingMeals = false;
@@ -270,7 +270,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
     });
 
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         setState(() {
           _loadingCustomFoods = false;
@@ -328,7 +328,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       );
 
       // Get user ID from AuthController
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.hideDialog();
         AppDialogs.showErrorSnackbar(
@@ -458,18 +458,18 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          icon: Icon(Icons.arrow_back, color: context.textColor, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Log food',
           style: TextStyle(
-            color: Colors.black,
+            color: context.textColor,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -482,7 +482,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
           // Tabs
           _buildTabs(),
           
-                    // Search box (show for "All" and "Saved scans" tabs)
+          // Search box (show for "All" and "Saved scans" tabs)
           if (_selectedTabIndex == 0 || _selectedTabIndex == 3) ...[
             SizedBox(height: 16),
             _buildSearchBox(),
@@ -539,7 +539,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isSelected ? Colors.black : Colors.transparent,
+                    color: isSelected ? context.textColor : Colors.transparent,
                     width: 3,
                   ),
                 ),
@@ -547,7 +547,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               child: Text(
                 _tabs[index],
                 style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.grey[500],
+                  color: isSelected ? context.textColor : context.textColor.withOpacity(0.5),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 15,
                 ),
@@ -564,9 +564,9 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       margin: EdgeInsets.symmetric(horizontal: 20),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 2),
+        border: Border.all(color: context.textColor, width: 2),
       ),
       child: TextField(
         controller: _searchController,
@@ -574,14 +574,14 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
         decoration: InputDecoration(
           hintText: 'Describe what you ate',
           hintStyle: TextStyle(
-            color: Colors.grey[500],
+            color: context.textColor.withOpacity(0.5),
             fontSize: 15,
           ),
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.zero,
         ),
-        style: const TextStyle(fontSize: 15),
+        style: TextStyle(fontSize: 15, color: context.textColor),
       ),
     );
   }
@@ -598,7 +598,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
         if (_loadingSavedFoods) {
           return Center(
             child: CircularProgressIndicator(
-              color: Colors.black,
+              color: context.textColor,
             ),
           );
         }
@@ -609,7 +609,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
         }
         return RefreshIndicator(
           onRefresh: _loadSavedFoods,
-          color: Colors.black,
+          color: context.textColor,
           child: _buildFoodList(_filterSavedFoods()),
         );
       default:
@@ -627,7 +627,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
             Icon(
               _selectedTabIndex == 3 ? Icons.bookmark_outline : Icons.info_outline,
               size: 80,
-              color: Colors.grey.shade300,
+              color: context.textColor.withOpacity(0.3),
             ),
             SizedBox(height: 16),
             Text(
@@ -635,7 +635,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade600,
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
           ],
@@ -648,7 +648,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
     if (_loadingMeals) {
       return Center(
         child: CircularProgressIndicator(
-          color: Colors.black,
+          color: context.textColor,
         ),
       );
     }
@@ -663,7 +663,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               Icon(
                 Icons.restaurant,
                 size: 80,
-                color: Colors.grey.shade300,
+                color: context.textColor.withOpacity(0.3),
               ),
               SizedBox(height: 16),
               Text(
@@ -671,7 +671,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               SizedBox(height: 8),
@@ -680,7 +680,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey.shade600,
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -691,7 +691,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
 
     return RefreshIndicator(
       onRefresh: _loadMeals,
-      color: Colors.black,
+      color: context.textColor,
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(20, 8, 20, 100),
         itemCount: _myMeals.length,
@@ -708,7 +708,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -723,36 +723,36 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                 ),
               ),
-              Icon(Icons.add_circle_outline, color: Colors.black, size: 28),
+              Icon(Icons.add_circle_outline, color: context.textColor, size: 28),
             ],
           ),
           SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.local_fire_department_outlined, size: 16, color: Colors.grey[700]),
+              Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
               SizedBox(width: 4),
               Text(
                 '${meal['totalCalories'] ?? 0} cal',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: context.textColor.withOpacity(0.7),
                 ),
               ),
               SizedBox(width: 4),
               Text(
                 '•',
-                style: TextStyle(color: Colors.grey[500]),
+                style: TextStyle(color: context.textColor.withOpacity(0.5)),
               ),
               SizedBox(width: 4),
               Text(
                 '${(meal['items'] as List?)?.length ?? 0} items',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -766,7 +766,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
     if (_loadingCustomFoods) {
       return Center(
         child: CircularProgressIndicator(
-          color: Colors.black,
+          color: context.textColor,
         ),
       );
     }
@@ -781,7 +781,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               Icon(
                 Icons.fastfood,
                 size: 80,
-                color: Colors.grey.shade300,
+                color: context.textColor.withOpacity(0.3),
               ),
               SizedBox(height: 16),
               Text(
@@ -789,7 +789,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               SizedBox(height: 8),
@@ -798,7 +798,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey.shade600,
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -809,7 +809,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
 
     return RefreshIndicator(
       onRefresh: _loadCustomFoods,
-      color: Colors.black,
+      color: context.textColor,
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(20, 8, 20, 100),
         itemCount: _customFoods.length,
@@ -826,7 +826,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -841,36 +841,36 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                 ),
               ),
-              Icon(Icons.add_circle_outline, color: Colors.black, size: 28),
+              Icon(Icons.add_circle_outline, color: context.textColor, size: 28),
             ],
           ),
           SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.local_fire_department_outlined, size: 16, color: Colors.grey[700]),
+              Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
               SizedBox(width: 4),
               Text(
                 '${food['calories'] ?? 0} cal',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: context.textColor.withOpacity(0.7),
                 ),
               ),
               SizedBox(width: 4),
               Text(
                 '•',
-                style: TextStyle(color: Colors.grey[500]),
+                style: TextStyle(color: context.textColor.withOpacity(0.5)),
               ),
               SizedBox(width: 4),
               Text(
                 food['servingSize'] ?? '',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -886,14 +886,14 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.search_off, size: 64, color: context.textColor.withOpacity(0.4)),
             SizedBox(height: 16),
             Text(
               'No foods found',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
             SizedBox(height: 8),
@@ -901,7 +901,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
               'Try a different search term',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade500,
+                color: context.textColor.withOpacity(0.5),
               ),
             ),
           ],
@@ -931,7 +931,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
         margin: EdgeInsets.only(bottom: 12),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
+          color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -946,7 +946,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: context.textColor,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -956,27 +956,27 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                       Icon(
                         Icons.local_fire_department_outlined,
                         size: 16,
-                        color: Colors.grey[700],
+                        color: context.textColor.withOpacity(0.7),
                       ),
                       SizedBox(width: 4),
                       Text(
                         '${food['calories'] ?? 0} cal',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[700],
+                          color: context.textColor.withOpacity(0.7),
                         ),
                       ),
                       SizedBox(width: 4),
                       Text(
                         '•',
-                        style: TextStyle(color: Colors.grey[500]),
+                        style: TextStyle(color: context.textColor.withOpacity(0.5)),
                       ),
                       SizedBox(width: 4),
                       Text(
                         food['serving'] ?? '1 serving',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: context.textColor.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -984,7 +984,7 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 ],
               ),
             ),
-            Icon(Icons.add_circle_outline, color: Colors.black, size: 28),
+            Icon(Icons.add_circle_outline, color: context.textColor, size: 28),
           ],
         ),
       ),
@@ -1000,9 +1000,9 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           border: Border(
-            top: BorderSide(color: Colors.grey[200]!, width: 1),
+            top: BorderSide(color: context.borderColor, width: 1),
           ),
         ),
         child: Row(
@@ -1015,21 +1015,21 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(color: context.textColor, width: 1.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.edit_outlined, color: Colors.black, size: 20),
+                      Icon(Icons.edit_outlined, color: context.textColor, size: 20),
                       SizedBox(width: 8),
                       Text(
                         'Manual',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                     ],
@@ -1049,21 +1049,21 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(color: context.textColor, width: 1.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.mic_outlined, color: Colors.black, size: 20),
+                      Icon(Icons.mic_outlined, color: context.textColor, size: 20),
                       SizedBox(width: 8),
                       Text(
                         'Voice Log',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                     ],
@@ -1086,9 +1086,9 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           border: Border(
-            top: BorderSide(color: Colors.grey[200]!, width: 1),
+            top: BorderSide(color: context.borderColor, width: 1),
           ),
         ),
         child: GestureDetector(
@@ -1101,20 +1101,20 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: context.textColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, color: Colors.white, size: 20),
+                Icon(Icons.add, color: context.cardColor, size: 20),
                 SizedBox(width: 8),
                 Text(
                   'Create a Meal',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: context.cardColor,
                   ),
                 ),
               ],
@@ -1134,9 +1134,9 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           border: Border(
-            top: BorderSide(color: Colors.grey[200]!, width: 1),
+            top: BorderSide(color: context.borderColor, width: 1),
           ),
         ),
         child: GestureDetector(
@@ -1149,20 +1149,20 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: context.textColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, color: Colors.white, size: 20),
+                Icon(Icons.add, color: context.cardColor, size: 20),
                 SizedBox(width: 8),
                 Text(
                   'Add Food',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: context.cardColor,
                   ),
                 ),
               ],

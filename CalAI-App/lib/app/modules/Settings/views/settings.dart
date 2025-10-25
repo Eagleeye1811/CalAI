@@ -4,6 +4,7 @@ import 'package:sizer/sizer.dart';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
+import 'package:CalAI/app/controllers/theme_controller.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:CalAI/app/modules/Settings/views/adjust_goals.dart';
 import 'package:CalAI/app/repo/firebase_user_repo.dart';
@@ -25,7 +26,6 @@ class _SettingsViewState extends State<SettingsView> {
 
   DateTime _selectedDate = DateTime.now();
   String _selectedLanguage = 'English';
-  String _selectedAppearance = 'Automatic';  // Add this line
   bool _isEditingName = false;
   late TextEditingController _nameController;
   String _tempName = '';
@@ -41,7 +41,7 @@ class _SettingsViewState extends State<SettingsView> {
     super.initState();
     authController = Get.find<AuthController>();
     _scannerController = Get.find<ScannerController>();
-    _nameController = TextEditingController();  // Add this line
+    _nameController = TextEditingController();
 
     if (!authController.isAuthenticated) {
       setState(() {
@@ -56,23 +56,23 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   void dispose() {
-    _nameController.dispose();  // Add this line
+    _nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: context.textColor,
           ),
         ),
         centerTitle: false,
@@ -81,7 +81,11 @@ class _SettingsViewState extends State<SettingsView> {
         future: _userRepository.getUserById(_userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: context.textColor,
+              ),
+            );
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -111,40 +115,68 @@ class _SettingsViewState extends State<SettingsView> {
                       _buildMenuItem(
                         icon: Icons.person_outline,
                         title: 'Personal details',
-                        onTap: () {
-                          Get.to(() => EditUserBasicInfoView(
-                                userBasicInfo: userModel.userInfo!,
-                                userModel: userModel,
-                              ));
+                        onTap: () async {
+                          if (userModel == null) return;
+                          
+                          final result = await Get.to(() => EditUserBasicInfoView(
+                            userBasicInfo: userModel!.userInfo!,
+                            userModel: userModel!,
+                          ));
+
+                          // Refresh if profile was updated
+                          if (result != null && mounted) {
+                            final updatedUser = await _userRepository.getUserById(_userId);
+                            if (updatedUser != null) {
+                              setState(() {
+                                userModel = updatedUser;
+                              });
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(
                         icon: Icons.restaurant_outlined,
                         title: 'Adjust macronutrients',
                         onTap: () {
+                          if (userModel == null) return;
+                          
                           Get.to(() => AdjustGoalsView(
-                                userMacros: userModel.userInfo!.userMacros,
-                                userBasicInfo: userModel.userInfo,
-                                userModel: userModel,
+                                userMacros: userModel!.userInfo!.userMacros,
+                                userBasicInfo: userModel!.userInfo,
+                                userModel: userModel!,
                               ));
                         },
                       ),
                       _buildMenuItem(
                         icon: Icons.flag_outlined,
                         title: 'Goal & current weight',
-                        onTap: () {
-                          Get.to(() => EditUserBasicInfoView(
-                                userBasicInfo: userModel.userInfo!,
-                                userModel: userModel,
+                        onTap: () async {
+                          if (userModel == null) return;
+                          
+                          final result = await Get.to(() => EditUserBasicInfoView(
+                                userBasicInfo: userModel!.userInfo!,
+                                userModel: userModel!,
                               ));
+
+                          // Refresh if profile was updated
+                          if (result != null && mounted) {
+                            final updatedUser = await _userRepository.getUserById(_userId);
+                            if (updatedUser != null) {
+                              setState(() {
+                                userModel = updatedUser;
+                              });
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(
                         icon: Icons.history,
                         title: 'Weight History',
                         onTap: () {
+                          if (userModel == null) return;
+                          
                           Get.to(() => WeightHistoryView(
-                                userId: userModel.userId,
+                                userId: userModel!.userId,
                               ));
                         },
                       ),
@@ -163,30 +195,38 @@ class _SettingsViewState extends State<SettingsView> {
                     // 4. Preferences Section
                     _buildSectionTitle('Preferences'),
                     _buildMenuBox([
-                      _buildMenuItemWithDropdown(
-                        icon: Icons.brightness_6_outlined,
-                        title: 'Appearance',
-                        value: _selectedAppearance,
-                        options: ['Light', 'Dark', 'Automatic'],
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedAppearance = newValue;
-                            });
-                            // TODO: Apply theme change
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Appearance changed to $newValue'),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
-                      ),
+                      // Theme Toggle with GetX
+                      Obx(() {
+                        final themeController = Get.find<ThemeController>();
+                        String currentMode = themeController.isDarkMode ? 'Dark' : 'Light';
+                        
+                        return _buildMenuItemWithDropdown(
+                          icon: Icons.brightness_6_outlined,
+                          title: 'Appearance',
+                          value: currentMode,
+                          options: ['Light', 'Dark'],
+                          onChanged: (String? newValue) async {
+                            if (newValue != null) {
+                              bool shouldBeDark = newValue == 'Dark';
+                              if (themeController.isDarkMode != shouldBeDark) {
+                                await themeController.toggleTheme();
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Theme changed to $newValue mode'),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                        );
+                      }),
                       _buildToggleMenuItem(
                         icon: Icons.local_fire_department_outlined,
                         title: 'Add Burned Calories',
@@ -267,8 +307,7 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-    // Profile Box
-    // Profile Box
+  // Profile Box
   Widget _buildProfileBox(UserModel userModel) {
     int age = userModel.userInfo?.age ?? 0;
     String name = userModel.name;
@@ -280,14 +319,14 @@ class _SettingsViewState extends State<SettingsView> {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(3.w),
         border: _isEditingName 
-            ? Border.all(color: Colors.black, width: 2) 
+            ? Border.all(color: context.textColor, width: 2) 
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.textColor.withOpacity(0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -323,7 +362,7 @@ class _SettingsViewState extends State<SettingsView> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: context.textColor,
                             ),
                             decoration: InputDecoration(
                               isDense: true,
@@ -331,10 +370,10 @@ class _SettingsViewState extends State<SettingsView> {
                                 vertical: 0.5.h,
                               ),
                               border: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
+                                borderSide: BorderSide(color: context.borderColor),
                               ),
                               focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black),
+                                borderSide: BorderSide(color: context.textColor),
                               ),
                             ),
                           )
@@ -350,7 +389,7 @@ class _SettingsViewState extends State<SettingsView> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: context.textColor,
                               ),
                             ),
                           ),
@@ -359,14 +398,14 @@ class _SettingsViewState extends State<SettingsView> {
                       '$age years old',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: context.textColor.withOpacity(0.6),
                       ),
                     ),
                   ],
                 ),
               ),
               if (!_isEditingName)
-                Icon(Icons.edit, color: Colors.grey, size: 20),
+                Icon(Icons.edit, color: context.textColor.withOpacity(0.5), size: 20),
             ],
           ),
           // Done and Cancel buttons when editing
@@ -390,7 +429,7 @@ class _SettingsViewState extends State<SettingsView> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -398,7 +437,7 @@ class _SettingsViewState extends State<SettingsView> {
                 ElevatedButton(
                   onPressed: () => _saveName(userModel),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: context.textColor,
                     padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -410,7 +449,7 @@ class _SettingsViewState extends State<SettingsView> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: context.cardColor,
                     ),
                   ),
                 ),
@@ -463,8 +502,6 @@ class _SettingsViewState extends State<SettingsView> {
       );
     }
   }
-
-  // Invite Friends Box
 
   // Invite Friends Box
   Widget _buildInviteFriendsBox() {
@@ -525,7 +562,7 @@ class _SettingsViewState extends State<SettingsView> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Colors.grey.shade600,
+          color: context.textColor.withOpacity(0.6),
           letterSpacing: 0.5,
         ),
       ),
@@ -536,11 +573,11 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildMenuBox(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(3.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.textColor.withOpacity(0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -569,7 +606,7 @@ class _SettingsViewState extends State<SettingsView> {
             padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
             child: Row(
               children: [
-                Icon(icon, color: Colors.grey.shade700, size: 24),
+                Icon(icon, color: context.textColor.withOpacity(0.7), size: 24),
                 SizedBox(width: 3.w),
                 Expanded(
                   child: Column(
@@ -580,7 +617,7 @@ class _SettingsViewState extends State<SettingsView> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
-                          color: titleColor ?? Colors.black,
+                          color: titleColor ?? context.textColor,
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -589,19 +626,19 @@ class _SettingsViewState extends State<SettingsView> {
                           subtitle,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: context.textColor.withOpacity(0.6),
                           ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
+                Icon(Icons.chevron_right, color: context.textColor.withOpacity(0.4), size: 20),
               ],
             ),
           ),
           if (showDivider)
-            Divider(height: 1, indent: 15.w, endIndent: 4.w),
+            Divider(height: 1, indent: 15.w, endIndent: 4.w, color: context.borderColor),
         ],
       ),
     );
@@ -622,7 +659,7 @@ class _SettingsViewState extends State<SettingsView> {
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
           child: Row(
             children: [
-              Icon(icon, color: Colors.grey.shade700, size: 24),
+              Icon(icon, color: context.textColor.withOpacity(0.7), size: 24),
               SizedBox(width: 3.w),
               Expanded(
                 child: Column(
@@ -633,7 +670,7 @@ class _SettingsViewState extends State<SettingsView> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        color: context.textColor,
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -642,7 +679,7 @@ class _SettingsViewState extends State<SettingsView> {
                         subtitle,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: context.textColor.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -653,16 +690,16 @@ class _SettingsViewState extends State<SettingsView> {
                 value: value,
                 onChanged: onChanged,
                 activeColor: Colors.blue,
-                activeTrackColor: Colors.blue.withOpacity(0.5), // ← ADD THIS
-                inactiveThumbColor: Colors.grey.shade400, // ← ADD THIS
-                inactiveTrackColor: Colors.grey.shade300, // ← ADD THIS
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // ← ADD THIS
+                activeTrackColor: Colors.blue.withOpacity(0.5),
+                inactiveThumbColor: context.textColor.withOpacity(0.4),
+                inactiveTrackColor: context.textColor.withOpacity(0.3),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ],
           ),
         ),
         if (showDivider)
-          Divider(height: 1, indent: 15.w, endIndent: 4.w),
+          Divider(height: 1, indent: 15.w, endIndent: 4.w, color: context.borderColor),
       ],
     );
   }
@@ -681,7 +718,7 @@ class _SettingsViewState extends State<SettingsView> {
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
           child: Row(
             children: [
-              Icon(icon, color: Colors.grey.shade700, size: 24),
+              Icon(icon, color: context.textColor.withOpacity(0.7), size: 24),
               SizedBox(width: 3.w),
               Expanded(
                 child: Text(
@@ -689,7 +726,7 @@ class _SettingsViewState extends State<SettingsView> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                 ),
               ),
@@ -697,20 +734,20 @@ class _SettingsViewState extends State<SettingsView> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
                 decoration: BoxDecoration(
-                  color: Colors.white, // ← CHANGE FROM Colors.grey[100]
+                  color: context.cardColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: DropdownButton<String>(
                   value: value,
                   underline: SizedBox(),
                   isDense: true,
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700),
-                  dropdownColor: Colors.white, // ← ADD THIS
+                  icon: Icon(Icons.arrow_drop_down, color: context.textColor.withOpacity(0.7)),
+                  dropdownColor: context.cardColor,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                   items: options.map((String option) {
                     return DropdownMenuItem<String>(
@@ -725,10 +762,11 @@ class _SettingsViewState extends State<SettingsView> {
           ),
         ),
         if (showDivider)
-          Divider(height: 1, indent: 15.w, endIndent: 4.w),
+          Divider(height: 1, indent: 15.w, endIndent: 4.w, color: context.borderColor),
       ],
     );
   }
+
   // Logout Button
   Widget _buildLogoutButton() {
     return InkWell(
@@ -738,12 +776,12 @@ class _SettingsViewState extends State<SettingsView> {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 2.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(3.w),
-          border: Border.all(color: Colors.black, width: 1.5),
+          border: Border.all(color: context.textColor, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: context.textColor.withOpacity(0.1),
               blurRadius: 10,
               offset: Offset(0, 2),
             ),
@@ -752,14 +790,14 @@ class _SettingsViewState extends State<SettingsView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout, color: Colors.black, size: 22),
+            Icon(Icons.logout, color: context.textColor, size: 22),
             SizedBox(width: 2.w),
             Text(
               'Logout',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: context.textColor,
               ),
             ),
           ],
@@ -772,21 +810,23 @@ class _SettingsViewState extends State<SettingsView> {
   void _showDeleteAccountDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Delete Account'),
+          backgroundColor: context.cardColor,
+          title: Text('Delete Account', style: TextStyle(color: context.textColor)),
           content: Text(
             'Are you sure you want to delete your account? This action cannot be undone.',
+            style: TextStyle(color: context.textColor),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text('Cancel', style: TextStyle(color: context.textColor)),
             ),
             TextButton(
               onPressed: () {
                 // TODO: Implement account deletion
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               child: Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -799,8 +839,9 @@ class _SettingsViewState extends State<SettingsView> {
   void _showLanguageDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return Dialog(
+          backgroundColor: context.cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -814,7 +855,7 @@ class _SettingsViewState extends State<SettingsView> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                   ),
                 ),
                 SizedBox(height: 3.h),
@@ -856,10 +897,10 @@ class _SettingsViewState extends State<SettingsView> {
         padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
         margin: EdgeInsets.only(bottom: 1.h),
         decoration: BoxDecoration(
-          color: isSelected ? MealAIColors.blackText : Colors.grey[50],
+          color: isSelected ? context.textColor : context.tileColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? MealAIColors.blackText : Colors.grey.shade200,
+            color: isSelected ? context.textColor : context.borderColor,
           ),
         ),
         child: Row(
@@ -874,7 +915,7 @@ class _SettingsViewState extends State<SettingsView> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : MealAIColors.blackText,
+                color: isSelected ? context.cardColor : context.textColor,
               ),
             ),
           ],
@@ -889,17 +930,17 @@ class _SettingsViewState extends State<SettingsView> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
-            color: Colors.black,
+            color: context.textColor,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: Colors.black,
+            color: context.textColor,
           ),
         ),
       ],
@@ -921,9 +962,9 @@ class _SettingsViewState extends State<SettingsView> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
-                    color: Colors.black,
+                    color: context.textColor,
                   ),
                 ),
                 if (subtitle != null)
@@ -931,15 +972,15 @@ class _SettingsViewState extends State<SettingsView> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[700],
+                      color: context.textColor.withOpacity(0.7),
                     ),
                   ),
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right,
-            color: Colors.grey,
+            color: context.textColor.withOpacity(0.5),
           ),
         ],
       ),
@@ -956,16 +997,16 @@ class _SettingsViewState extends State<SettingsView> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: context.textColor.withOpacity(0.7),
                 ),
               ),
             ],
@@ -974,7 +1015,7 @@ class _SettingsViewState extends State<SettingsView> {
         Switch(
           value: value,
           onChanged: onChanged,
-          thumbColor: WidgetStateProperty.all(Colors.black),
+          thumbColor: WidgetStateProperty.all(context.textColor),
         ),
       ],
     );

@@ -34,7 +34,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
 
     try {
       // Get user ID from AuthController
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         setState(() {
           _isLoading = false;
@@ -89,18 +89,18 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Saved Foods',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -110,7 +110,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: MealAIColors.blackText,
+                color: Theme.of(context).colorScheme.primary,
               ),
             )
           : _savedFoods.isEmpty
@@ -129,7 +129,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
             Icon(
               Icons.bookmark_outline,
               size: 80,
-              color: Colors.grey.shade300,
+              color: context.textColor.withOpacity(0.3),
             ),
             SizedBox(height: 2.h),
             Text(
@@ -137,7 +137,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 1.h),
@@ -146,7 +146,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.grey.shade600,
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
           ],
@@ -158,7 +158,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
   Widget _buildFoodsList() {
     return RefreshIndicator(
       onRefresh: _loadSavedFoods,
-      color: MealAIColors.blackText,
+      color: Theme.of(context).colorScheme.primary,
       child: ListView.builder(
         padding: EdgeInsets.all(4.w),
         itemCount: _savedFoods.length,
@@ -180,12 +180,12 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
         margin: EdgeInsets.only(bottom: 2.h),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: context.borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: context.textColor.withOpacity(0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -200,10 +200,10 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
                 children: [
                   Text(
                     food['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: context.textColor,
                     ),
                   ),
                   SizedBox(height: 0.5.h),
@@ -211,7 +211,7 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
                     food['serving'] ?? '',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                   SizedBox(height: 1.h),
@@ -246,12 +246,16 @@ class _SavedFoodsPageState extends State<SavedFoodsPage> {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text('Remove from Saved?'),
-                        content: Text('Remove ${food['name']} from your saved foods?'),
+                        backgroundColor: context.cardColor,
+                        title: Text('Remove from Saved?', style: TextStyle(color: context.textColor)),
+                        content: Text(
+                          'Remove ${food['name']} from your saved foods?',
+                          style: TextStyle(color: context.textColor),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: Text('Cancel'),
+                            child: Text('Cancel', style: TextStyle(color: context.textColor)),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),

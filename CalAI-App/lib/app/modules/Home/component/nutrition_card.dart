@@ -17,17 +17,16 @@ import 'package:CalAI/app/modules/Exercise/views/run_exercise_page.dart';
 import 'package:CalAI/app/modules/Exercise/views/weight_lifting_exercise_page.dart';
 import 'package:CalAI/app/modules/Exercise/views/describe_exercise_page.dart';
 import 'package:CalAI/app/modules/Exercise/views/manual_exercise_page.dart';
+import 'package:CalAI/app/modules/FoodDatabase/views/nutrition_detail_page.dart';
 
 class NutritionCard extends StatelessWidget {
   final NutritionRecord nutritionRecord;
   final UserModel userModel;
-  // final void Function() onTap;
 
   const NutritionCard({
     Key? key,
     required this.nutritionRecord,
     required this.userModel,
-    // required this.onTap,
   }) : super(key: key);
 
   Map<String, int> get _totalNutrition {
@@ -58,12 +57,10 @@ class NutritionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if this is an exercise record
     if (nutritionRecord.isExercise && nutritionRecord.exerciseRecord != null) {
       return _buildExerciseCard(context);
     }
     
-    // Otherwise, show normal food card
     final totals = _totalNutrition;
     final isProcessing =
         nutritionRecord.processingStatus == ProcessingStatus.PROCESSING;
@@ -71,16 +68,13 @@ class NutritionCard extends StatelessWidget {
     return Bounceable(
       onTap: () {
         if (isProcessing) return;
-        Get.to(() => NutritionView(
-              nutritionRecord: nutritionRecord,
-              userModel: userModel,
-            ));
+        _navigateToDetailPage();
       },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        padding: EdgeInsets.all(16), // Added padding here
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5), // Light grey background to match exercise cards
+          color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
         ),
         clipBehavior: Clip.antiAlias,
@@ -99,7 +93,7 @@ class NutritionCard extends StatelessWidget {
           _buildFoodImage(context, 25.w, 12.h),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 16.0), // Removed all padding since parent has it
+              padding: const EdgeInsets.only(left: 16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +106,8 @@ class NutritionCard extends StatelessWidget {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.black), // Changed to black
+                            context.textColor,
+                          ),
                         ),
                       ),
                       SizedBox(width: 12),
@@ -120,7 +115,7 @@ class NutritionCard extends StatelessWidget {
                         "Analyzing your food...",
                         style: context.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: context.textColor,
                         ),
                       ),
                     ],
@@ -129,7 +124,7 @@ class NutritionCard extends StatelessWidget {
                   Text(
                     "We're calculating the nutritional value",
                     style: context.textTheme.bodySmall?.copyWith(
-                      color: Colors.black54,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -142,120 +137,112 @@ class NutritionCard extends StatelessWidget {
   }
 
   Widget _buildCompletedCard(BuildContext context, Map<String, int> totals) {
-  final foodName = nutritionRecord.nutritionOutput?.response!.foodName != null
-      ? nutritionRecord.nutritionOutput?.response!.foodName
-      : "Unknown Food";
-  
-  // Check if food has an actual image (not placeholder)
-  final hasImage = (nutritionRecord.nutritionInputQuery?.imageFilePath != null) ||
-      (nutritionRecord.nutritionInputQuery?.imageUrl != null &&
-          nutritionRecord.nutritionInputQuery!.imageUrl!.isNotEmpty);
+    final foodName = nutritionRecord.nutritionOutput?.response!.foodName != null
+        ? nutritionRecord.nutritionOutput?.response!.foodName
+        : "Unknown Food";
+    
+    final hasImage = (nutritionRecord.nutritionInputQuery?.imageFilePath != null) ||
+        (nutritionRecord.nutritionInputQuery?.imageUrl != null &&
+            nutritionRecord.nutritionInputQuery!.imageUrl!.isNotEmpty);
 
-  // Build the content section (same for both layouts)
-  Widget contentSection = Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      // Food name and time
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              foodName ?? "Unknown Food",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600, // Changed from bold to w600
-                color: Colors.black,
-                letterSpacing: -0.3,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(width: 8),
-          Text(
-            DateUtility.getTimeFromDateTime(
-              nutritionRecord.recordTime!.toLocal(),
-            ),
-            style: TextStyle(
-              fontSize: 14, // Increased from 13
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-      SizedBox(height: 12), // Increased from 8
-      
-      // Calories
-      Row(
-        children: [
-          Icon(
-            Icons.local_fire_department,
-            color: Colors.black,
-            size: 18,
-          ),
-          SizedBox(width: 6), // Increased from 4
-          Text(
-            "${totals['calories']} calories",
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500, // Changed from w600
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-      SizedBox(height: 12),
-      
-      // Macros row with icons (consistent format)
-      Row(
-        children: [
-          _buildSimpleMacroBadge(
-            Icons.fitness_center,
-            "${totals['protein']}g",
-            Color(0xFFE57373),
-          ),
-          SizedBox(width: 12),
-          _buildSimpleMacroBadge(
-            Icons.grain,
-            "${totals['carbs']}g",
-            Color(0xFFFFB74D),
-          ),
-          SizedBox(width: 12),
-          _buildSimpleMacroBadge(
-            Icons.water_drop,
-            "${totals['fat']}g",
-            Color(0xFF64B5F6),
-          ),
-        ],
-      ),
-    ],
-  );
-
-  // If no image, show clean card without image section
-  if (!hasImage) {
-    return Container(
-      child: contentSection,
-    );
-  }
-  
-  // If image exists, show card with image on left + same content
-  return Container(
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    Widget contentSection = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildFoodImage(context, 35.w, 140), // Adjusted size
-        SizedBox(width: 16),
-        Expanded(
-          child: contentSection,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                foodName ?? "Unknown Food",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: context.textColor,
+                  letterSpacing: -0.3,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(width: 8),
+            Text(
+              DateUtility.getTimeFromDateTime(
+                nutritionRecord.recordTime!.toLocal(),
+              ),
+              style: TextStyle(
+                fontSize: 14,
+                color: context.textColor.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        
+        Row(
+          children: [
+            Icon(
+              Icons.local_fire_department,
+              color: context.textColor,
+              size: 18,
+            ),
+            SizedBox(width: 6),
+            Text(
+              "${totals['calories']} calories",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: context.textColor,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        
+        Row(
+          children: [
+            _buildSimpleMacroBadge(
+              Icons.fitness_center,
+              "${totals['protein']}g",
+              Color(0xFFE57373),
+            ),
+            SizedBox(width: 12),
+            _buildSimpleMacroBadge(
+              Icons.grain,
+              "${totals['carbs']}g",
+              Color(0xFFFFB74D),
+            ),
+            SizedBox(width: 12),
+            _buildSimpleMacroBadge(
+              Icons.water_drop,
+              "${totals['fat']}g",
+              Color(0xFF64B5F6),
+            ),
+          ],
         ),
       ],
-    ),
-  );
-}
+    );
 
-  // Add this new helper method (add after _buildMacroNutrientBadge around line 374)
+    if (!hasImage) {
+      return Container(
+        child: contentSection,
+      );
+    }
+    
+    return Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildFoodImage(context, 35.w, 140),
+          SizedBox(width: 16),
+          Expanded(
+            child: contentSection,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSimpleMacroBadge(IconData icon, String value, Color color) {
     return Row(
       children: [
@@ -270,7 +257,7 @@ class NutritionCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: color,
           ),
         ),
       ],
@@ -300,18 +287,18 @@ class NutritionCard extends StatelessWidget {
                 imageUrl:
                     nutritionRecord.nutritionInputQuery!.imageUrl.toString(),
                 fit: BoxFit.cover,
-                placeholder: (context, url) => _buildImagePlaceholder(),
-                errorWidget: (context, url, error) => _buildImageError(),
+                placeholder: (context, url) => _buildImagePlaceholder(context),
+                errorWidget: (context, url, error) => _buildImageError(context),
               )
             else
-              _buildImagePlaceholder(),
+              _buildImagePlaceholder(context),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    Colors.black.withOpacity(0.2),
+                    context.textColor.withOpacity(0.2),
                     Colors.transparent,
                   ],
                 ),
@@ -323,26 +310,26 @@ class NutritionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImagePlaceholder() {
+  Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
-      color: Colors.grey[200],
+      color: context.tileColor,
       child: Center(
         child: Icon(
           Icons.restaurant,
-          color: Colors.grey[400],
+          color: context.textColor.withOpacity(0.4),
           size: 32,
         ),
       ),
     );
   }
 
-  Widget _buildImageError() {
+  Widget _buildImageError(BuildContext context) {
     return Container(
-      color: Colors.grey[200],
+      color: context.tileColor,
       child: Center(
         child: Icon(
           Icons.error_outline,
-          color: Colors.red[300],
+          color: Colors.red.withOpacity(0.6),
           size: 32,
         ),
       ),
@@ -430,7 +417,7 @@ class NutritionCard extends StatelessWidget {
     return Container(
       width: 8.w,
       decoration: BoxDecoration(
-        color: MealAIColors.darkPrimary.withOpacity(0.08),
+        color: context.textColor.withOpacity(0.08),
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -439,7 +426,7 @@ class NutritionCard extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.chevron_right_rounded,
-          color: MealAIColors.darkPrimary,
+          color: context.textColor,
           size: 24,
         ),
       ),
@@ -449,7 +436,6 @@ class NutritionCard extends StatelessWidget {
   Widget _buildExerciseCard(BuildContext context) {
     final exercise = nutritionRecord.exerciseRecord!;
     
-    // Determine icon based on exercise type
     IconData exerciseIcon = Icons.directions_run_outlined;
     
     if (exercise.exerciseType.toLowerCase().contains('run')) {
@@ -474,46 +460,42 @@ class NutritionCard extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5), // Very light grey
+          color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Exercise icon on left
             Container(
               padding: EdgeInsets.all(0),
               child: Icon(
                 exerciseIcon,
-                color: Colors.black,
+                color: context.textColor,
                 size: 40,
               ),
             ),
             SizedBox(width: 16),
             
-            // Exercise details (middle section)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Exercise name
                   Text(
                     exercise.exerciseType,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: context.textColor,
                       letterSpacing: -0.3,
                     ),
                   ),
                   SizedBox(height: 12),
                   
-                  // Calories row
                   Row(
                     children: [
                       Icon(
                         Icons.local_fire_department,
-                        color: Colors.black,
+                        color: context.textColor,
                         size: 18,
                       ),
                       SizedBox(width: 6),
@@ -522,28 +504,25 @@ class NutritionCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 8),
                   
-                  // Intensity and duration row
                   Row(
                     children: [
-                      // Intensity indicator (dash icon)
                       Icon(
                         Icons.remove,
-                        color: Colors.grey[700],
+                        color: context.textColor.withOpacity(0.7),
                         size: 18,
                       ),
                       SizedBox(width: 6),
                       
-                      // Clock icon + duration
                       Icon(
                         Icons.access_time,
-                        color: Colors.grey[700],
+                        color: context.textColor.withOpacity(0.7),
                         size: 16,
                       ),
                       SizedBox(width: 6),
@@ -551,7 +530,7 @@ class NutritionCard extends StatelessWidget {
                         '${exercise.duration} min',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[700],
+                          color: context.textColor.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -560,14 +539,13 @@ class NutritionCard extends StatelessWidget {
               ),
             ),
             
-            // Time on the right
             Text(
               DateUtility.getTimeFromDateTime(
                 nutritionRecord.recordTime!.toLocal(),
               ),
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
           ],
@@ -576,8 +554,6 @@ class NutritionCard extends StatelessWidget {
     );
   }
 
-  // Add this new method to handle exercise navigation
-  // Add this new method to handle exercise navigation
   void _navigateToExercisePage(ExerciseRecord exercise) {
     final exerciseType = exercise.exerciseType.toLowerCase();
     
@@ -590,10 +566,10 @@ class NutritionCard extends StatelessWidget {
     } else if (exerciseType.contains('manual')) {
       Get.to(() => ManualExercisePage(existingRecord: nutritionRecord));
     } else {
-      // For other exercise types, show a simple info dialog
       Get.dialog(
         AlertDialog(
-          title: Text(exercise.exerciseType),
+          backgroundColor: Get.context!.cardColor,
+          title: Text(exercise.exerciseType, style: TextStyle(color: Get.context!.textColor)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -604,7 +580,11 @@ class NutritionCard extends StatelessWidget {
                   SizedBox(width: 8),
                   Text(
                     '${exercise.caloriesBurned} calories burned',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Get.context!.textColor,
+                    ),
                   ),
                 ],
               ),
@@ -613,7 +593,10 @@ class NutritionCard extends StatelessWidget {
                 children: [
                   Icon(Icons.speed, color: Colors.blue, size: 20),
                   SizedBox(width: 8),
-                  Text('Intensity: ${exercise.intensity}'),
+                  Text(
+                    'Intensity: ${exercise.intensity}',
+                    style: TextStyle(color: Get.context!.textColor),
+                  ),
                 ],
               ),
               SizedBox(height: 8),
@@ -621,7 +604,10 @@ class NutritionCard extends StatelessWidget {
                 children: [
                   Icon(Icons.access_time, color: Colors.green, size: 20),
                   SizedBox(width: 8),
-                  Text('Duration: ${exercise.duration} min'),
+                  Text(
+                    'Duration: ${exercise.duration} min',
+                    style: TextStyle(color: Get.context!.textColor),
+                  ),
                 ],
               ),
             ],
@@ -629,11 +615,45 @@ class NutritionCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Get.back(),
-              child: Text('Close'),
+              child: Text('Close', style: TextStyle(color: Get.context!.textColor)),
             ),
           ],
         ),
       );
     }
   }
+
+  // ... existing code ...
+
+  void _navigateToDetailPage() {
+    if (nutritionRecord.entrySource == EntrySource.FOOD_DATABASE) {
+      final ingredient = nutritionRecord.nutritionOutput?.response?.ingredients?.first;
+      if (ingredient != null) {
+        final foodMap = {
+          'name': ingredient.name ?? 'Unknown Food',
+          'calories': ingredient.calories ?? 0,
+          'protein': ingredient.protein ?? 0,
+          'carbs': ingredient.carbs ?? 0,
+          'fat': ingredient.fat ?? 0,
+          'fiber': ingredient.fiber ?? 0,
+          'sugar': ingredient.sugar ?? 0,
+          'sodium': ingredient.sodium ?? 0,
+          'serving': nutritionRecord.nutritionOutput?.response?.portion?.split(' x').first ?? '1 serving',
+        };
+        
+        Get.to(() => NutritionDetailPage(
+          food: foodMap,
+          existingRecord: nutritionRecord,
+        ));
+      }
+    } else {
+      Get.to(() => NutritionView(
+        nutritionRecord: nutritionRecord,
+        userModel: userModel,  // Add the userModel parameter
+        // Remove: shouldRefreshOnPop: false,
+      ));
+    }
+}
+
+  
 }

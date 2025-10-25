@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:CalAI/app/constants/colors.dart';
 
 class MyTextField extends StatelessWidget {
 	final TextEditingController controller;
@@ -50,10 +51,10 @@ class MyTextField extends StatelessWidget {
 					borderRadius: BorderRadius.circular(20),
 					borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
 				),
-				fillColor: Colors.grey.shade200,
+				fillColor: context.tileColor,
 				filled: true,
 				hintText: hintText,
-				hintStyle: TextStyle(color: Colors.grey[500]),
+				hintStyle: TextStyle(color: context.textColor.withOpacity(0.5)),
 				errorText: errorMsg,
 			),
     );

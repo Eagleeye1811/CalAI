@@ -70,7 +70,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
   Future<void> _saveFood() async {
     try {
       // Get user ID from AuthController
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.showErrorSnackbar(
           title: "Error",
@@ -139,18 +139,18 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Add Nutrients',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -179,7 +179,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                     'Basic Info',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                   Text(
@@ -187,7 +187,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: context.textColor,
                     ),
                   ),
                 ],
@@ -199,9 +199,9 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: context.tileColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: context.borderColor),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: context.textColor,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -219,7 +219,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                       widget.brandName,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: context.textColor.withOpacity(0.6),
                       ),
                     ),
                     SizedBox(height: 8),
@@ -227,7 +227,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                       'Serving: ${widget.servingSize}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade700,
+                        color: context.textColor.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -292,7 +292,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
       width: 24,
       height: 24,
       decoration: BoxDecoration(
-        color: active ? MealAIColors.blackText : Colors.grey.shade300,
+        color: active ? Theme.of(context).colorScheme.primary : context.borderColor,
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -300,7 +300,9 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: active 
+                ? Theme.of(context).colorScheme.onPrimary 
+                : context.cardColor,
             shape: BoxShape.circle,
           ),
         ),
@@ -311,7 +313,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
   Widget _buildProgressLine(bool active) {
     return Container(
       height: 2,
-      color: active ? MealAIColors.blackText : Colors.grey.shade300,
+      color: active ? Theme.of(context).colorScheme.primary : context.borderColor,
       margin: EdgeInsets.symmetric(horizontal: 8),
     );
   }
@@ -322,7 +324,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: MealAIColors.blackText,
+        color: context.textColor,
       ),
     );
   }
@@ -337,9 +339,9 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -361,14 +363,14 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: context.textColor,
                   ),
                 ),
                 Text(
                   unit,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: context.textColor.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -383,16 +385,16 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: context.textColor,
               ),
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: context.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -414,11 +416,11 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: MealAIColors.blackText,
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: context.textColor.withOpacity(0.1),
               blurRadius: 8,
               offset: Offset(0, 4),
             ),
@@ -430,7 +432,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ),

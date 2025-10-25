@@ -85,6 +85,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
         recordTime: widget.existingRecord?.recordTime ?? DateTime.now(),
         processingStatus: ProcessingStatus.COMPLETED,
         isExercise: true,
+        entrySource: EntrySource.EXERCISE, // ADD THIS
       );
       
       // Check if we're editing an existing record
@@ -184,18 +185,18 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
     final bool isEditMode = widget.existingRecord != null;
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditMode ? 'Update Workout' : 'Workout Summary',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -214,17 +215,17 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                   Container(
                     padding: EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: context.tileColor,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.black,
+                        color: context.textColor,
                         width: 2,
                       ),
                     ),
                     child: Icon(
                       isEditMode ? Icons.edit : Icons.check_circle,
                       size: 80,
-                      color: Colors.black,
+                      color: context.textColor,
                     ),
                   ),
                   
@@ -235,7 +236,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                     ),
                   ),
                   
@@ -258,7 +259,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                           style: TextStyle(
                             fontSize: 56,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: context.textColor,
                           ),
                           decoration: InputDecoration(
                             border: InputBorder.none,
@@ -273,7 +274,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[600],
+                          color: context.textColor.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -285,15 +286,15 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                   Container(
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.grey[300]!,
+                        color: context.borderColor,
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: context.textColor.withOpacity(0.03),
                           blurRadius: 8,
                           offset: Offset(0, 2),
                         ),
@@ -332,7 +333,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
               child: ElevatedButton(
                 onPressed: _isLogging ? null : _logWorkout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: context.textColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -343,7 +344,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: context.cardColor,
                           strokeWidth: 2,
                         ),
                       )
@@ -352,7 +353,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: context.cardColor,
                         ),
                       ),
               ),
@@ -370,13 +371,13 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
   }) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey[600], size: 24),
+        Icon(icon, color: context.textColor.withOpacity(0.6), size: 24),
         SizedBox(width: 12),
         Text(
           label,
           style: TextStyle(
             fontSize: 15,
-            color: Colors.grey[600],
+            color: context.textColor.withOpacity(0.6),
           ),
         ),
         Spacer(),
@@ -385,7 +386,7 @@ class _WorkoutResultPageState extends State<WorkoutResultPage> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
       ],

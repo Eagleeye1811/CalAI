@@ -119,15 +119,15 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
       margin: EdgeInsets.only(bottom: 3.h),
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isEditing ? Colors.black : Colors.transparent,
+          color: isEditing ? Theme.of(context).colorScheme.primary : Colors.transparent,
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: context.textColor.withOpacity(0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -144,7 +144,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                 animation: true,
                 animationDuration: 800,
                 percent: percent,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: context.borderColor,
                 progressColor: color,
                 circularStrokeCap: CircularStrokeCap.round,
                 center: Text(
@@ -167,7 +167,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                       vertical: 2.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: context.tileColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: color.withOpacity(0.2),
@@ -182,7 +182,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: MealAIColors.blackText.withOpacity(0.7),
+                            color: context.textColor.withOpacity(0.7),
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -195,7 +195,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: MealAIColors.blackText,
+                                  color: context.textColor,
                                 ),
                                 decoration: InputDecoration(
                                   isDense: true,
@@ -204,7 +204,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                                   suffixText: unit,
                                   suffixStyle: TextStyle(
                                     fontSize: 16,
-                                    color: MealAIColors.blueGrey,
+                                    color: context.textColor.withOpacity(0.6),
                                   ),
                                 ),
                               )
@@ -215,7 +215,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
-                                      color: MealAIColors.blackText,
+                                      color: context.textColor,
                                     ),
                                   ),
                                   SizedBox(width: 1.w),
@@ -223,7 +223,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                                     unit,
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: MealAIColors.blueGrey,
+                                      color: context.textColor.withOpacity(0.6),
                                     ),
                                   ),
                                 ],
@@ -254,7 +254,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: MealAIColors.blueGrey,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -262,7 +262,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                 ElevatedButton(
                   onPressed: () => _doneEditing(title),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: MealAIColors.blackText,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -274,7 +274,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ),
@@ -341,7 +341,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                 ),
               ],
             ),
-            backgroundColor: MealAIColors.black,
+            backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -369,7 +369,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
                 ),
               ],
             ),
-            backgroundColor: MealAIColors.red,
+            backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -388,13 +388,13 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back_ios, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -402,7 +402,7 @@ class _AdjustGoalsViewState extends State<AdjustGoalsView> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: MealAIColors.blackText,
+            color: context.textColor,
             letterSpacing: -0.5,
           ),
         ),

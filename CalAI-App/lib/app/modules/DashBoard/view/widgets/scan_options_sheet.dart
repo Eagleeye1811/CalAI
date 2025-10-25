@@ -14,7 +14,7 @@ class ScanOptionsSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
@@ -27,7 +27,7 @@ class ScanOptionsSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -37,7 +37,7 @@ class ScanOptionsSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 20),
@@ -129,7 +129,7 @@ class ScanOptionsSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
           ],

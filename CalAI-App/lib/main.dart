@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
+import 'package:CalAI/app/controllers/theme_controller.dart';
 import 'package:CalAI/app/modules/DashBoard/view/dashboard.dart';
 import 'package:CalAI/app/modules/Onboarding/views/onboarding_home.dart';
 import 'package:CalAI/app/providers/remoteconfig.dart';
@@ -24,6 +25,9 @@ void main() async {
   
   // Setup GetIt services and GetX controllers
   await setupRegistry();
+  
+  // Initialize ThemeController
+  Get.put(ThemeController());
 
   Environment.printConfig();
 
@@ -65,34 +69,42 @@ class MyAppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sizer(
       builder: (context, orientation, deviceType) {
-        return GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'CalAI',
-          theme: ThemeData.dark(),
-          builder: EasyLoading.init(),
+        return Obx(() {
+          final themeController = Get.find<ThemeController>();
           
-          // Use GetX Obx for reactive navigation
-          home: Obx(() {
-            final authController = Get.find<AuthController>();
+          return GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'CalAI',
+            theme: themeController.lightTheme,
+            darkTheme: themeController.darkTheme,
+            themeMode: themeController.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            builder: EasyLoading.init(),
             
-            switch (authController.status) {
-              case AuthStatus.authenticated:
-                return const HomeScreen();
-              case AuthStatus.unauthenticated:
-                return const OnboardingHome();
-              case AuthStatus.unknown:
-              default:
-                return Scaffold(
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.green,
+            // Use GetX Obx for reactive navigation
+            home: Obx(() {
+              final authController = Get.find<AuthController>();
+              
+              switch (authController.status) {
+                case AuthStatus.authenticated:
+                  return const HomeScreen();
+                case AuthStatus.unauthenticated:
+                  return const OnboardingHome();
+                case AuthStatus.unknown:
+                default:
+                  return Scaffold(
+                    backgroundColor: themeController.surfaceColor,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        color: themeController.isDarkMode 
+                            ? Colors.green 
+                            : Colors.black,
+                      ),
                     ),
-                  ),
-                );
-            }
-          }),
-        );
+                  );
+              }
+            }),
+          );
+        });
       },
     );
   }

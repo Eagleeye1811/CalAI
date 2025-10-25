@@ -50,6 +50,8 @@ class _WeightPickerState extends State<WeightPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -71,9 +73,9 @@ class _WeightPickerState extends State<WeightPicker> {
                     )),
             SizedBox(width: 5.w),
             Switch(
-                activeTrackColor: MealAIColors.switchBlackColor,
-                inactiveTrackColor: MealAIColors.lightPrimary,
-                activeColor: MealAIColors.switchWhiteColor,
+                activeTrackColor: context.textColor,
+                inactiveTrackColor: isDarkMode ? MealAIColors.darkPrimary : MealAIColors.lightPrimary,
+                activeColor: context.cardColor,
                 value: _selectedUnit == WeightUnit.LB,
                 onChanged: (value) {
                   setState(() {
@@ -100,7 +102,7 @@ class _WeightPickerState extends State<WeightPicker> {
           height: 40,
           width: 25.w,
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.2),
+            color: context.textColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
@@ -117,7 +119,7 @@ class _WeightPickerState extends State<WeightPicker> {
           height: 40,
           width: 25.w,
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.2),
+            color: context.textColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),

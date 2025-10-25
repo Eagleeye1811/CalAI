@@ -10,11 +10,11 @@ import 'package:CalAI/app/models/AI/exercise_record.dart';
 import 'package:CalAI/app/constants/enums.dart';
 
 class ManualExercisePage extends StatefulWidget {
-  final NutritionRecord? existingRecord;  // ADD THIS
+  final NutritionRecord? existingRecord;
   
   const ManualExercisePage({
     Key? key,
-    this.existingRecord,  // ADD THIS
+    this.existingRecord,
   }) : super(key: key);
 
   @override
@@ -88,6 +88,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
         recordTime: widget.existingRecord?.recordTime ?? DateTime.now(),
         processingStatus: ProcessingStatus.COMPLETED,
         isExercise: true,
+        entrySource: EntrySource.EXERCISE, // ADD THIS
       );
       
       // Check if we're editing an existing record
@@ -184,18 +185,18 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
     double percent = (_calories / 500).clamp(0.0, 1.0);
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Manual Entry',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -212,7 +213,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 8),
@@ -220,7 +221,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
               'Manually enter the calories you burned during your workout.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600],
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
             
@@ -232,22 +233,22 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 12),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: context.borderColor,
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: context.textColor.withOpacity(0.03),
                     blurRadius: 6,
                     offset: Offset(0, 2),
                   ),
@@ -258,16 +259,16 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
                 decoration: InputDecoration(
                   hintText: 'E.g., Workout Session, Sports, etc.',
                   hintStyle: TextStyle(
-                    color: Colors.grey[400],
+                    color: context.textColor.withOpacity(0.4),
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
-                  icon: Icon(Icons.edit, color: Colors.grey[700], size: 20),
+                  icon: Icon(Icons.edit, color: context.textColor.withOpacity(0.7), size: 20),
                 ),
               ),
             ),
@@ -280,7 +281,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 16),
@@ -288,17 +289,17 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _calories > 0 
-                      ? Colors.black
-                      : Colors.grey[300]!,
+                      ? context.textColor
+                      : context.borderColor,
                   width: _calories > 0 ? 2 : 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(_calories > 0 ? 0.05 : 0.02),
+                    color: context.textColor.withOpacity(_calories > 0 ? 0.05 : 0.02),
                     blurRadius: 8,
                     offset: Offset(0, 2),
                   ),
@@ -313,15 +314,15 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                     animation: true,
                     animationDuration: 500,
                     percent: percent,
-                    backgroundColor: Colors.grey.shade200,
-                    progressColor: Colors.black,
+                    backgroundColor: context.borderColor,
+                    progressColor: context.textColor,
                     circularStrokeCap: CircularStrokeCap.round,
                     center: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.local_fire_department,
-                          color: _calories > 0 ? Colors.black : Colors.grey,
+                          color: _calories > 0 ? context.textColor : context.textColor.withOpacity(0.3),
                           size: 28,
                         ),
                         if (_calories > 500)
@@ -330,7 +331,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: context.textColor,
                             ),
                           ),
                       ],
@@ -359,13 +360,13 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                                   fontSize: 42,
                                   fontWeight: FontWeight.bold,
                                   color: _calories > 0 
-                                      ? Colors.black 
-                                      : Colors.grey,
+                                      ? context.textColor 
+                                      : context.textColor.withOpacity(0.3),
                                 ),
                                 decoration: InputDecoration(
                                   hintText: '0',
                                   hintStyle: TextStyle(
-                                    color: Colors.grey[300],
+                                    color: context.textColor.withOpacity(0.2),
                                     fontSize: 42,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -381,7 +382,7 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey[600],
+                                color: context.textColor.withOpacity(0.6),
                               ),
                             ),
                           ],
@@ -398,8 +399,8 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                           style: TextStyle(
                             fontSize: 12,
                             color: _calories > 0 
-                                ? Colors.black 
-                                : Colors.grey[500],
+                                ? context.textColor 
+                                : context.textColor.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -416,23 +417,23 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.grey[700], size: 20),
+                  Icon(Icons.info_outline, color: context.textColor.withOpacity(0.7), size: 20),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Tip: Use a fitness tracker or online calculator to estimate your calories burned.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[700],
+                        color: context.textColor.withOpacity(0.7),
                       ),
                     ),
                   ),
@@ -452,8 +453,8 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                     : _logExercise,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isLogging || _calories <= 0
-                      ? Colors.grey[300]
-                      : Colors.black,
+                      ? context.textColor.withOpacity(0.3)
+                      : context.textColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -467,29 +468,29 @@ class _ManualExercisePageState extends State<ManualExercisePage> {
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                               strokeWidth: 2,
                             ),
                           ),
                           SizedBox(width: 12),
                           Text(
-                            widget.existingRecord != null ? 'Updating...' : 'Logging...',  // UPDATED
+                            widget.existingRecord != null ? 'Updating...' : 'Logging...',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                             ),
                           ),
                         ],
                       )
                     : Text(
-                        widget.existingRecord != null ? 'Update Exercise' : 'Log Exercise',  // UPDATED
+                        widget.existingRecord != null ? 'Update Exercise' : 'Log Exercise',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: _calories <= 0 
-                              ? Colors.grey[500] 
-                              : Colors.white,
+                              ? context.textColor.withOpacity(0.5) 
+                              : context.cardColor,
                         ),
                       ),
               ),

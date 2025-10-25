@@ -218,20 +218,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         title: Row(
           children: [
             Icon(
               Icons.apple,
-              color: MealAIColors.blackText,
+              color: context.textColor,
               size: 24,
             ),
             SizedBox(width: 8),
             Text(
               'CalAI',
               style: TextStyle(
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         actions: [
           // WRAPPED IN GetBuilder TO UPDATE AUTOMATICALLY
-                    GetBuilder<ScannerController>(
+          GetBuilder<ScannerController>(
             builder: (controller) {
               return GestureDetector(
                 onTap: () async {
@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     context: context,
                     barrierDismissible: true,
                     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-                    barrierColor: Colors.black54,
+                    barrierColor: context.textColor.withOpacity(0.5),
                     transitionDuration: Duration(milliseconds: 300),
                     pageBuilder: (BuildContext buildContext, Animation animation, Animation secondaryAnimation) {
                       return StreakDialog(
@@ -315,10 +315,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [
-              Color(0xFFF5F5F5),
-              Colors.white,
-            ],
+            colors: context.backgroundGradient,
             stops: [0.0, 0.3],
           ),
         ),
@@ -331,7 +328,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (_isLoading) {
       return Center(
         child: CircularProgressIndicator(
-          color: MealAIColors.selectedTile,
+          color: context.textColor,
         ),
       );
     }
@@ -344,7 +341,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             Text(
               _errorMessage!,
               style: TextStyle(
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,
@@ -354,7 +351,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               onPressed: _initializeData,
               child: Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: MealAIColors.selectedTile,
+                backgroundColor: context.textColor,
+                foregroundColor: context.cardColor,
               ),
             ),
           ],
@@ -367,7 +365,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Text(
           'User data not available',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 16,
           ),
         ),
@@ -431,8 +429,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _currentPage == index
-                    ? MealAIColors.blackText
-                    : MealAIColors.grey.withOpacity(0.3),
+                    ? context.textColor
+                    : context.textColor.withOpacity(0.3),
               ),
             );
           }),
@@ -586,15 +584,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: Container(
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(4.w),
           border: Border.all(
-            color: Color(0xFFE8E8E8),
+            color: context.borderColor,
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: context.textColor.withOpacity(0.02),
               blurRadius: 10,
               offset: Offset(0, 3),
             ),
@@ -608,14 +606,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               Text(
                 '$label left',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ] else ...[
@@ -627,7 +625,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: exceeded ? Colors.red : Colors.black,
+                        color: exceeded ? Colors.red : context.textColor,
                       ),
                     ),
                     TextSpan(
@@ -635,7 +633,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[400],
+                        color: context.textColor.withOpacity(0.4),
                       ),
                     ),
                   ],
@@ -645,7 +643,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 '$label eaten',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -656,7 +654,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               animation: true,
               animationDuration: 800,
               percent: percentage,
-              backgroundColor: Colors.grey[200]!,
+              backgroundColor: context.textColor.withOpacity(0.2),
               progressColor: exceeded ? Colors.red : color,
               circularStrokeCap: CircularStrokeCap.round,
               center: Icon(icon, color: color, size: 24),
@@ -674,8 +672,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     
     return showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
+          backgroundColor: context.cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -688,6 +687,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -699,13 +699,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 controller: waterController,
                 keyboardType: TextInputType.number,
                 autofocus: true,
+                style: TextStyle(color: context.textColor),
                 decoration: InputDecoration(
                   labelText: 'Amount (ml)',
+                  labelStyle: TextStyle(color: context.textColor.withOpacity(0.7)),
                   hintText: 'Enter water intake',
+                  hintStyle: TextStyle(color: context.textColor.withOpacity(0.5)),
                   prefixIcon: Icon(Icons.local_drink, color: Colors.blue),
                   suffixText: 'ml',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: context.borderColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -718,7 +722,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 'Goal: $_waterGoal ml',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -726,11 +730,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: context.textColor.withOpacity(0.6)),
               ),
             ),
             ElevatedButton(
@@ -740,7 +744,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   setState(() {
                     _waterConsumed = newAmount;
                   });
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -778,7 +782,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             : Colors.red;
     
     String caption = score >= 75
-        ? 'Excellent! Keep it up! 🎉'
+        ? 'Excellent! Keep it up!'
         : score >= 50
             ? 'Good, but room for improvement'
             : 'Consider healthier choices';
@@ -787,15 +791,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       width: double.infinity,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(4.w),
         border: Border.all(
-          color: Color(0xFFE8E8E8),
+          color: context.borderColor,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: context.textColor.withOpacity(0.02),
             blurRadius: 10,
             offset: Offset(0, 3),
           ),
@@ -812,7 +816,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               Text(
@@ -820,7 +824,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -829,7 +833,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             caption,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: context.textColor.withOpacity(0.6),
             ),
           ),
           SizedBox(height: 2.h),
@@ -843,7 +847,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 12,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: context.textColor.withOpacity(0.2),
                     valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
                   ),
                 ),
@@ -855,7 +859,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       '0',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.grey[400],
+                        color: context.textColor.withOpacity(0.4),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -863,7 +867,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       '5',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.grey[400],
+                        color: context.textColor.withOpacity(0.4),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -871,7 +875,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       '10',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.grey[400],
+                        color: context.textColor.withOpacity(0.4),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -882,7 +886,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   'Based on your nutrition intake',
                   style: TextStyle(
                     fontSize: 9,
-                    color: Colors.grey[400],
+                    color: context.textColor.withOpacity(0.4),
                   ),
                 ),
               ],
@@ -957,11 +961,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(4.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.textColor.withOpacity(0.04),
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -975,7 +979,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: context.textColor,
               height: 1.2,
             ),
             textAlign: TextAlign.center,
@@ -986,7 +990,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: context.textColor.withOpacity(0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1003,7 +1007,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey[400],
+                      color: context.textColor.withOpacity(0.4),
                     ),
                   ),
                 ],
@@ -1020,11 +1024,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(5.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: context.textColor.withOpacity(0.04),
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -1055,7 +1059,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               SizedBox(height: 2),
@@ -1064,7 +1068,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -1077,12 +1081,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Container(
               padding: EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.settings_outlined,
-                color: Colors.grey[600],
+                color: context.textColor.withOpacity(0.6),
                 size: 20,
               ),
             ),
@@ -1101,15 +1105,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.grey[100],
+                color: context.tileColor,
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
               child: Icon(
                 Icons.remove,
-                color: Colors.black,
+                color: context.textColor,
                 size: 24,
               ),
             ),
@@ -1126,11 +1130,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black,
+                color: context.textColor,
               ),
               child: Icon(
                 Icons.add,
-                color: Colors.white,
+                color: context.cardColor,
                 size: 24,
               ),
             ),
@@ -1150,7 +1154,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Text(
                 "Recently uploaded",
                 style: TextStyle(
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1163,7 +1167,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             if (controller.isLoading && controller.dailyRecords.isEmpty) {
               return Center(
                 child: CircularProgressIndicator(
-                  color: MealAIColors.selectedTile,
+                  color: context.textColor,
                 ),
               );
             }
@@ -1191,9 +1195,128 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
               itemBuilder: (context, index) {
                 NutritionRecord record = controller.dailyRecords[index];
-                return NutritionCard(
-                  nutritionRecord: record,
-                  userModel: userModel!,
+                
+                return Dismissible(
+                  key: Key('${record.recordTime?.toIso8601String()}_${record.hashCode}'),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.delete, color: Colors.white, size: 32),
+                        SizedBox(height: 4),
+                        Text(
+                          'Delete',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext dialogContext) {
+                        return AlertDialog(
+                          backgroundColor: context.cardColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          title: Text(
+                            'Delete Entry?',
+                            style: TextStyle(
+                              color: context.textColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          content: Text(
+                            'Are you sure you want to delete this ${record.isExercise ? "exercise" : "food"} entry?',
+                            style: TextStyle(color: context.textColor),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(false),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(color: context.textColor),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(true),
+                              child: Text(
+                                'Delete',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  onDismissed: (direction) async {
+                    final deletedRecord = record;
+                    final deletedIndex = index;
+                    
+                    // Remove from controller
+                    controller.removeRecord(record);
+                    
+                    // TODO: Delete from Firebase
+                    // final nutritionRecordRepo = NutritionRecordRepo();
+                    // await nutritionRecordRepo.deleteNutritionRecord(record.recordTime!);
+                    
+                    // Show snackbar with undo option
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('${record.isExercise ? "Exercise" : "Food"} entry deleted'),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        duration: Duration(seconds: 4),
+                        action: SnackBarAction(
+                          label: 'Undo',
+                          textColor: Colors.white,
+                          onPressed: () {
+                            // Re-add the record using the controller's method
+                            // Since there's no addRecord method visible, we'll need to update the controller
+                            final key = controller.selectedDate;
+                            if (!controller.dailyRecords.any((r) => r.recordTime == deletedRecord.recordTime)) {
+                              controller.dailyRecords.insert(
+                                deletedIndex < controller.dailyRecords.length ? deletedIndex : controller.dailyRecords.length,
+                                deletedRecord,
+                              );
+                              controller.update();
+                            }
+                            // TODO: Re-add to Firebase if deleted
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  child: NutritionCard(
+                    nutritionRecord: record,
+                    userModel: userModel!,
+                  ),
                 );
               },
             );

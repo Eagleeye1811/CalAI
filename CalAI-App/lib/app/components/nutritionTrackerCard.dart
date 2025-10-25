@@ -47,15 +47,15 @@ class NutritionTrackerCard extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(5.w),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardColor,
                 borderRadius: BorderRadius.circular(4.w),
                 border: Border.all(
-                  color: Color(0xFFE8E8E8), // Very light grey border
+                  color: context.borderColor,
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02), // Very subtle shadow
+                    color: context.textColor.withOpacity(0.02),
                     blurRadius: 10,
                     offset: Offset(0, 3),
                   ),
@@ -73,7 +73,7 @@ class NutritionTrackerCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: context.textColor,
                               height: 1.0,
                             ),
                           ),
@@ -81,7 +81,7 @@ class NutritionTrackerCard extends StatelessWidget {
                             'Calories left',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -94,7 +94,7 @@ class NutritionTrackerCard extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 40,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color: context.textColor,
                                     height: 1.0,
                                   ),
                                 ),
@@ -103,7 +103,7 @@ class NutritionTrackerCard extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.grey[400],
+                                    color: context.textColor.withOpacity(0.4),
                                   ),
                                 ),
                               ],
@@ -113,7 +113,7 @@ class NutritionTrackerCard extends StatelessWidget {
                             'Calories eaten',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -128,18 +128,18 @@ class NutritionTrackerCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: context.textColor.withOpacity(0.87),
                               ),
                             ),
                             SizedBox(width: 4.w),
-                            Icon(Icons.local_fire_department, size: 16, color: Colors.black),
+                            Icon(Icons.local_fire_department, size: 16, color: context.textColor),
                             SizedBox(width: 1.w),
                             Text(
                               '+$burnedCalories',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: context.textColor.withOpacity(0.87),
                               ),
                             ),
                           ],
@@ -153,11 +153,11 @@ class NutritionTrackerCard extends StatelessWidget {
                     percent: progress,
                     center: Icon(
                       Icons.local_fire_department,
-                      color: Colors.black,
+                      color: context.textColor,
                       size: 32,
                     ),
-                    progressColor: Colors.black,
-                    backgroundColor: Colors.grey[200]!,
+                    progressColor: context.textColor,
+                    backgroundColor: context.borderColor,
                     circularStrokeCap: CircularStrokeCap.round,
                   ),
                 ],
@@ -170,6 +170,7 @@ class NutritionTrackerCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: _buildMacroCard(
+                context,
                 'Protein', 
                 consumedProtein, 
                 maximumProtein, 
@@ -178,6 +179,7 @@ class NutritionTrackerCard extends StatelessWidget {
               )),
               SizedBox(width: 3.w),
               Expanded(child: _buildMacroCard(
+                context,
                 'Carbs', 
                 consumedCarb, 
                 maximumCarb,
@@ -186,6 +188,7 @@ class NutritionTrackerCard extends StatelessWidget {
               )),
               SizedBox(width: 3.w),
               Expanded(child: _buildMacroCard(
+                context,
                 'Fats', 
                 consumedFat, 
                 maximumFat,
@@ -200,6 +203,7 @@ class NutritionTrackerCard extends StatelessWidget {
   }
 
   Widget _buildMacroCard(
+    BuildContext context,
     String label, 
     int value, 
     int max, 
@@ -214,15 +218,15 @@ class NutritionTrackerCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(4.w),
           border: Border.all(
-            color: Color(0xFFE8E8E8), // Very light grey border
+            color: context.borderColor,
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02), // Very subtle shadow
+              color: context.textColor.withOpacity(0.02),
               blurRadius: 10,
               offset: Offset(0, 3),
             ),
@@ -236,14 +240,14 @@ class NutritionTrackerCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               Text(
                 '$label left',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ] else ...[
@@ -255,7 +259,7 @@ class NutritionTrackerCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: context.textColor,
                       ),
                     ),
                     TextSpan(
@@ -263,7 +267,7 @@ class NutritionTrackerCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[400],
+                        color: context.textColor.withOpacity(0.4),
                       ),
                     ),
                   ],
@@ -273,7 +277,7 @@ class NutritionTrackerCard extends StatelessWidget {
                 '$label eaten',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -284,7 +288,7 @@ class NutritionTrackerCard extends StatelessWidget {
               percent: progress,
               center: Icon(icon, color: color, size: 24),
               progressColor: color,
-              backgroundColor: Colors.grey[200]!,
+              backgroundColor: context.borderColor,
               circularStrokeCap: CircularStrokeCap.round,
             ),
           ],

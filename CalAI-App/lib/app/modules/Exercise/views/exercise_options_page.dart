@@ -13,18 +13,18 @@ class ExerciseOptionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          icon: Icon(Icons.arrow_back, color: context.textColor, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Exercise',
           style: TextStyle(
-            color: Colors.black,
+            color: context.textColor,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -41,12 +41,13 @@ class ExerciseOptionsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: context.textColor,
                 letterSpacing: -0.5,
               ),
             ),
             SizedBox(height: 32),
             _buildExerciseCard(
+              context,
               icon: Icons.directions_run_outlined,
               title: 'Run',
               description: 'Running, jogging, sprinting, etc.',
@@ -54,6 +55,7 @@ class ExerciseOptionsPage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             _buildExerciseCard(
+              context,
               icon: Icons.fitness_center_outlined,
               title: 'Weight lifting',
               description: 'Machines, free weights, etc.',
@@ -61,6 +63,7 @@ class ExerciseOptionsPage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             _buildExerciseCard(
+              context,
               icon: Icons.edit_outlined,
               title: 'Describe',
               description: 'Write your workout in text',
@@ -68,6 +71,7 @@ class ExerciseOptionsPage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             _buildExerciseCard(
+              context,
               icon: Icons.local_fire_department_outlined,
               title: 'Manual',
               description: 'Enter exactly how many calories you burned',
@@ -79,7 +83,8 @@ class ExerciseOptionsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildExerciseCard({
+  Widget _buildExerciseCard(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String description,
@@ -90,7 +95,7 @@ class ExerciseOptionsPage extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5), // Very light grey
+          color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -104,7 +109,7 @@ class ExerciseOptionsPage extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: Colors.black,
+                color: context.textColor,
                 size: 28,
               ),
             ),
@@ -119,7 +124,7 @@ class ExerciseOptionsPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: context.textColor,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -128,7 +133,7 @@ class ExerciseOptionsPage extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: context.textColor.withOpacity(0.6),
                       height: 1.3,
                     ),
                   ),

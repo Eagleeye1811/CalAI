@@ -88,38 +88,13 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         }
 
         return Scaffold(
-          backgroundColor: MealAIColors.whiteText,
+          backgroundColor: context.surfaceColor,
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  MealAIColors.blueGrey,
-                  MealAIColors.blueGrey.withOpacity(0.9),
-                  MealAIColors.blueGrey.withOpacity(0.8),
-                  MealAIColors.blueGrey.withOpacity(0.7),
-                  MealAIColors.blueGrey.withOpacity(0.6),
-                  MealAIColors.blueGrey.withOpacity(0.5),
-                  MealAIColors.blueGrey.withOpacity(0.4),
-                  MealAIColors.blueGrey.withOpacity(0.3),
-                  MealAIColors.blueGrey.withOpacity(0.2),
-                  MealAIColors.blueGrey.withOpacity(0.1),
-                  MealAIColors.whiteText,
-                ],
-                stops: const [
-                  0.0,
-                  0.1,
-                  0.2,
-                  0.3,
-                  0.4,
-                  0.5,
-                  0.6,
-                  0.7,
-                  0.8,
-                  0.9,
-                  1.0,
-                ],
+                colors: context.backgroundGradient,
               ),
             ),
             child: SafeArea(
@@ -163,7 +138,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         if (controller.isLoading.value) {
           return Center(
             child: CircularProgressIndicator(
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           );
         }
@@ -173,7 +148,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               child: Text(
             controller.errorMessage.value,
             style: TextStyle(
-              color: MealAIColors.red,
+              color: Colors.red,
               fontSize: 16,
             ),
             textAlign: TextAlign.center,
@@ -212,13 +187,13 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               width: 16.w.clamp(60.0, 80.0),
               height: 16.w.clamp(60.0, 80.0),
               decoration: BoxDecoration(
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.restaurant_menu,
                 size: 10.w.clamp(30.0, 40.0),
-                color: MealAIColors.whiteText,
+                color: context.cardColor,
               ),
             ),
             SizedBox(height: 4.h),
@@ -227,7 +202,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               style: TextStyle(
                 fontSize: 20.sp.clamp(18.0, 24.0),
                 fontWeight: FontWeight.w600,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -246,7 +221,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         'Ask about nutrition, meal analysis, or health advice',
         style: TextStyle(
           fontSize: 16.sp.clamp(14.0, 18.0),
-          color: MealAIColors.grey,
+          color: context.textColor.withOpacity(0.6),
           height: 1.5,
         ),
         textAlign: TextAlign.center,
@@ -277,12 +252,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.smart_toy,
-                  color: MealAIColors.whiteText,
+                  color: context.cardColor,
                   size: 18,
                 ),
               ),
@@ -308,8 +283,8 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                             left: 4.w, right: 4.w, top: 2.h, bottom: 2.h),
                         decoration: BoxDecoration(
                           color: isUser
-                              ? MealAIColors.blackText
-                              : MealAIColors.greyLight,
+                              ? context.textColor
+                              : context.tileColor,
                           borderRadius: BorderRadius.circular(20).copyWith(
                             bottomLeft:
                                 !isUser ? const Radius.circular(4) : null,
@@ -318,7 +293,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                           ),
                           border: !isUser
                               ? Border.all(
-                                  color: MealAIColors.grey.withOpacity(0.2),
+                                  color: context.borderColor,
                                   width: 1)
                               : null,
                         ),
@@ -333,12 +308,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: MealAIColors.grey,
+                  color: context.textColor.withOpacity(0.3),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.person,
-                  color: MealAIColors.whiteText,
+                  color: context.cardColor,
                   size: 18,
                 ),
               ),
@@ -359,12 +334,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: MealAIColors.greyLight,
+              color: context.tileColor,
               borderRadius: BorderRadius.circular(20).copyWith(
                 bottomLeft: const Radius.circular(4),
               ),
               border: Border.all(
-                  color: MealAIColors.grey.withOpacity(0.2), width: 1),
+                  color: context.borderColor, width: 1),
             ),
             child: MarkdownBody(
               data: message.content!,
@@ -405,19 +380,19 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: MealAIColors.whiteText,
+        color: context.cardColor,
         border: Border.all(
-            color: MealAIColors.blackText.withOpacity(0.08), width: 1.5),
+            color: context.borderColor, width: 1.5),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.04),
+            color: context.textColor.withOpacity(0.04),
             offset: const Offset(0, 4),
             blurRadius: 12,
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.02),
+            color: context.textColor.withOpacity(0.02),
             offset: const Offset(0, 1),
             blurRadius: 3,
             spreadRadius: 0,
@@ -500,12 +475,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       padding: EdgeInsets.all(4.w.clamp(16.0, 20.0)),
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight.withOpacity(0.5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MealAIColors.grey.withOpacity(0.2)),
+        border: Border.all(color: context.borderColor),
         boxShadow: [
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.02),
+            color: context.textColor.withOpacity(0.02),
             offset: const Offset(0, 1),
             blurRadius: 3,
           ),
@@ -519,7 +494,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               Icon(
                 Icons.message,
                 size: 16,
-                color: MealAIColors.grey,
+                color: context.textColor.withOpacity(0.6),
               ),
               SizedBox(width: 2.w.clamp(8.0, 10.0)),
               Text(
@@ -527,7 +502,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 13.sp.clamp(12.0, 15.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.grey,
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -537,7 +512,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             message,
             style: TextStyle(
               fontSize: 15.sp.clamp(13.0, 17.0),
-              color: MealAIColors.blackText,
+              color: context.textColor,
               height: 1.6,
               letterSpacing: -0.1,
             ),
@@ -554,9 +529,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       padding: EdgeInsets.all(4.w.clamp(16.0, 20.0)),
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight.withOpacity(0.3),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MealAIColors.grey.withOpacity(0.2)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,7 +541,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               Icon(
                 Icons.code,
                 size: 18,
-                color: MealAIColors.grey,
+                color: context.textColor.withOpacity(0.6),
               ),
               SizedBox(width: 2.w.clamp(8.0, 10.0)),
               Text(
@@ -574,14 +549,14 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 13.sp.clamp(12.0, 15.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.grey,
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: MealAIColors.blackText.withOpacity(0.1),
+                  color: context.textColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -589,7 +564,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                   style: TextStyle(
                     fontSize: 10.sp.clamp(9.0, 12.0),
                     fontWeight: FontWeight.w600,
-                    color: MealAIColors.grey,
+                    color: context.textColor.withOpacity(0.6),
                     fontFamily: 'monospace',
                   ),
                 ),
@@ -601,15 +576,15 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             width: double.infinity,
             padding: EdgeInsets.all(4.w.clamp(12.0, 16.0)),
             decoration: BoxDecoration(
-              color: MealAIColors.blackText.withOpacity(0.03),
+              color: context.textColor.withOpacity(0.03),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MealAIColors.grey.withOpacity(0.15)),
+              border: Border.all(color: context.borderColor),
             ),
             child: SelectableText(
               rawContent,
               style: TextStyle(
                 fontSize: 12.sp.clamp(11.0, 14.0),
-                color: MealAIColors.blackText.withOpacity(0.8),
+                color: context.textColor.withOpacity(0.8),
                 fontFamily: 'monospace',
                 height: 1.5,
               ),
@@ -631,22 +606,22 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             style: TextStyle(
               fontSize: 12.sp.clamp(11.0, 14.0),
               fontWeight: FontWeight.w600,
-              color: MealAIColors.grey,
+              color: context.textColor.withOpacity(0.6),
             ),
           ),
           SizedBox(height: 1.w.clamp(4.0, 6.0)),
           Container(
             padding: EdgeInsets.all(3.w.clamp(8.0, 12.0)),
             decoration: BoxDecoration(
-              color: MealAIColors.greyLight,
+              color: context.tileColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: MealAIColors.grey.withOpacity(0.3)),
+              border: Border.all(color: context.borderColor),
             ),
             child: Text(
               value,
               style: TextStyle(
                 fontSize: 13.sp.clamp(12.0, 15.0),
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 height: 1.4,
               ),
             ),
@@ -712,7 +687,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           fit: BoxFit.cover,
           placeholder: (context, url) => Container(
             height: 150,
-            color: MealAIColors.greyLight,
+            color: context.tileColor,
             child: const Center(
               child: CircularProgressIndicator(),
             ),
@@ -720,7 +695,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           errorWidget: (context, url, error) {
             return Container(
               height: 150,
-              color: MealAIColors.greyLight,
+              color: context.tileColor,
               child: const Center(
                 child: Icon(Icons.error),
               ),
@@ -746,91 +721,84 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
   }
 
   MarkdownStyleSheet _getMarkdownStyleSheet(bool isUser, double maxWidth) {
+    final textColor = isUser ? context.cardColor : context.textColor;
+    final mutedColor = isUser ? context.cardColor.withOpacity(0.9) : context.textColor.withOpacity(0.6);
+    
     return MarkdownStyleSheet(
       p: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
         fontSize: 15,
         fontWeight: FontWeight.w400,
         height: 1.5,
       ),
       h1: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
         fontSize: 22,
         fontWeight: FontWeight.w700,
         height: 1.3,
       ),
       h2: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
         fontSize: 20,
         fontWeight: FontWeight.w600,
         height: 1.3,
       ),
       h3: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
         fontSize: 18,
         fontWeight: FontWeight.w600,
         height: 1.3,
       ),
       strong: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
         fontWeight: FontWeight.w700,
       ),
       em: TextStyle(
-        color: isUser
-            ? MealAIColors.whiteText.withOpacity(0.9)
-            : MealAIColors.grey,
+        color: mutedColor,
         fontStyle: FontStyle.italic,
       ),
       code: TextStyle(
         backgroundColor: isUser
-            ? MealAIColors.whiteText.withOpacity(0.2)
-            : MealAIColors.greyLight,
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+            ? context.cardColor.withOpacity(0.2)
+            : context.tileColor,
+        color: textColor,
         fontSize: 14,
         fontFamily: 'monospace',
       ),
       codeblockDecoration: BoxDecoration(
         color: isUser
-            ? MealAIColors.whiteText.withOpacity(0.1)
-            : MealAIColors.greyLight,
+            ? context.cardColor.withOpacity(0.1)
+            : context.tileColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isUser
-              ? MealAIColors.whiteText.withOpacity(0.3)
-              : MealAIColors.grey.withOpacity(0.3),
+          color: context.borderColor,
         ),
       ),
       codeblockPadding: const EdgeInsets.all(12),
       blockquote: TextStyle(
-        color: isUser
-            ? MealAIColors.whiteText.withOpacity(0.9)
-            : MealAIColors.grey,
+        color: mutedColor,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
         border: Border(
           left: BorderSide(
-            color: isUser
-                ? MealAIColors.whiteText.withOpacity(0.5)
-                : MealAIColors.grey,
+            color: context.borderColor,
             width: 4,
           ),
         ),
       ),
       listBullet: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
       ),
       tableHead: TextStyle(
         fontWeight: FontWeight.w600,
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
       ),
       tableBody: TextStyle(
-        color: isUser ? MealAIColors.whiteText : MealAIColors.blackText,
+        color: textColor,
       ),
       tableBorder: TableBorder.all(
-        color: isUser
-            ? MealAIColors.whiteText.withOpacity(0.3)
-            : MealAIColors.grey.withOpacity(0.3),
+        color: context.borderColor,
       ),
     );
   }
@@ -846,12 +814,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: MealAIColors.whiteText,
-        border: Border.all(color: MealAIColors.blackText, width: 1),
+        color: context.cardColor,
+        border: Border.all(color: context.textColor, width: 1),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.05),
+            color: context.textColor.withOpacity(0.05),
             offset: const Offset(0, 2),
             blurRadius: 8,
           ),
@@ -882,7 +850,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: MealAIColors.blackText.withOpacity(0.1),
+                          color: context.textColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: AnimatedRotation(
@@ -890,7 +858,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                           turns: isExpanded ? 0.5 : 0.0,
                           child: Icon(
                             Icons.keyboard_arrow_down,
-                            color: MealAIColors.blackText,
+                            color: context.textColor,
                             size: 20,
                           ),
                         ),
@@ -913,7 +881,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                         'Tap to view detailed analysis',
                         style: TextStyle(
                           fontSize: 11.sp.clamp(10.0, 13.0),
-                          color: MealAIColors.grey,
+                          color: context.textColor.withOpacity(0.6),
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -979,12 +947,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Container(
               padding: EdgeInsets.all(2.w.clamp(6.0, 10.0)),
               decoration: BoxDecoration(
-                color: MealAIColors.blackText.withOpacity(0.1),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.analytics,
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 size: 5.w.clamp(18.0, 24.0),
               ),
             ),
@@ -995,7 +963,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 18.sp.clamp(16.0, 20.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -1025,7 +993,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         vertical: 1.5.w.clamp(4.0, 8.0),
       ),
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -1033,7 +1001,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         style: TextStyle(
           fontSize: 12.sp.clamp(11.0, 14.0),
           fontWeight: FontWeight.w500,
-          color: MealAIColors.blackText,
+          color: context.textColor,
         ),
         overflow: TextOverflow.ellipsis,
       ),
@@ -1059,12 +1027,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: MealAIColors.blackText.withOpacity(0.1),
+            color: context.textColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: MealAIColors.blackText,
+            color: context.textColor,
             size: 5.w.clamp(18.0, 24.0),
           ),
         ),
@@ -1075,7 +1043,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             style: TextStyle(
               fontSize: 16.sp.clamp(14.0, 18.0),
               fontWeight: FontWeight.w600,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
         ),
@@ -1125,9 +1093,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       padding: EdgeInsets.all(3.w.clamp(12.0, 16.0)),
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight.withOpacity(0.5),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MealAIColors.grey.withOpacity(0.2)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1149,7 +1117,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       children: [
         Icon(
           icon,
-          color: MealAIColors.blackText,
+          color: context.textColor,
           size: 4.w.clamp(16.0, 20.0),
         ),
         SizedBox(height: 1.w.clamp(4.0, 6.0)),
@@ -1158,7 +1126,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           style: TextStyle(
             fontSize: 12.sp.clamp(11.0, 14.0),
             fontWeight: FontWeight.w600,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
         Text(
@@ -1166,7 +1134,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           style: TextStyle(
             fontSize: 10.sp.clamp(9.0, 12.0),
             fontWeight: FontWeight.w400,
-            color: MealAIColors.grey,
+            color: context.textColor.withOpacity(0.6),
           ),
         ),
       ],
@@ -1177,9 +1145,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MealAIColors.grey.withOpacity(0.3)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1188,7 +1156,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
         children: [
           Icon(
             icon,
-            color: MealAIColors.blackText,
+            color: context.textColor,
             size: 5.w.clamp(16.0, 24.0),
           ),
           SizedBox(width: 2.w.clamp(6.0, 8.0)),
@@ -1204,7 +1172,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                     style: TextStyle(
                       fontSize: 14.sp.clamp(12.0, 16.0),
                       fontWeight: FontWeight.w700,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                     ),
                   ),
                 ),
@@ -1215,7 +1183,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                     style: TextStyle(
                       fontSize: 11.sp.clamp(10.0, 13.0),
                       fontWeight: FontWeight.w500,
-                      color: MealAIColors.grey,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -1238,12 +1206,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Container(
               padding: EdgeInsets.all(2.w),
               decoration: BoxDecoration(
-                color: MealAIColors.blackText.withOpacity(0.1),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.search,
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 size: 5.w,
               ),
             ),
@@ -1254,7 +1222,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ),
@@ -1293,7 +1261,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
 
   BoxDecoration _buildIngredientDecoration(Color color) {
     return BoxDecoration(
-      color: MealAIColors.greyLight,
+      color: context.tileColor,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: color.withOpacity(0.3)),
     );
@@ -1309,7 +1277,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             style: TextStyle(
               fontSize: 14.sp.clamp(13.0, 16.0),
               fontWeight: FontWeight.w600,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
         ),
@@ -1342,7 +1310,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             style: TextStyle(
               fontSize: 12.sp.clamp(11.0, 14.0),
               fontWeight: FontWeight.w600,
-              color: MealAIColors.whiteText,
+              color: Colors.white,
             ),
           ),
         ],
@@ -1355,7 +1323,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       'Cal: ${ingredient.calories} | Protein: ${ingredient.protein}g | Carbs: ${ingredient.carbs}g | Fat: ${ingredient.fat}g',
       style: TextStyle(
         fontSize: 12.sp.clamp(11.0, 14.0),
-        color: MealAIColors.grey,
+        color: context.textColor.withOpacity(0.6),
         fontStyle: FontStyle.italic,
       ),
     );
@@ -1366,7 +1334,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       comments,
       style: TextStyle(
         fontSize: 12.sp.clamp(11.0, 14.0),
-        color: MealAIColors.blackText,
+        color: context.textColor,
         height: 1.4,
       ),
     );
@@ -1388,12 +1356,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Container(
               padding: EdgeInsets.all(2.w.clamp(6.0, 10.0)),
               decoration: BoxDecoration(
-                color: MealAIColors.blackText.withOpacity(0.1),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.health_and_safety,
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 size: 5.w.clamp(18.0, 24.0),
               ),
             ),
@@ -1404,7 +1372,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 16.sp.clamp(14.0, 18.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ),
@@ -1447,7 +1415,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                           style: TextStyle(
                             fontSize: 14.sp.clamp(12.0, 16.0),
                             fontWeight: FontWeight.w600,
-                            color: MealAIColors.whiteText,
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -1461,7 +1429,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                   response.overallHealthComments!,
                   style: TextStyle(
                     fontSize: 14.sp.clamp(12.0, 16.0),
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                     height: 1.5,
                   ),
                 ),
@@ -1484,12 +1452,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: MealAIColors.grey.withOpacity(0.1),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.warning,
-                color: MealAIColors.grey,
+                color: Colors.orange,
                 size: 20,
               ),
             ),
@@ -1500,7 +1468,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 16.sp.clamp(14.0, 18.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ),
@@ -1518,9 +1486,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       padding: const EdgeInsets.all(16),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MealAIColors.grey.withOpacity(0.3)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1530,7 +1498,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             style: TextStyle(
               fontSize: 14.sp.clamp(13.0, 16.0),
               fontWeight: FontWeight.w600,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           if (concern.explanation?.isNotEmpty == true) ...[
@@ -1539,7 +1507,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               concern.explanation!,
               style: TextStyle(
                 fontSize: 13.sp.clamp(12.0, 15.0),
-                color: MealAIColors.grey,
+                color: context.textColor.withOpacity(0.6),
                 height: 1.4,
               ),
             ),
@@ -1550,9 +1518,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.lightbulb,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                   size: 16,
                 ),
                 const SizedBox(width: 6),
@@ -1565,7 +1533,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                         style: TextStyle(
                           fontSize: 13.sp.clamp(12.0, 15.0),
                           fontWeight: FontWeight.w600,
-                          color: MealAIColors.blackText,
+                          color: context.textColor,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -1575,7 +1543,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                               '• ${rec.food} (${rec.quantity}): ${rec.reasoning}',
                               style: TextStyle(
                                 fontSize: 12.sp.clamp(11.0, 14.0),
-                                color: const Color(0xFF78350F),
+                                color: context.textColor.withOpacity(0.8),
                                 height: 1.3,
                               ),
                             ),
@@ -1602,12 +1570,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: MealAIColors.blackText.withOpacity(0.1),
+                color: context.textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.swap_horiz,
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 size: 20,
               ),
             ),
@@ -1618,7 +1586,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 style: TextStyle(
                   fontSize: 16.sp.clamp(14.0, 18.0),
                   fontWeight: FontWeight.w600,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ),
@@ -1639,9 +1607,9 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       padding: const EdgeInsets.all(16),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: MealAIColors.greyLight,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MealAIColors.blackText.withOpacity(0.2)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1654,7 +1622,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                   style: TextStyle(
                     fontSize: 14.sp.clamp(13.0, 16.0),
                     fontWeight: FontWeight.w600,
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                   ),
                 ),
               ),
@@ -1680,7 +1648,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             'Cal: ${alternative.calories} | Protein: ${alternative.protein}g | Carbs: ${alternative.carbs}g | Fat: ${alternative.fat}g',
             style: TextStyle(
               fontSize: 12.sp.clamp(11.0, 14.0),
-              color: MealAIColors.grey,
+              color: context.textColor.withOpacity(0.6),
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -1690,7 +1658,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               alternative.healthComments!,
               style: TextStyle(
                 fontSize: 12.sp.clamp(11.0, 14.0),
-                color: MealAIColors.blackText,
+                color: context.textColor,
                 height: 1.4,
               ),
             ),
@@ -1972,12 +1940,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: MealAIColors.blackText,
+              color: context.textColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.smart_toy,
-              color: MealAIColors.whiteText,
+              color: context.cardColor,
               size: 18,
             ),
           ),
@@ -1989,12 +1957,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: MealAIColors.greyLight,
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(20).copyWith(
                   bottomLeft: const Radius.circular(4),
                 ),
                 border: Border.all(
-                    color: MealAIColors.grey.withOpacity(0.3), width: 1),
+                    color: context.borderColor, width: 1),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -2002,7 +1970,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                   Text(
                     'CalAI is thinking',
                     style: TextStyle(
-                      color: MealAIColors.grey,
+                      color: context.textColor.withOpacity(0.6),
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
                     ),
@@ -2037,7 +2005,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: Color(0xFF6366F1),
+              color: Color(0xFF6366F1), // Functional purple color for animation
               shape: BoxShape.circle,
             ),
           ),
@@ -2048,7 +2016,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
 
   Widget _buildInputArea() {
     return Container(
-      color: MealAIColors.whiteText,
+      color: context.cardColor,
       padding: const EdgeInsets.all(16),
       child: SafeArea(
         top: false,
@@ -2071,16 +2039,16 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: MealAIColors.greyLight,
+                      color: context.tileColor,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: MealAIColors.grey.withOpacity(0.3),
+                        color: context.borderColor,
                         width: 1,
                       ),
                     ),
                     child: Icon(
                       Icons.camera_alt,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                       size: 24,
                     ),
                   ),
@@ -2094,10 +2062,10 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                       maxHeight: 120,
                     ),
                     decoration: BoxDecoration(
-                      color: MealAIColors.greyLight,
+                      color: context.tileColor,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: MealAIColors.grey.withOpacity(0.3),
+                        color: context.borderColor,
                         width: 1,
                       ),
                     ),
@@ -2109,7 +2077,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                       decoration: InputDecoration(
                         hintText: 'Message CalAI...',
                         hintStyle: TextStyle(
-                          color: MealAIColors.grey,
+                          color: context.textColor.withOpacity(0.5),
                           fontSize: 16,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -2123,7 +2091,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                       style: TextStyle(
                         fontSize: 16,
                         height: 1.4,
-                        color: MealAIColors.blackText,
+                        color: context.textColor,
                       ),
                     ),
                   ),
@@ -2144,8 +2112,8 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                         decoration: BoxDecoration(
                           color: (controller.isTyping.value ||
                                   controller.isUploadingImage.value)
-                              ? MealAIColors.grey
-                              : MealAIColors.blackText,
+                              ? context.textColor.withOpacity(0.3)
+                              : context.textColor,
                           shape: BoxShape.circle,
                         ),
                         child: controller.isUploadingImage.value
@@ -2156,7 +2124,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    MealAIColors.whiteText,
+                                    context.cardColor,
                                   ),
                                 ),
                               )
@@ -2164,8 +2132,8 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                                 Icons.send,
                                 color: (controller.isTyping.value ||
                                         controller.isUploadingImage.value)
-                                    ? MealAIColors.greyLight
-                                    : MealAIColors.whiteText,
+                                    ? context.textColor.withOpacity(0.5)
+                                    : context.cardColor,
                                 size: 24,
                               ),
                       ),
@@ -2189,7 +2157,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: MealAIColors.grey.withOpacity(0.3),
+                color: context.borderColor,
                 width: 1,
               ),
             ),
@@ -2210,12 +2178,12 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MealAIColors.blackText.withOpacity(0.7),
+                  color: context.textColor.withOpacity(0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: MealAIColors.whiteText,
+                  color: context.cardColor,
                   size: 16,
                 ),
               ),
@@ -2233,7 +2201,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
   void _showImageSourceBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: MealAIColors.whiteText,
+      backgroundColor: context.cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -2246,7 +2214,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: MealAIColors.grey,
+                color: context.textColor.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -2256,7 +2224,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             const SizedBox(height: 20),
@@ -2271,10 +2239,10 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: MealAIColors.greyLight,
+                        color: context.tileColor,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: MealAIColors.grey.withOpacity(0.3),
+                          color: context.borderColor,
                         ),
                       ),
                       child: Column(
@@ -2282,7 +2250,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                           Icon(
                             Icons.camera_alt,
                             size: 32,
-                            color: MealAIColors.blackText,
+                            color: context.textColor,
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -2290,7 +2258,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: MealAIColors.blackText,
+                              color: context.textColor,
                             ),
                           ),
                         ],
@@ -2308,10 +2276,10 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: MealAIColors.greyLight,
+                        color: context.tileColor,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: MealAIColors.grey.withOpacity(0.3),
+                          color: context.borderColor,
                         ),
                       ),
                       child: Column(
@@ -2319,7 +2287,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                           Icon(
                             Icons.photo_library,
                             size: 32,
-                            color: MealAIColors.blackText,
+                            color: context.textColor,
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -2327,7 +2295,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: MealAIColors.blackText,
+                              color: context.textColor,
                             ),
                           ),
                         ],
@@ -2349,24 +2317,24 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: MealAIColors.whiteText,
+        color: context.cardColor,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.15),
+            color: context.textColor.withOpacity(0.15),
             spreadRadius: 0,
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.1),
+            color: context.textColor.withOpacity(0.1),
             spreadRadius: 0,
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: MealAIColors.blackText.withOpacity(0.1),
+          color: context.borderColor,
           width: 1,
         ),
       ),
@@ -2378,7 +2346,7 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
           child: Center(
             child: Icon(
               Icons.keyboard_arrow_up_rounded,
-              color: MealAIColors.blackText,
+              color: context.textColor,
               size: 24,
             ),
           ),
@@ -2407,9 +2375,10 @@ class _CalAIAgentViewState extends State<CalAIAgentView>
   }
 
   Color _getHealthScoreColor(int score) {
-    if (score >= 7) return MealAIColors.blackText;
-    if (score >= 5) return MealAIColors.grey;
-    return MealAIColors.grey.withOpacity(0.7);
+    // Functional colors for health scores
+    if (score >= 7) return Colors.green;
+    if (score >= 5) return Colors.orange;
+    return Colors.red;
   }
 
   IconData _getHealthScoreIcon(int score) {

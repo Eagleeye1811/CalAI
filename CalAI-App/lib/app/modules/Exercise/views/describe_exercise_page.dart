@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';  // ADD THIS
+import 'package:CalAI/app/models/AI/nutrition_record.dart';
 import 'package:CalAI/app/modules/Exercise/controllers/describe_exercise_controller.dart';
 import 'workout_result_page.dart';
 
 class DescribeExercisePage extends StatefulWidget {
-  final NutritionRecord? existingRecord;  // ADD THIS
+  final NutritionRecord? existingRecord;
   
   const DescribeExercisePage({
     Key? key,
-    this.existingRecord,  // ADD THIS
+    this.existingRecord,
   }) : super(key: key);
 
   @override
@@ -41,18 +41,18 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText, size: 28),
+          icon: Icon(Icons.arrow_back, color: context.textColor, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Describe Exercise',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -69,7 +69,7 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: MealAIColors.blackText,
+                color: context.textColor,
               ),
             ),
             SizedBox(height: 8),
@@ -77,7 +77,7 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
               'Tell us what exercise you did, for how long, and at what intensity.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600],
+                color: context.textColor.withOpacity(0.6),
               ),
             ),
             SizedBox(height: 20),
@@ -86,15 +86,15 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: context.tileColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: context.borderColor,
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: context.textColor.withOpacity(0.02),
                     blurRadius: 6,
                     offset: Offset(0, 2),
                   ),
@@ -105,14 +105,14 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.lightbulb_outline, color: Colors.grey[700], size: 20),
+                      Icon(Icons.lightbulb_outline, color: context.textColor.withOpacity(0.7), size: 20),
                       SizedBox(width: 8),
                       Text(
                         'Examples:',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                     ],
@@ -120,19 +120,19 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                   SizedBox(height: 8),
                   Text(
                     '• "I did 50 pushups in 2 minutes"',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 12, color: context.textColor.withOpacity(0.7)),
                   ),
                   Text(
                     '• "Intense cycling for 30 minutes"',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 12, color: context.textColor.withOpacity(0.7)),
                   ),
                   Text(
                     '• "Light yoga session for 15 mins"',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 12, color: context.textColor.withOpacity(0.7)),
                   ),
                   Text(
                     '• "30 burpees, high intensity"',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 12, color: context.textColor.withOpacity(0.7)),
                   ),
                 ],
               ),
@@ -143,15 +143,15 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
             // Text input field
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: context.borderColor,
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: context.textColor.withOpacity(0.03),
                     blurRadius: 8,
                     offset: Offset(0, 2),
                   ),
@@ -162,12 +162,12 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                 maxLines: 5,
                 style: TextStyle(
                   fontSize: 16,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
                 decoration: InputDecoration(
                   hintText: 'E.g., "I did pushups for 1 minute at medium intensity"',
                   hintStyle: TextStyle(
-                    color: Colors.grey[400],
+                    color: context.textColor.withOpacity(0.4),
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
@@ -188,8 +188,8 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                     : () => _analyzeExercise(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _controller.isLoading.value
-                      ? Colors.grey[300]
-                      : Colors.black,
+                      ? context.textColor.withOpacity(0.3)
+                      : context.textColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -203,7 +203,7 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                               strokeWidth: 2,
                             ),
                           ),
@@ -213,7 +213,7 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                              color: context.textColor.withOpacity(0.6),
                             ),
                           ),
                         ],
@@ -221,14 +221,14 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.psychology, color: Colors.white, size: 20),
+                          Icon(Icons.psychology, color: context.cardColor, size: 20),
                           SizedBox(width: 8),
                           Text(
                             'Analyze Exercise',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: context.cardColor,
                             ),
                           ),
                         ],
@@ -264,7 +264,7 @@ class _DescribeExercisePageState extends State<DescribeExercisePage> {
           intensity: result['intensity'] ?? 'Medium',
           duration: result['duration'] ?? 0,
           burnedCalories: result['caloriesBurned'] ?? 0,
-          existingRecord: widget.existingRecord,  // ADD THIS
+          existingRecord: widget.existingRecord,
         ));
       }
     } catch (e) {

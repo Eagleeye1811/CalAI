@@ -85,18 +85,18 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: MealAIColors.blackText),
+          icon: Icon(Icons.arrow_back, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Custom Food',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -126,14 +126,14 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: context.textColor,
                     ),
                   ),
                   Text(
                     'Nutrients',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade500,
+                      color: context.textColor.withOpacity(0.5),
                     ),
                   ),
                 ],
@@ -195,7 +195,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
       width: 24,
       height: 24,
       decoration: BoxDecoration(
-        color: active ? MealAIColors.blackText : Colors.grey.shade300,
+        color: active ? Theme.of(context).colorScheme.primary : context.borderColor,
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -203,7 +203,9 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: active 
+                ? Theme.of(context).colorScheme.onPrimary 
+                : context.cardColor,
             shape: BoxShape.circle,
           ),
         ),
@@ -214,7 +216,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   Widget _buildProgressLine(bool active) {
     return Container(
       height: 2,
-      color: active ? MealAIColors.blackText : Colors.grey.shade300,
+      color: active ? Theme.of(context).colorScheme.primary : context.borderColor,
       margin: EdgeInsets.symmetric(horizontal: 8),
     );
   }
@@ -234,27 +236,27 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
         SizedBox(height: 1.h),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: context.tileColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: context.borderColor),
           ),
           child: TextField(
             controller: controller,
             keyboardType: keyboardType,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-              prefixIcon: Icon(icon, color: Colors.grey.shade600),
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.4), fontSize: 15),
+              prefixIcon: Icon(icon, color: context.textColor.withOpacity(0.6)),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            style: TextStyle(fontSize: 16, color: Colors.black87),
+            style: TextStyle(fontSize: 16, color: context.textColor),
           ),
         ),
       ],
@@ -268,11 +270,11 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: MealAIColors.blackText,
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: context.textColor.withOpacity(0.1),
               blurRadius: 8,
               offset: Offset(0, 4),
             ),
@@ -287,11 +289,15 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
               SizedBox(width: 8),
-              Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+              Icon(
+                Icons.arrow_forward,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 20,
+              ),
             ],
           ),
         ),

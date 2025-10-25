@@ -64,5 +64,8 @@
 
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>To enable GPS location access for Exif data</string>
+
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>We need access to save food images to your photo library</string>
 </dict>
 </plist>

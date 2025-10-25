@@ -44,10 +44,10 @@ class _MealAiCameraState extends State<MealAiCamera> {
       File imageFile = File(image.path);
 
       final ScannerController scannerController = Get.find<ScannerController>();
-      final authController = Get.find<AuthController>();  // ✅ Use GetX
+      final authController = Get.find<AuthController>();
 
       scannerController.processNutritionQueryRequest(
-          authController.userId!,  // ✅ Correct
+          authController.userId!,
           imageFile,
           _selectedscanMode,
           context);
@@ -58,21 +58,24 @@ class _MealAiCameraState extends State<MealAiCamera> {
   void _showInfoDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Scanner Guide'),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: context.cardColor,
+        title: Text('Scanner Guide', style: TextStyle(color: context.textColor)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('• Camera: Take a photo of your meal'),
+          children: [
+            Text('• Camera: Take a photo of your meal', 
+              style: TextStyle(color: context.textColor)),
             SizedBox(height: 8),
-            Text('• Gallery: Select from your photos'),
+            Text('• Gallery: Select from your photos',
+              style: TextStyle(color: context.textColor)),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text('Got it', style: TextStyle(color: context.textColor)),
           ),
         ],
       ),
@@ -82,17 +85,17 @@ class _MealAiCameraState extends State<MealAiCamera> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: Icon(Icons.close, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline, color: Colors.white),
+            icon: Icon(Icons.info_outline, color: context.textColor),
             onPressed: _showInfoDialog,
           ),
         ],
@@ -105,19 +108,19 @@ class _MealAiCameraState extends State<MealAiCamera> {
               width: 80.w,
               height: 80.w,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 3),
+                border: Border.all(color: context.borderColor, width: 3),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
                 Icons.fastfood_outlined,
                 size: 80,
-                color: Colors.white54,
+                color: context.textColor.withOpacity(0.5),
               ),
             ),
             SizedBox(height: 40),
             Text(
               'Choose an option',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: context.textColor, fontSize: 18),
             ),
             SizedBox(height: 40),
             Row(
@@ -147,7 +150,7 @@ class _MealAiCameraState extends State<MealAiCamera> {
             child: Icon(icon, color: Colors.white, size: 40),
           ),
           SizedBox(height: 10),
-          Text(label, style: TextStyle(color: Colors.white)),
+          Text(label, style: TextStyle(color: context.textColor)),
         ],
       ),
     );

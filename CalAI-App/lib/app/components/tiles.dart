@@ -24,8 +24,8 @@ class PrimaryTile extends StatelessWidget {
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
           color: isSelected
-              ? MealAIColors.selectedTile
-              : MealAIColors.lightGreyTile,
+              ? context.textColor
+              : context.tileColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -37,13 +37,12 @@ class PrimaryTile extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? MealAIColors.whiteText
-                          : MealAIColors.blackText,
+                          ? context.cardColor
+                          : context.textColor,
                     ),
-                maxLines: 2, // Allow the text to span up to two lines
-                overflow:
-                    TextOverflow.ellipsis, // Add ellipsis if text overflows
-                textAlign: TextAlign.center, // Center the text
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             ),
           ],
@@ -77,8 +76,8 @@ class SecondaryTile extends StatelessWidget {
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
           color: isSelected
-              ? MealAIColors.selectedTile
-              : MealAIColors.lightGreyTile,
+              ? context.textColor
+              : context.tileColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -92,8 +91,8 @@ class SecondaryTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isSelected
-                              ? MealAIColors.whiteText
-                              : MealAIColors.blackText,
+                              ? context.cardColor
+                              : context.textColor,
                         ),
                   ),
                   SizedBox(height: 1.w),
@@ -101,8 +100,8 @@ class SecondaryTile extends StatelessWidget {
                     description,
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: isSelected
-                              ? MealAIColors.whiteText.withOpacity(0.8)
-                              : MealAIColors.blackText.withOpacity(0.7),
+                              ? context.cardColor.withOpacity(0.8)
+                              : context.textColor.withOpacity(0.7),
                         ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -140,21 +139,19 @@ class PrimaryIconTile extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 2.w),
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
-          color:
-              isSelected ? MealAIColors.blackText : MealAIColors.lightGreyTile,
+          color: isSelected ? context.textColor : context.tileColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor:
-                  isSelected ? MealAIColors.whiteText : MealAIColors.blackText,
+              backgroundColor: isSelected ? context.cardColor : context.textColor,
               child: Icon(
                 icon,
                 color: isSelected
-                    ? MealAIColors.blackText
-                    : MealAIColors.whiteText,
+                    ? context.textColor
+                    : context.cardColor,
               ),
             ),
             SizedBox(width: 5.w),
@@ -163,8 +160,8 @@ class PrimaryIconTile extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isSelected
-                        ? MealAIColors.whiteText
-                        : MealAIColors.blackText,
+                        ? context.cardColor
+                        : context.textColor,
                   ),
             ),
           ],
@@ -178,14 +175,14 @@ class MealTimePicker extends StatefulWidget {
   final String title;
   final bool isSelected;
   final IconData icon;
-  final ValueChanged<TimeOfDay?> onTimeChanged; // Callback to return time
+  final ValueChanged<TimeOfDay?> onTimeChanged;
 
   const MealTimePicker({
     super.key,
     required this.title,
     required this.isSelected,
     required this.icon,
-    required this.onTimeChanged, // Required parameter for time change callback
+    required this.onTimeChanged,
   });
 
   @override
@@ -196,17 +193,19 @@ class _MealTimePickerState extends State<MealTimePicker> {
   TimeOfDay? selectedTime;
 
   Future<void> _pickTime(BuildContext context) async {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: selectedTime ?? TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
+          data: isDarkMode ? ThemeData.dark() : ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: MealAIColors.selectedTile, // Custom primary color
-              onPrimary: MealAIColors.whiteText, // Text color on primary
-              surface: MealAIColors.lightGreyTile, // Background color
-              onSurface: MealAIColors.blackText, // Text color on surface
+              primary: context.textColor,
+              onPrimary: context.cardColor,
+              surface: context.tileColor,
+              onSurface: context.textColor,
             ),
           ),
           child: child!,
@@ -218,7 +217,7 @@ class _MealTimePickerState extends State<MealTimePicker> {
       setState(() {
         selectedTime = picked;
       });
-      widget.onTimeChanged(picked); // Notify parent of time change
+      widget.onTimeChanged(picked);
     }
   }
 
@@ -232,8 +231,8 @@ class _MealTimePickerState extends State<MealTimePicker> {
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: widget.isSelected
-              ? MealAIColors.blackText
-              : MealAIColors.lightGreyTile,
+              ? context.textColor
+              : context.tileColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -243,13 +242,13 @@ class _MealTimePickerState extends State<MealTimePicker> {
               children: [
                 CircleAvatar(
                   backgroundColor: widget.isSelected
-                      ? MealAIColors.whiteText
-                      : MealAIColors.blackText,
+                      ? context.cardColor
+                      : context.textColor,
                   child: Icon(
                     widget.icon,
                     color: widget.isSelected
-                        ? MealAIColors.blackText
-                        : MealAIColors.whiteText,
+                        ? context.textColor
+                        : context.cardColor,
                   ),
                 ),
                 SizedBox(width: 16.0),
@@ -260,8 +259,8 @@ class _MealTimePickerState extends State<MealTimePicker> {
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: widget.isSelected
-                            ? MealAIColors.whiteText
-                            : MealAIColors.blackText,
+                            ? context.cardColor
+                            : context.textColor,
                       ),
                 ),
               ],
@@ -269,8 +268,8 @@ class _MealTimePickerState extends State<MealTimePicker> {
             Icon(
               selectedTime != null ? Icons.edit : Icons.add,
               color: widget.isSelected
-                  ? MealAIColors.whiteText
-                  : MealAIColors.blackText,
+                  ? context.cardColor
+                  : context.textColor,
             ),
           ],
         ),

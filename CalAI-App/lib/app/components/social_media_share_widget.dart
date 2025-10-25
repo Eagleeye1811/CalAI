@@ -50,18 +50,18 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MealAIColors.whiteText,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: MealAIColors.whiteText,
+        backgroundColor: context.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: MealAIColors.blackText),
+          icon: Icon(Icons.close, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Share Your Meal',
           style: TextStyle(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -72,21 +72,19 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
               margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
               child: ElevatedButton.icon(
                 onPressed: _handleShare,
-                icon:
-                    Icon(Icons.share, color: MealAIColors.whiteText, size: 18),
+                icon: Icon(Icons.share, color: context.cardColor, size: 18),
                 label: Text(
                   'Share',
                   style: TextStyle(
-                    color: MealAIColors.whiteText,
+                    color: context.cardColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: MealAIColors.blackText,
+                  backgroundColor: context.textColor,
                   elevation: 0,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -132,15 +130,15 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       width: 90.w,
       constraints: BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
-        color: MealAIColors.whiteText,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: MealAIColors.blackText.withOpacity(0.1),
+          color: context.borderColor,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: MealAIColors.blackText.withOpacity(0.05),
+            color: context.textColor.withOpacity(0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -180,7 +178,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       width: double.infinity,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: MealAIColors.blackText,
+        color: context.textColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
@@ -191,12 +189,12 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: MealAIColors.whiteText,
+              color: context.cardColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Icons.restaurant_menu,
-              color: MealAIColors.blackText,
+              color: context.textColor,
               size: 20,
             ),
           ),
@@ -208,7 +206,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
                 Text(
                   'CalAI',
                   style: TextStyle(
-                    color: MealAIColors.whiteText,
+                    color: context.cardColor,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
@@ -217,7 +215,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
                 Text(
                   'AI Nutrition Tracking',
                   style: TextStyle(
-                    color: MealAIColors.whiteText.withOpacity(0.8),
+                    color: context.cardColor.withOpacity(0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
@@ -229,7 +227,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
             Text(
               '@${widget.userName}',
               style: TextStyle(
-                color: MealAIColors.whiteText,
+                color: context.cardColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -247,7 +245,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: MealAIColors.blackText.withOpacity(0.1),
+          color: context.borderColor,
           width: 1,
         ),
       ),
@@ -260,16 +258,16 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
               imageUrl: widget.nutritionRecord.nutritionInputQuery!.imageUrl!,
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
-                color: MealAIColors.lightGreyTile,
+                color: context.tileColor,
                 child: Center(
                   child: CircularProgressIndicator(
-                    color: MealAIColors.blackText.withOpacity(0.5),
+                    color: context.textColor.withOpacity(0.5),
                     strokeWidth: 2,
                   ),
                 ),
               ),
               errorWidget: (context, url, error) =>
-                  const SizedBox.shrink(), // Return empty widget on error
+                  const SizedBox.shrink(),
             ),
 
             // Time stamp
@@ -279,7 +277,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: MealAIColors.blackText.withOpacity(0.8),
+                  color: context.textColor.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -288,7 +286,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
                         DateTime.now(),
                   ),
                   style: TextStyle(
-                    color: MealAIColors.whiteText,
+                    color: context.cardColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -311,7 +309,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -319,13 +317,13 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: MealAIColors.blackText,
+              color: context.textColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '$totalCalories calories',
               style: TextStyle(
-                color: MealAIColors.whiteText,
+                color: context.cardColor,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -342,7 +340,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightGreyTile,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -352,7 +350,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 2.h),
@@ -392,10 +390,10 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: MealAIColors.blackText,
+            color: context.textColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: MealAIColors.whiteText, size: 20),
+          child: Icon(icon, color: context.cardColor, size: 20),
         ),
         const SizedBox(height: 8),
         Text(
@@ -403,7 +401,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: MealAIColors.blackText.withOpacity(0.7),
+            color: context.textColor.withOpacity(0.7),
           ),
         ),
         const SizedBox(height: 4),
@@ -412,7 +410,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
       ],
@@ -426,10 +424,10 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightGreyTile,
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: MealAIColors.blackText.withOpacity(0.1),
+          color: context.borderColor,
           width: 1,
         ),
       ),
@@ -438,12 +436,12 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MealAIColors.blackText,
+              color: context.textColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Icons.favorite,
-              color: MealAIColors.whiteText,
+              color: context.cardColor,
               size: 20,
             ),
           ),
@@ -457,7 +455,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: MealAIColors.blackText.withOpacity(0.7),
+                    color: context.textColor.withOpacity(0.7),
                   ),
                 ),
                 Text(
@@ -465,7 +463,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                   ),
                 ),
               ],
@@ -481,7 +479,7 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
       width: double.infinity,
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightGreyTile,
+        color: context.tileColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -493,14 +491,14 @@ class _SocialMediaShareWidgetState extends State<SocialMediaShareWidget> {
           Icon(
             Icons.smartphone,
             size: 14,
-            color: MealAIColors.blackText.withOpacity(0.6),
+            color: context.textColor.withOpacity(0.6),
           ),
           SizedBox(width: 1.w),
           Text(
             'Track your nutrition with CalAI',
             style: TextStyle(
               fontSize: 12,
-              color: MealAIColors.blackText.withOpacity(0.6),
+              color: context.textColor.withOpacity(0.6),
               fontWeight: FontWeight.w400,
             ),
           ),

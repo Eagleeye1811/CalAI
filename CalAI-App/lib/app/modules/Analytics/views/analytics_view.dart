@@ -33,14 +33,12 @@ class _AnalyticsViewState extends State<AnalyticsView> {
     }
   }
 
-  // 🔥 OPTION 1: Always fetch fresh data by computing directly from nutritionRecords
   Future<MonthlyAnalytics?> _fetchFreshMonthlyData() async {
     if (_userId == null) return null;
     
     try {
       final repo = serviceLocator<NutritionRecordRepo>();
       
-      // Fetch ALL nutrition records for the user
       final coll = await repo.usersCollection
           .doc(_userId!)
           .collection('nutritionRecords')
@@ -50,7 +48,6 @@ class _AnalyticsViewState extends State<AnalyticsView> {
       final month = _selectedMonth.month;
       final List<DailyAnalytics> daily = [];
       
-      // Filter and build DailyAnalytics for the selected month
       for (final d in coll.docs) {
         final data = d.data();
         try {
@@ -126,7 +123,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                     monthLabel,
                     style: TextStyle(
                       fontSize: 14,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -138,12 +135,11 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         ),
         SizedBox(height: 2.h),
         
-        // Weight & Goal + Streak Section (Two columns in one row) - MOVED UP
+        // Weight & Goal + Streak Section
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.w),
           child: Row(
             children: [
-              // First Box: Weight & Goal
               Expanded(
                 child: GetBuilder<UserController>(
                   builder: (userController) {
@@ -158,7 +154,6 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 ),
               ),
               SizedBox(width: 3.w),
-              // Second Box: Daily Streak
               Expanded(
                 child: _buildStreakBox(data),
               ),
@@ -182,20 +177,19 @@ class _AnalyticsViewState extends State<AnalyticsView> {
             padding: EdgeInsets.all(4.w),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: MealAIColors.lightSurface,
+              color: context.cardColor,
               borderRadius: BorderRadius.circular(3.w),
-              border:
-                  Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+              border: Border.all(color: context.borderColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Monthly Averages',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: MealAIColors.blackText,
+                    color: context.textColor,
                   ),
                 ),
                 SizedBox(height: 1.5.h),
@@ -216,7 +210,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         ),
         SizedBox(height: 2.h),
         
-        // BMI Section - MOVED TO BOTTOM
+        // BMI Section
         GetBuilder<UserController>(
           builder: (userController) {
             double? userHeight;
@@ -251,7 +245,6 @@ class _AnalyticsViewState extends State<AnalyticsView> {
       if (y > maxY) maxY = y;
     }
 
-    // Add some headroom for y-axis
     final double yInterval = _niceYInterval(maxY);
     final double chartMaxY = (maxY == 0 ? 1000 : maxY + yInterval);
 
@@ -259,9 +252,9 @@ class _AnalyticsViewState extends State<AnalyticsView> {
       height: 28.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: MealAIColors.lightSurface,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(3.w),
-          border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Padding(
           padding: EdgeInsets.fromLTRB(3.w, 1.5.h, 4.w, 1.5.h),
@@ -275,8 +268,8 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 enabled: true,
                 handleBuiltInTouches: true,
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipPadding:
-                      const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                  getTooltipColor: (spot) => context.textColor,
+                  tooltipPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((ts) {
                       final day = ts.x.toInt();
@@ -284,10 +277,11 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                       final label = _metricLabel(_selectedMetric);
                       return LineTooltipItem(
                         'Day $day\n$value $label',
-                        const TextStyle(
-                            color: Colors.black,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600),
+                        TextStyle(
+                          color: context.cardColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
                       );
                     }).toList();
                   },
@@ -297,16 +291,14 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 show: true,
                 drawVerticalLine: false,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: Colors.black.withOpacity(0.08),
+                  color: context.textColor.withOpacity(0.08),
                   strokeWidth: 1,
                 ),
                 horizontalInterval: yInterval,
               ),
               titlesData: FlTitlesData(
-                rightTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -316,8 +308,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                       if (value < 0) return const SizedBox.shrink();
                       return Text(
                         value.toInt().toString(),
-                        style: const TextStyle(
-                            fontSize: 10, color: MealAIColors.blackText),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: context.textColor,
+                        ),
                       );
                     },
                   ),
@@ -332,8 +326,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                         padding: EdgeInsets.only(top: 0.6.h),
                         child: Text(
                           v.toString(),
-                          style: const TextStyle(
-                              fontSize: 10, color: MealAIColors.blackText),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: context.textColor,
+                          ),
                         ),
                       );
                     },
@@ -344,9 +340,13 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 show: true,
                 border: Border(
                   left: BorderSide(
-                      color: Colors.black.withOpacity(0.2), width: 1),
+                    color: context.textColor.withOpacity(0.2),
+                    width: 1,
+                  ),
                   bottom: BorderSide(
-                      color: Colors.black.withOpacity(0.2), width: 1),
+                    color: context.textColor.withOpacity(0.2),
+                    width: 1,
+                  ),
                   right: const BorderSide(color: Colors.transparent),
                   top: const BorderSide(color: Colors.transparent),
                 ),
@@ -355,20 +355,20 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 LineChartBarData(
                   spots: spots,
                   isCurved: true,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, p, bar, i) => FlDotCirclePainter(
                       radius: 3,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                       strokeWidth: 0,
                     ),
                   ),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: MealAIColors.blackText.withOpacity(0.06),
+                    color: context.textColor.withOpacity(0.06),
                   ),
                 ),
               ],
@@ -401,10 +401,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
         const SizedBox(height: 2),
@@ -412,7 +412,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: MealAIColors.grey,
+            color: context.textColor.withOpacity(0.6),
           ),
         ),
       ],
@@ -427,10 +427,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 0.3.h),
@@ -438,7 +438,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: MealAIColors.grey,
+              color: context.textColor.withOpacity(0.6),
             ),
           ),
         ],
@@ -448,8 +448,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
 
   Widget _dailyTile(DailyAnalytics d, int index, int maxDayCalories) {
     final dayLabel = DateFormat('dd MMM').format(d.date);
-    final percent =
-        maxDayCalories > 0 ? (d.totalCalories / maxDayCalories) : 0.0;
+    final percent = maxDayCalories > 0 ? (d.totalCalories / maxDayCalories) : 0.0;
     final expanded = _expandedIndex == index;
 
     return GestureDetector(
@@ -460,9 +459,9 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.8.h),
         padding: EdgeInsets.symmetric(vertical: 1.2.h, horizontal: 3.w),
         decoration: BoxDecoration(
-          color: MealAIColors.lightSurface,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(3.w),
-          border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,10 +473,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                   width: 18.w,
                   child: Text(
                     dayLabel,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                     ),
                   ),
                 ),
@@ -489,7 +488,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                       Container(
                         height: 0.6.h,
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.06),
+                          color: context.textColor.withOpacity(0.06),
                           borderRadius: BorderRadius.circular(1.w),
                         ),
                         child: FractionallySizedBox(
@@ -497,7 +496,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                           alignment: Alignment.centerLeft,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: MealAIColors.blackText,
+                              color: context.textColor,
                               borderRadius: BorderRadius.circular(1.w),
                             ),
                           ),
@@ -508,7 +507,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                         '${d.totalCalories} cal · ${d.mealCount} meals',
                         style: TextStyle(
                           fontSize: 11,
-                          color: MealAIColors.grey,
+                          color: context.textColor.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -517,21 +516,24 @@ class _AnalyticsViewState extends State<AnalyticsView> {
                 SizedBox(width: 2.w),
                 Icon(
                   expanded ? Icons.expand_less : Icons.expand_more,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                   size: 4.w,
                 ),
               ],
             ),
             if (expanded) ...[
               SizedBox(height: 1.h),
-              Divider(color: Colors.black.withOpacity(0.08), height: 1),
+              Divider(color: context.borderColor, height: 1),
               SizedBox(height: 1.h),
               _expandedMetrics(d),
               if ((d.overAllSummary ?? '').isNotEmpty) ...[
                 SizedBox(height: 1.h),
                 Text(
                   d.overAllSummary!,
-                  style: TextStyle(fontSize: 12, color: MealAIColors.grey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.textColor.withOpacity(0.6),
+                  ),
                 ),
               ],
             ],
@@ -567,23 +569,25 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         children: [
           Text(
             v,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: MealAIColors.blackText,
+              color: context.textColor,
             ),
           ),
           SizedBox(height: 0.3.h),
           Text(
             k,
-            style: TextStyle(fontSize: 12, color: MealAIColors.grey),
+            style: TextStyle(
+              fontSize: 12,
+              color: context.textColor.withOpacity(0.6),
+            ),
           ),
         ],
       ),
     );
   }
 
-  // Metric/Month helpers
   Widget _metricPicker() {
     final items = const [
       _Metric.calories,
@@ -602,10 +606,10 @@ class _AnalyticsViewState extends State<AnalyticsView> {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
             decoration: BoxDecoration(
-              color: selected ? MealAIColors.blackText : Colors.transparent,
+              color: selected ? context.textColor : Colors.transparent,
               borderRadius: BorderRadius.circular(5.w),
               border: Border.all(
-                color: MealAIColors.blackText.withOpacity(0.25),
+                color: context.textColor.withOpacity(0.25),
               ),
             ),
             child: Text(
@@ -613,7 +617,7 @@ class _AnalyticsViewState extends State<AnalyticsView> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : MealAIColors.blackText,
+                color: selected ? context.cardColor : context.textColor,
               ),
             ),
           ),
@@ -666,37 +670,29 @@ class _AnalyticsViewState extends State<AnalyticsView> {
         return d.waterIntake;
     }
   }
-  
-  // Add these helper methods after _valueForMetric method
 
-/// Calculate BMI from height (cm) and weight (kg)
-double? _calculateBMI(double? height, double? weight) {
-  if (height == null || weight == null || height <= 0 || weight <= 0) {
-    return null;
+  double? _calculateBMI(double? height, double? weight) {
+    if (height == null || weight == null || height <= 0 || weight <= 0) {
+      return null;
+    }
+    final heightInMeters = height / 100;
+    return weight / (heightInMeters * heightInMeters);
   }
-  // Convert height from cm to meters
-  final heightInMeters = height / 100;
-  // BMI = weight (kg) / height (m)²
-  return weight / (heightInMeters * heightInMeters);
-}
 
-/// Get BMI category based on WHO standards
-String _getBMICategory(double bmi) {
-  if (bmi < 18.5) return 'Underweight';
-  if (bmi < 25.0) return 'Healthy';
-  if (bmi < 30.0) return 'Overweight';
-  return 'Obese';
-}
+  String _getBMICategory(double bmi) {
+    if (bmi < 18.5) return 'Underweight';
+    if (bmi < 25.0) return 'Healthy';
+    if (bmi < 30.0) return 'Overweight';
+    return 'Obese';
+  }
 
-/// Get BMI color based on category
-Color _getBMIColor(double bmi) {
-  if (bmi < 18.5) return Colors.blue;
-  if (bmi < 25.0) return Colors.green;
-  if (bmi < 30.0) return Colors.orange;
-  return Colors.red;
-}
+  Color _getBMIColor(double bmi) {
+    if (bmi < 18.5) return Colors.blue;
+    if (bmi < 25.0) return Colors.green;
+    if (bmi < 30.0) return Colors.orange;
+    return Colors.red;
+  }
 
-  /// Build BMI widget
   Widget _buildBMISection(double? height, double? weight) {
     final bmi = _calculateBMI(height, weight);
     
@@ -705,20 +701,24 @@ Color _getBMIColor(double bmi) {
         padding: EdgeInsets.all(4.w),
         margin: EdgeInsets.symmetric(horizontal: 4.w),
         decoration: BoxDecoration(
-          color: MealAIColors.lightSurface,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(3.w),
-          border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
-            Icon(Icons.info_outline, color: MealAIColors.grey, size: 5.w),
+            Icon(
+              Icons.info_outline,
+              color: context.textColor.withOpacity(0.6),
+              size: 5.w,
+            ),
             SizedBox(width: 3.w),
             Expanded(
               child: Text(
                 'Complete your height and weight in profile to see BMI',
                 style: TextStyle(
                   fontSize: 12,
-                  color: MealAIColors.grey,
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ),
@@ -734,23 +734,23 @@ Color _getBMIColor(double bmi) {
       padding: EdgeInsets.all(4.w),
       margin: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightSurface,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(3.w),
-        border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.monitor_weight, color: MealAIColors.blackText, size: 5.w),
+              Icon(Icons.monitor_weight, color: context.textColor, size: 5.w),
               SizedBox(width: 2.w),
-              const Text(
+              Text(
                 'Body Mass Index (BMI)',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -788,10 +788,7 @@ Color _getBMIColor(double bmi) {
               ),
             ],
           ),
-          // 👇 Removed height/weight section here
-          // 👇 BMI Scale comes next
           _buildBMIScale(bmi),
-          // 👇 Removed info box here
         ],
       ),
     );
@@ -805,16 +802,16 @@ Color _getBMIColor(double bmi) {
           label,
           style: TextStyle(
             fontSize: 11,
-            color: MealAIColors.grey,
+            color: context.textColor.withOpacity(0.6),
           ),
         ),
         SizedBox(height: 0.3.h),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: MealAIColors.blackText,
+            color: context.textColor,
           ),
         ),
       ],
@@ -822,12 +819,7 @@ Color _getBMIColor(double bmi) {
   }
     
   Widget _buildBMIScale(double bmi) {
-    // BMI ranges: <18.5, 18.5-24.9, 25-29.9, >=30
-    // Clamp BMI to reasonable display range (10-40)
     final displayBMI = bmi.clamp(10.0, 40.0);
-    
-    // Calculate position on scale (10-40 range = 30 units)
-    // Position as percentage: (BMI - 10) / 30
     final position = ((displayBMI - 10) / 30).clamp(0.0, 1.0);
     
     return Column(
@@ -839,80 +831,66 @@ Color _getBMIColor(double bmi) {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: MealAIColors.grey,
+            color: context.textColor.withOpacity(0.6),
           ),
         ),
         SizedBox(height: 1.h),
         
-        // The colored scale bar with gradient
         Stack(
           children: [
-            // Background with smooth gradient
             Container(
               height: 1.2.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(1.h),
                 gradient: LinearGradient(
                   colors: [
-                    Colors.blue,           // Underweight
-                    Colors.blue.shade300,  // Transition
-                    Colors.green,          // Healthy start
-                    Colors.green,          // Healthy end
-                    Colors.orange.shade300,// Transition
-                    Colors.orange,         // Overweight
-                    Colors.deepOrange,     // Transition
-                    Colors.red,            // Obese
+                    Colors.blue,
+                    Colors.blue.shade300,
+                    Colors.green,
+                    Colors.green,
+                    Colors.orange.shade300,
+                    Colors.orange,
+                    Colors.deepOrange,
+                    Colors.red,
                   ],
-                  stops: const [
-                    0.0,   // Blue start
-                    0.25,  // Blue to green transition
-                    0.28,  // Green start (18.5)
-                    0.49,  // Green end (24.9)
-                    0.52,  // Green to orange transition
-                    0.65,  // Orange (25-29.9)
-                    0.80,  // Orange to red transition
-                    1.0,   // Red (30+)
-                  ],
+                  stops: const [0.0, 0.25, 0.28, 0.49, 0.52, 0.65, 0.80, 1.0],
                 ),
               ),
             ),
             
-            // Position marker
             Positioned(
-              left: position * 82.w, // Adjust based on container width
+              left: position * 82.w,
               top: -0.6.h,
               child: Column(
                 children: [
-                  // Marker line
                   Container(
                     width: 0.6.w,
                     height: 2.4.h,
                     decoration: BoxDecoration(
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                       borderRadius: BorderRadius.circular(0.5.w),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: context.textColor.withOpacity(0.2),
                           blurRadius: 2,
                           offset: Offset(0, 1),
                         ),
                       ],
                     ),
                   ),
-                  // Marker dot
                   Container(
                     width: 2.w,
                     height: 2.w,
                     decoration: BoxDecoration(
-                      color: MealAIColors.blackText,
+                      color: context.textColor,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white,
+                        color: context.cardColor,
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: context.textColor.withOpacity(0.3),
                           blurRadius: 3,
                           offset: Offset(0, 1),
                         ),
@@ -927,7 +905,6 @@ Color _getBMIColor(double bmi) {
         
         SizedBox(height: 0.8.h),
         
-        // Labels below the scale
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -938,7 +915,6 @@ Color _getBMIColor(double bmi) {
           ],
         ),
         
-        // BMI value markers
         SizedBox(height: 0.3.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -970,7 +946,7 @@ Color _getBMIColor(double bmi) {
           text,
           style: TextStyle(
             fontSize: 9,
-            color: MealAIColors.grey,
+            color: context.textColor.withOpacity(0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -983,7 +959,7 @@ Color _getBMIColor(double bmi) {
       text,
       style: TextStyle(
         fontSize: 8,
-        color: MealAIColors.grey.withOpacity(0.7),
+        color: context.textColor.withOpacity(0.5),
       ),
     );
   }  
@@ -1005,28 +981,27 @@ Color _getBMIColor(double bmi) {
     });
   }
 
-  /// Build Weight & Goal Box
   Widget _buildWeightGoalBox(double? currentWeight, double? goalWeight) {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightSurface,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(3.w),
-        border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.fitness_center, color: MealAIColors.blackText, size: 5.w),
+              Icon(Icons.fitness_center, color: context.textColor, size: 5.w),
               SizedBox(width: 2.w),
               Text(
                 'Weight Tracker',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -1068,7 +1043,7 @@ Color _getBMIColor(double bmi) {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: MealAIColors.grey,
+                  color: context.textColor.withOpacity(0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1078,7 +1053,7 @@ Color _getBMIColor(double bmi) {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ],
@@ -1088,18 +1063,14 @@ Color _getBMIColor(double bmi) {
     );
   }
 
-  /// Build Streak Box
   Widget _buildStreakBox(MonthlyAnalytics data) {
-    // Calculate current streak
     final today = DateTime.now();
-    final todayDate = DateTime(today.year, today.month, today.day); // Normalize to date only
+    final todayDate = DateTime(today.year, today.month, today.day);
     int currentStreak = 0;
     
-    // Check each day backwards from today
-    for (int i = 0; i < 365; i++) { // Check up to a year back (reasonable limit)
+    for (int i = 0; i < 365; i++) {
       final checkDate = todayDate.subtract(Duration(days: i));
       
-      // Find data for this specific date
       final dayData = data.dailyAnalytics.firstWhere(
         (d) {
           final dDate = DateTime(d.date.year, d.date.month, d.date.day);
@@ -1110,16 +1081,13 @@ Color _getBMIColor(double bmi) {
         orElse: () => DailyAnalytics(date: checkDate, mealCount: 0),
       );
       
-      // If this day has activity, increment streak
       if (dayData.mealCount > 0) {
         currentStreak++;
       } else {
-        // Streak broken - stop counting
         break;
       }
     }
     
-    // Get last 7 days activity
     final last7Days = List.generate(7, (index) {
       final date = todayDate.subtract(Duration(days: 6 - index));
       final dayData = data.dailyAnalytics.firstWhere(
@@ -1140,9 +1108,9 @@ Color _getBMIColor(double bmi) {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: MealAIColors.lightSurface,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(3.w),
-        border: Border.all(color: MealAIColors.blackText.withOpacity(0.08)),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1156,13 +1124,12 @@ Color _getBMIColor(double bmi) {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: MealAIColors.blackText,
+                  color: context.textColor,
                 ),
               ),
             ],
           ),
           SizedBox(height: 2.h),
-          // Fire icon with streak number
           Center(
             child: Stack(
               alignment: Alignment.center,
@@ -1194,7 +1161,6 @@ Color _getBMIColor(double bmi) {
             ),
           ),
           SizedBox(height: 1.5.h),
-          // Days of the week
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: last7Days.map((dayInfo) {
@@ -1205,7 +1171,7 @@ Color _getBMIColor(double bmi) {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: MealAIColors.grey,
+                      color: context.textColor.withOpacity(0.6),
                     ),
                   ),
                   SizedBox(height: 0.5.h),
@@ -1231,38 +1197,44 @@ Color _getBMIColor(double bmi) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardColor,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Progress',
           style: TextStyle(
-            color: Colors.black,
+            color: context.textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: context.textColor),
       ),
       body: GetBuilder<UserController>(
         builder: (userController) {
           if (userController.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: context.textColor,
+              ),
+            );
           }
           
           if (userController.hasUser) {
             _userId ??= userController.userModel!.userId;
             
-            // 🔥 KEY CHANGE: Use FutureBuilder with _fetchFreshMonthlyData()
-            // This ensures fresh data is fetched every time the widget builds
             return FutureBuilder<MonthlyAnalytics?>(
-              key: ValueKey('analytics_${_selectedMonth.year}_${_selectedMonth.month}'), // Force rebuild on month change
+              key: ValueKey('analytics_${_selectedMonth.year}_${_selectedMonth.month}'),
               future: _fetchFreshMonthlyData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: context.textColor,
+                    ),
+                  );
                 }
                 if (snapshot.hasError) {
                   return Center(
@@ -1313,7 +1285,7 @@ Color _getBMIColor(double bmi) {
                       monthLabel,
                       style: TextStyle(
                         fontSize: 14,
-                        color: MealAIColors.grey,
+                        color: context.textColor.withOpacity(0.6),
                       ),
                     ),
                   ),
@@ -1354,12 +1326,12 @@ class _MonthButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: MealAIColors.blackText.withOpacity(0.05),
+          color: context.textColor.withOpacity(0.05),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: MealAIColors.blackText,
+          color: context.textColor,
           size: 20,
         ),
       ),

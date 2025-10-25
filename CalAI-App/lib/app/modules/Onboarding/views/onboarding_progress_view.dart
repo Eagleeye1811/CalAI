@@ -15,6 +15,7 @@ import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/models/Onboarding/onboarding_model.dart';
 import 'package:CalAI/app/modules/Onboarding/views/calorie_required.dart';
 import 'package:CalAI/app/utility/user_utility.dart';
+import 'package:get/get.dart';
 
 class OnboardingQuestionaries extends StatefulWidget {
   const OnboardingQuestionaries({super.key});
@@ -368,17 +369,18 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
               Icon(
                 Icons.lightbulb_outline,
                 size: 60,
+                color: context.textColor,
               ),
               SizedBox(height: 2.h),
               Container(
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardColor,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: context.textColor.withOpacity(0.2),
                       spreadRadius: 2,
                       blurRadius: 5,
                       offset: const Offset(0, 3),
@@ -391,14 +393,16 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       "Did you know?",
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: MealAIColors.blackText,
+                            color: context.textColor,
                           ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       AppConstants.getRandomFunFact(),
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: context.textColor,
+                          ),
                     ),
                   ],
                 ),
@@ -712,8 +716,8 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Wrap(
-                spacing: 8.0, // Space between chips
-                runSpacing: 8.0, // Space between lines
+                spacing: 8.0,
+                runSpacing: 8.0,
                 alignment: WrapAlignment.center,
                 children: diets.map((diet) {
                   return ChoiceChip(
@@ -722,15 +726,14 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: selectedDiet == diet
-                                ? MealAIColors.whiteText
-                                : MealAIColors.blackText,
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : context.textColor,
                           ),
                     ),
                     selected: selectedDiet == diet,
-                    selectedColor:
-                        MealAIColors.selectedTile, // Color when selected
-                    checkmarkColor:
-                        MealAIColors.whiteText, // Color of the checkmark
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: context.tileColor,
+                    checkmarkColor: Theme.of(context).colorScheme.onPrimary,
                     onSelected: (selected) {
                       if (selected) {
                         setState(() {
@@ -738,7 +741,7 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                         });
                       } else {
                         setState(() {
-                          selectedDiet = ""; // Deselect the chip
+                          selectedDiet = "";
                         });
                       }
                     },
@@ -837,6 +840,7 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
               Icon(
                 Icons.camera_alt,
                 size: 60,
+                color: context.textColor,
               ),
               SizedBox(height: 2.h),
             ],
@@ -862,8 +866,8 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Wrap(
-                spacing: 8.0, // Space between chips
-                runSpacing: 8.0, // Space between lines
+                spacing: 8.0,
+                runSpacing: 8.0,
                 alignment: WrapAlignment.center,
                 children: allergies.map((allergy) {
                   return FilterChip(
@@ -872,13 +876,14 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: selectedAllergies.contains(allergy)
-                                ? MealAIColors.whiteText
-                                : MealAIColors.blackText,
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : context.textColor,
                           ),
                     ),
                     selected: selectedAllergies.contains(allergy),
-                    selectedColor: MealAIColors.selectedTile,
-                    checkmarkColor: MealAIColors.whiteText,
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: context.tileColor,
+                    checkmarkColor: Theme.of(context).colorScheme.onPrimary,
                     onSelected: (selected) {
                       setState(() {
                         if (allergy == "None") {
@@ -1058,13 +1063,13 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       padding: EdgeInsets.all(2.w),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: MealAIColors.stepperColor,
+                        color: context.borderColor,
                       ),
                       child: Center(
                         child: Icon(
                           Icons.arrow_back,
                           size: 20,
-                          color: MealAIColors.blackText,
+                          color: context.textColor,
                         ),
                       ),
                     ),
@@ -1075,8 +1080,8 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       maxSteps: _totalPages,
                       progressType: LinearProgressBar.progressTypeLinear,
                       currentStep: _currentPage,
-                      progressColor: MealAIColors.blackText,
-                      backgroundColor: MealAIColors.stepperColor,
+                      progressColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: context.borderColor,
                       minHeight: 0.5.h,
                     ),
                   ),
@@ -1090,13 +1095,14 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                     onboardingModels[_currentPage].title,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: context.textColor,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     onboardingModels[_currentPage].description,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Colors.grey[600],
+                          color: context.textColor.withOpacity(0.6),
                         ),
                   ),
                 ],

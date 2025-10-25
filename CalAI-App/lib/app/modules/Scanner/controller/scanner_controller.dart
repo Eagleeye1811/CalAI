@@ -216,6 +216,7 @@ class ScannerController extends GetxController {
         recordTime: time,
         nutritionInputQuery: inputData,
         processingStatus: ProcessingStatus.COMPLETED,
+        entrySource: EntrySource.SCANNER, // ADD THIS
       ));
 
       // Build the full list for the target day to persist correctly even if

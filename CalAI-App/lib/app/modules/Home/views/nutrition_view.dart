@@ -4,16 +4,24 @@ import 'package:CalAI/app/models/Auth/user.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:CalAI/app/repo/nutrition_record_repo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:CalAI/app/constants/colors.dart';
 import 'package:CalAI/app/models/AI/nutrition_output.dart';
 import 'package:CalAI/app/models/AI/nutrition_record.dart';
 import 'package:CalAI/app/utility/date_utility.dart';
 import 'package:CalAI/app/repo/saved_foods_repo.dart';
 import 'package:CalAI/app/controllers/auth_controller.dart';
+import 'package:CalAI/app/components/social_media_share_widget.dart';
+import 'package:gal/gal.dart';
+import 'package:dio/dio.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+
 class NutritionView extends StatefulWidget {
   final NutritionRecord nutritionRecord;
   final UserModel userModel;
@@ -35,6 +43,10 @@ class _NutritionViewState extends State<NutritionView> {
   bool _isSaved = false;
   bool _thumbsUpPressed = false;
   bool _thumbsDownPressed = false;
+  
+  // For tracking edited macro values
+  Map<String, int> _editedTotals = {};
+  bool _hasEdits = false;
 
   NutritionRecord get nutritionRecord => widget.nutritionRecord;
   UserModel get userModel => widget.userModel;
@@ -56,10 +68,9 @@ class _NutritionViewState extends State<NutritionView> {
     super.dispose();
   }
 
-  // Check if food is already saved
   Future<void> _checkIfSaved() async {
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) return;
 
       final userId = authController.userId!;
@@ -80,10 +91,9 @@ class _NutritionViewState extends State<NutritionView> {
     }
   }
 
-  // Toggle save status
   Future<void> _toggleSave() async {
     try {
-      final authController = Get.find<AuthController>();  // ✅ CHANGED
+      final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) return;
 
       final userId = authController.userId!;
@@ -93,7 +103,6 @@ class _NutritionViewState extends State<NutritionView> {
       final repo = SavedFoodsRepo();
       
       if (_isSaved) {
-        // Unsave
         await repo.removeFoodFromFavorites(userId, foodName);
         if (mounted) {
           setState(() {
@@ -105,7 +114,6 @@ class _NutritionViewState extends State<NutritionView> {
           message: "$foodName removed from saved foods",
         );
       } else {
-        // Save
         final foodData = {
           'name': foodName,
           'calories': totals['calories'],
@@ -138,6 +146,11 @@ class _NutritionViewState extends State<NutritionView> {
   }
 
   Map<String, int> _calculateCurrentTotals() {
+    // If we have edits, return those
+    if (_hasEdits && _editedTotals.isNotEmpty) {
+      return Map.from(_editedTotals);
+    }
+    
     int totalCalories = 0;
     int totalProtein = 0;
     int totalCarbs = 0;
@@ -169,26 +182,152 @@ class _NutritionViewState extends State<NutritionView> {
     };
   }
 
+  Future<void> _showEditMacroDialog(String macroName, int currentValue, {bool isMg = false}) async {
+    final TextEditingController controller = TextEditingController(
+      text: currentValue.toString(),
+    );
+
+    final result = await showDialog<int>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: context.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Edit $macroName',
+            style: TextStyle(
+              color: context.textColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            style: TextStyle(color: context.textColor),
+            decoration: InputDecoration(
+              labelText: '$macroName (${isMg ? "mg" : "g"})',
+              labelStyle: TextStyle(color: context.textColor.withOpacity(0.7)),
+              hintText: 'Enter value',
+              hintStyle: TextStyle(color: context.textColor.withOpacity(0.4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: context.borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              filled: true,
+              fillColor: context.tileColor,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: context.textColor.withOpacity(0.7)),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = int.tryParse(controller.text);
+                if (value != null && value >= 0) {
+                  Navigator.pop(dialogContext, value);
+                } else {
+                  AppDialogs.showErrorSnackbar(
+                    title: "Invalid Input",
+                    message: "Please enter a valid number",
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Save',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+    });
+
+    if (result != null && mounted) {
+      setState(() {
+        // Initialize _editedTotals if empty
+        if (_editedTotals.isEmpty) {
+          _editedTotals = _calculateCurrentTotals();
+        }
+        
+        _editedTotals[macroName.toLowerCase()] = result;
+        _hasEdits = true;
+        
+        // Recalculate calories if macros changed (not for fiber, sugar, sodium)
+        if (macroName != 'Calories' && macroName != 'Sodium' && macroName != 'Fiber' && macroName != 'Sugar') {
+          int protein = _editedTotals['protein'] ?? 0;
+          int carbs = _editedTotals['carbs'] ?? 0;
+          int fat = _editedTotals['fat'] ?? 0;
+          _editedTotals['calories'] = (protein * 4) + (carbs * 4) + (fat * 9);
+        }
+      });
+      
+      AppDialogs.showSuccessSnackbar(
+        title: "Updated",
+        message: "$macroName updated to $result${isMg ? 'mg' : 'g'}",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (nutritionRecord.nutritionOutput?.response == null) {
       return Scaffold(
+        backgroundColor: context.surfaceColor,
         appBar: AppBar(
-          title: const Text('Nutrition Details'),
+          backgroundColor: context.cardColor,
+          title: Text('Nutrition Details', style: TextStyle(color: context.textColor)),
         ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.orange),
+              Icon(Icons.error_outline, size: 64, color: Colors.orange),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'No nutrition data available',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: context.textColor,
+                ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, _isSaved),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.textColor,
+                  foregroundColor: context.cardColor,
+                ),
                 child: const Text('Go Back'),
               ),
             ],
@@ -203,29 +342,24 @@ class _NutritionViewState extends State<NutritionView> {
     final timeStamp = DateUtility.getTimeFromDateTime(nutritionRecord.recordTime!.toLocal());
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.surfaceColor,
       body: Stack(
         children: [
-          // Background image with dark overlay
           _buildHeaderImage(),
           
-          // Main content
           Column(
             children: [
-              // Custom AppBar
               _buildCustomAppBar(context),
               
-              // Scrollable content
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(height: 180), // Space for image header
+                      SizedBox(height: 180),
                       
-                      // White card with rounded top corners
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.cardColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(24),
                             topRight: Radius.circular(24),
@@ -234,39 +368,19 @@ class _NutritionViewState extends State<NutritionView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Header section with bookmark, time, name, quantity
                             _buildFoodHeader(foodName, timeStamp),
-                            
                             SizedBox(height: 24),
-                            
-                            // Calories box
                             _buildCaloriesBox(totals['calories']!),
-                            
                             SizedBox(height: 16),
-                            
-                            // Macros carousel
                             _buildMacrosCarousel(totals),
-                            
                             SizedBox(height: 8),
-                            
-                            // Carousel indicators
                             _buildCarouselIndicators(),
-                            
                             SizedBox(height: 32),
-                            
-                            // Ingredients section
                             _buildIngredientsSection(response),
-                            
                             SizedBox(height: 24),
-                            
-                            // Feedback section
                             _buildFeedbackSection(),
-                            
                             SizedBox(height: 24),
-                            
-                            // Bottom buttons
                             _buildBottomButtons(),
-                            
                             SizedBox(height: 32),
                           ],
                         ),
@@ -294,7 +408,7 @@ class _NutritionViewState extends State<NutritionView> {
       height: 300,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.black87,
+          color: context.isDarkMode ? Colors.black87 : Colors.black54,
         ),
         child: hasImage
             ? Stack(
@@ -318,7 +432,6 @@ class _NutritionViewState extends State<NutritionView> {
                         color: Colors.white54,
                       ),
                     ),
-                  // Dark overlay
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -352,7 +465,6 @@ class _NutritionViewState extends State<NutritionView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Back button
             GestureDetector(
               onTap: () => Navigator.pop(context, _isSaved),
               child: Container(
@@ -369,7 +481,6 @@ class _NutritionViewState extends State<NutritionView> {
               ),
             ),
             
-            // Title
             Text(
               'Nutrition',
               style: TextStyle(
@@ -379,13 +490,14 @@ class _NutritionViewState extends State<NutritionView> {
               ),
             ),
             
-            // Action buttons
             Row(
               children: [
-                // Share button
                 GestureDetector(
                   onTap: () {
-                    // TODO: Implement share
+                    Get.to(() => SocialMediaShareWidget(
+                      nutritionRecord: nutritionRecord,
+                      userName: userModel.name,
+                    ));
                   },
                   child: Container(
                     padding: EdgeInsets.all(12),
@@ -401,7 +513,6 @@ class _NutritionViewState extends State<NutritionView> {
                   ),
                 ),
                 SizedBox(width: 12),
-                // Menu button
                 GestureDetector(
                   onTap: () {
                     _showOptionsMenu(context);
@@ -433,7 +544,6 @@ class _NutritionViewState extends State<NutritionView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bookmark icon and time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -442,14 +552,14 @@ class _NutritionViewState extends State<NutritionView> {
                 child: Icon(
                   _isSaved ? Icons.bookmark : Icons.bookmark_outline,
                   size: 28,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               Text(
                 time,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: context.textColor.withOpacity(0.6),
                 ),
               ),
             ],
@@ -457,19 +567,17 @@ class _NutritionViewState extends State<NutritionView> {
           
           SizedBox(height: 16),
           
-          // Food name and quantity selector
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Food name
               Expanded(
                 child: Text(
                   foodName,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: context.textColor,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -477,12 +585,11 @@ class _NutritionViewState extends State<NutritionView> {
               
               SizedBox(width: 16),
               
-              // Quantity selector
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.black, width: 1.5),
+                  border: Border.all(color: context.textColor, width: 1.5),
                 ),
                 child: Row(
                   children: [
@@ -491,10 +598,13 @@ class _NutritionViewState extends State<NutritionView> {
                         if (_quantity > 1) {
                           setState(() {
                             _quantity--;
+                            // Reset edits when quantity changes
+                            _hasEdits = false;
+                            _editedTotals.clear();
                           });
                         }
                       },
-                      child: Icon(Icons.remove, size: 20, color: Colors.black),
+                      child: Icon(Icons.remove, size: 20, color: context.textColor),
                     ),
                     SizedBox(width: 20),
                     Text(
@@ -502,7 +612,7 @@ class _NutritionViewState extends State<NutritionView> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: context.textColor,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -510,9 +620,12 @@ class _NutritionViewState extends State<NutritionView> {
                       onTap: () {
                         setState(() {
                           _quantity++;
+                          // Reset edits when quantity changes
+                          _hasEdits = false;
+                          _editedTotals.clear();
                         });
                       },
-                      child: Icon(Icons.add, size: 20, color: Colors.black),
+                      child: Icon(Icons.add, size: 20, color: context.textColor),
                     ),
                   ],
                 ),
@@ -525,41 +638,127 @@ class _NutritionViewState extends State<NutritionView> {
   }
 
   Widget _buildCaloriesBox(int calories) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.local_fire_department,
-              size: 48,
-              color: Colors.black,
-            ),
-            SizedBox(height: 12),
-            Text(
-              '$calories',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+    final isEdited = _hasEdits && _editedTotals.containsKey('calories');
+    
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showEditMacroDialog('Calories', calories);
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 200),
+          width: double.infinity,
+          padding: EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            gradient: isEdited
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      context.tileColor,
+                      Color(0xFFFF6B35).withOpacity(0.1),
+                    ],
+                  )
+                : LinearGradient(
+                    colors: [context.tileColor, context.tileColor],
+                  ),
+            borderRadius: BorderRadius.circular(20),
+            border: isEdited
+                ? Border.all(
+                    color: Color(0xFFFF6B35).withOpacity(0.4),
+                    width: 2,
+                  )
+                : Border.all(
+                    color: context.borderColor.withOpacity(0.1),
+                    width: 1,
+                  ),
+            boxShadow: isEdited
+                ? [
+                    BoxShadow(
+                      color: Color(0xFFFF6B35).withOpacity(0.15),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: context.textColor.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFF6B35).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.local_fire_department,
+                  size: 40,
+                  color: Color(0xFFFF6B35),
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Calories',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500,
+              SizedBox(height: 16),
+              Text(
+                '$calories',
+                style: TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                  color: context.textColor,
+                  letterSpacing: -1.5,
+                  height: 1,
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Calories',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: context.textColor.withOpacity(0.6),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (isEdited) ...[
+                    SizedBox(width: 8),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFF6B35).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Edited',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFFFF6B35),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Tap to adjust',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: context.textColor.withOpacity(0.4),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -571,9 +770,7 @@ class _NutritionViewState extends State<NutritionView> {
       child: PageView(
         controller: _pageController,
         children: [
-          // Page 1: Protein, Carbs, Fats
           _buildMacrosPage1(totals),
-          // Page 2: Fiber, Sugar, Sodium
           _buildMacrosPage2(totals),
         ],
       ),
@@ -653,34 +850,104 @@ class _NutritionViewState extends State<NutritionView> {
   }
 
   Widget _buildMacroBox(IconData icon, String label, String value, Color color) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 32, color: color),
-          SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+    final isEdited = _hasEdits && _editedTotals.containsKey(label.toLowerCase());
+    
+    return GestureDetector(
+      onTap: () {
+        // Extract numeric value from string (e.g., "50g" -> 50)
+        final numericValue = int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        final isMg = value.contains('mg');
+        
+        // Haptic feedback
+        HapticFeedback.lightImpact();
+        
+        _showEditMacroDialog(label, numericValue, isMg: isMg);
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.tileColor,
+          borderRadius: BorderRadius.circular(16),
+          border: isEdited
+              ? Border.all(
+                  color: color.withOpacity(0.6),
+                  width: 2,
+                )
+              : Border.all(
+                  color: context.borderColor.withOpacity(0.1),
+                  width: 1,
+                ),
+          boxShadow: isEdited
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: context.textColor.withOpacity(0.03),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 28, color: color),
             ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[600],
+            SizedBox(height: 10),
+            Flexible(
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: context.textColor,
+                  letterSpacing: -0.5,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: context.textColor.withOpacity(0.6),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (isEdited) ...[
+              SizedBox(height: 4),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Edited',
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -695,7 +962,9 @@ class _NutritionViewState extends State<NutritionView> {
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _currentPage == index ? Colors.black : Colors.grey[300],
+            color: _currentPage == index 
+                ? context.textColor 
+                : context.textColor.withOpacity(0.3),
           ),
         );
       }),
@@ -718,7 +987,7 @@ class _NutritionViewState extends State<NutritionView> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
               GestureDetector(
@@ -729,7 +998,7 @@ class _NutritionViewState extends State<NutritionView> {
                   '+ Add',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[600],
+                    color: context.textColor.withOpacity(0.6),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -744,7 +1013,7 @@ class _NutritionViewState extends State<NutritionView> {
               child: Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFFF5F5F5),
+                  color: context.tileColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -756,7 +1025,7 @@ class _NutritionViewState extends State<NutritionView> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: context.textColor,
                         ),
                       ),
                     ),
@@ -764,7 +1033,7 @@ class _NutritionViewState extends State<NutritionView> {
                       '${ingredient.calories ?? 0} cal',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: context.textColor.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -783,12 +1052,12 @@ class _NutritionViewState extends State<NutritionView> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
+          color: context.tileColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            Icon(Icons.add, size: 24, color: Colors.black),
+            Icon(Icons.add, size: 24, color: context.textColor),
             SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -796,7 +1065,7 @@ class _NutritionViewState extends State<NutritionView> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: context.textColor,
                 ),
               ),
             ),
@@ -810,17 +1079,17 @@ class _NutritionViewState extends State<NutritionView> {
               child: Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _thumbsDownPressed ? Colors.red.shade100 : Colors.white,
+                  color: _thumbsDownPressed ? Colors.red.shade100 : context.cardColor,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _thumbsDownPressed ? Colors.red : Colors.grey[300]!,
+                    color: _thumbsDownPressed ? Colors.red : context.borderColor,
                     width: 1.5,
                   ),
                 ),
                 child: Icon(
                   Icons.thumb_down_outlined,
                   size: 20,
-                  color: _thumbsDownPressed ? Colors.red : Colors.black,
+                  color: _thumbsDownPressed ? Colors.red : context.textColor,
                 ),
               ),
             ),
@@ -835,17 +1104,17 @@ class _NutritionViewState extends State<NutritionView> {
               child: Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _thumbsUpPressed ? Colors.green.shade100 : Colors.white,
+                  color: _thumbsUpPressed ? Colors.green.shade100 : context.cardColor,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _thumbsUpPressed ? Colors.green : Colors.grey[300]!,
+                    color: _thumbsUpPressed ? Colors.green : context.borderColor,
                     width: 1.5,
                   ),
                 ),
                 child: Icon(
                   Icons.thumb_up_outlined,
                   size: 20,
-                  color: _thumbsUpPressed ? Colors.green : Colors.black,
+                  color: _thumbsUpPressed ? Colors.green : context.textColor,
                 ),
               ),
             ),
@@ -860,7 +1129,6 @@ class _NutritionViewState extends State<NutritionView> {
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          // Fix button
           Expanded(
             child: GestureDetector(
               onTap: () {
@@ -869,21 +1137,21 @@ class _NutritionViewState extends State<NutritionView> {
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 1.5),
+                  border: Border.all(color: context.textColor, width: 1.5),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.auto_fix_high, size: 20, color: Colors.black),
+                    Icon(Icons.auto_fix_high, size: 20, color: context.textColor),
                     SizedBox(width: 8),
                     Text(
                       'Fix',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: context.textColor,
                       ),
                     ),
                   ],
@@ -894,7 +1162,6 @@ class _NutritionViewState extends State<NutritionView> {
           
           SizedBox(width: 12),
           
-          // Done button
           Expanded(
             child: GestureDetector(
               onTap: () {
@@ -903,7 +1170,7 @@ class _NutritionViewState extends State<NutritionView> {
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: context.textColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -912,7 +1179,7 @@ class _NutritionViewState extends State<NutritionView> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: context.cardColor,
                     ),
                   ),
                 ),
@@ -927,28 +1194,54 @@ class _NutritionViewState extends State<NutritionView> {
   void _showOptionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
+      builder: (dialogContext) => Container(
         padding: EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.edit, color: Colors.black),
-              title: Text('Edit', style: TextStyle(fontWeight: FontWeight.w500)),
+              leading: Icon(Icons.flag_outlined, color: Colors.orange),
+              title: Text(
+                'Report Food',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: context.textColor,
+                ),
+              ),
               onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement edit
+                Navigator.pop(dialogContext);
+                _handleReportFood(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.download_outlined, color: Colors.blue),
+              title: Text(
+                'Save Image',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: context.textColor,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(dialogContext);
+                _handleSaveImage(context);
               },
             ),
             ListTile(
               leading: Icon(Icons.delete, color: Colors.red),
-              title: Text('Delete', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.red)),
+              title: Text(
+                'Delete Food',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
+              ),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 _handleDeleteMeal(context);
               },
             ),
@@ -959,19 +1252,277 @@ class _NutritionViewState extends State<NutritionView> {
     );
   }
 
+  Future<void> _handleReportFood(BuildContext context) async {
+    final TextEditingController reportController = TextEditingController();
+    String? selectedReason;
+    
+    final reasons = [
+      'Incorrect nutrition information',
+      'Wrong food name',
+      'Inappropriate content',
+      'Missing information',
+      'Other',
+    ];
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: context.cardColor,
+              title: Text(
+                'Report Food',
+                style: TextStyle(
+                  color: context.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Food: ${nutritionRecord.nutritionOutput?.response?.foodName ?? "Unknown"}',
+                      style: TextStyle(
+                        color: context.textColor.withOpacity(0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Reason:',
+                      style: TextStyle(
+                        color: context.textColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    ...reasons.map((reason) {
+                      return RadioListTile<String>(
+                        title: Text(
+                          reason,
+                          style: TextStyle(
+                            color: context.textColor,
+                            fontSize: 14,
+                          ),
+                        ),
+                        value: reason,
+                        groupValue: selectedReason,
+                        activeColor: MealAIColors.darkPrimary,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedReason = value;
+                          });
+                        },
+                      );
+                    }).toList(),
+                    SizedBox(height: 15),
+                    TextField(
+                      controller: reportController,
+                      maxLines: 3,
+                      style: TextStyle(color: context.textColor),
+                      decoration: InputDecoration(
+                        hintText: 'Additional details (optional)',
+                        hintStyle: TextStyle(
+                          color: context.textColor.withOpacity(0.5),
+                        ),
+                        filled: true,
+                        fillColor: context.tileColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: context.borderColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: context.borderColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: MealAIColors.darkPrimary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: context.textColor),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (selectedReason == null) {
+                      AppDialogs.showErrorSnackbar(
+                        title: "Error",
+                        message: "Please select a reason",
+                      );
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop();
+                    
+                    AppDialogs.showLoadingDialog(
+                      title: "Submitting Report",
+                      message: "Please wait...",
+                    );
+
+                    // TODO: Implement actual reporting logic here
+                    // You can send this to Firebase or your backend
+                    final reportData = {
+                      'userId': userModel.userId,
+                      'foodName': nutritionRecord.nutritionOutput?.response?.foodName,
+                      'reason': selectedReason,
+                      'details': reportController.text,
+                      'timestamp': DateTime.now().toIso8601String(),
+                      'recordTime': nutritionRecord.recordTime?.toIso8601String(),
+                    };
+                    
+                    print("Report data: $reportData");
+                    
+                    // Simulate network delay
+                    await Future.delayed(Duration(seconds: 1));
+                    
+                    AppDialogs.hideDialog();
+                    AppDialogs.showSuccessSnackbar(
+                      title: "Report Submitted",
+                      message: "Thank you for your feedback. We'll review this report.",
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                  ),
+                  child: const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    reportController.dispose();
+  }
+
+  Future<void> _handleSaveImage(BuildContext context) async {
+    try {
+      final query = nutritionRecord.nutritionInputQuery;
+      
+      if (query == null) {
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "No image available to save",
+        );
+        return;
+      }
+
+      final hasImage = (query.imageFilePath != null && query.imageFilePath!.isNotEmpty) ||
+                      (query.imageUrl != null && query.imageUrl!.isNotEmpty);
+
+      if (!hasImage) {
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "No image available to save",
+        );
+        return;
+      }
+
+      AppDialogs.showLoadingDialog(
+        title: "Saving Image",
+        message: "Please wait...",
+      );
+
+      // Request storage permission
+      if (!await Gal.hasAccess()) {
+        final hasAccess = await Gal.requestAccess();
+        if (!hasAccess) {
+          AppDialogs.hideDialog();
+          AppDialogs.showErrorSnackbar(
+            title: "Permission Denied",
+            message: "Please grant storage permission to save images",
+          );
+          return;
+        }
+      }
+
+      try {
+        if (query.imageFilePath != null && query.imageFilePath!.isNotEmpty) {
+          // Save local file
+          final file = File(query.imageFilePath!);
+          if (await file.exists()) {
+            await Gal.putImage(query.imageFilePath!);
+          }
+        } else if (query.imageUrl != null && query.imageUrl!.isNotEmpty) {
+          // Download and save network image
+          final tempDir = await getTemporaryDirectory();
+          final tempFilePath = '${tempDir.path}/CalAI_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          
+          await Dio().download(
+            query.imageUrl!,
+            tempFilePath,
+          );
+          
+          await Gal.putImage(tempFilePath);
+          
+          // Clean up temp file
+          await File(tempFilePath).delete();
+        }
+
+        AppDialogs.hideDialog();
+        AppDialogs.showSuccessSnackbar(
+          title: "Success",
+          message: "Image saved to gallery successfully!",
+        );
+      } catch (e) {
+        AppDialogs.hideDialog();
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "Failed to save image: ${e.toString()}",
+        );
+        print("Error saving image: $e");
+      }
+    } catch (e) {
+      AppDialogs.hideDialog();
+      AppDialogs.showErrorSnackbar(
+        title: "Error",
+        message: "Failed to save image: ${e.toString()}",
+      );
+      print("Error in _handleSaveImage: $e");
+    }
+  }
+
   Future<void> _handleDeleteMeal(BuildContext context) async {
     await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Meal Entry'),
-          content: const Text(
+          backgroundColor: context.cardColor,
+          title: Text(
+            'Delete Meal Entry',
+            style: TextStyle(color: context.textColor),
+          ),
+          content: Text(
             'Are you sure you want to delete this meal entry? This action cannot be undone.',
+            style: TextStyle(color: context.textColor),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: context.textColor),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -992,7 +1543,7 @@ class _NutritionViewState extends State<NutritionView> {
 
                 if (result == QueryStatus.SUCCESS) {
                   AppDialogs.hideDialog();
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   Navigator.of(context).pop();
                   AppDialogs.showSuccessSnackbar(
                     title: "Success",

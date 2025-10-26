@@ -6,6 +6,7 @@ import 'package:CalAI/app/controllers/auth_controller.dart';
 import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:CalAI/app/modules/DashBoard/view/widgets/scan_options_sheet.dart';
 import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EnhancedScanView extends StatefulWidget {
   final ScanType scanType;
@@ -35,9 +36,39 @@ class _EnhancedScanViewState extends State<EnhancedScanView> {
   }
 
   Future<void> _openCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      _processImage(File(image.path));
+    // ✅ Request camera permission first
+    final status = await Permission.camera.request();
+    
+    if (status.isGranted) {
+      // Permission granted, open camera
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        _processImage(File(image.path));
+      }
+    } else if (status.isDenied) {
+      // Permission denied
+      Get.snackbar(
+        'Camera Permission Required',
+        'Please grant camera permission to scan food',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 3),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, open app settings
+      Get.snackbar(
+        'Camera Permission Disabled',
+        'Please enable camera permission in app settings',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 3),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        mainButton: TextButton(
+          onPressed: () => openAppSettings(),
+          child: Text('Open Settings', style: TextStyle(color: Colors.white)),
+        ),
+      );
     }
   }
 

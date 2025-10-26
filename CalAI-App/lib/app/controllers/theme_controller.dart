@@ -29,8 +29,7 @@ class ThemeController extends GetxController {
     bool? savedMode = prefs.getBool('isDarkMode');
     
     if (savedMode == null) {
-      final brightness = WidgetsBinding.instance.window.platformBrightness;
-      _isDarkMode.value = brightness == Brightness.dark;
+      _isDarkMode.value = false;
     } else {
       _isDarkMode.value = savedMode;
     }

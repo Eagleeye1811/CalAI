@@ -10,7 +10,14 @@ import 'package:CalAI/app/constants/enums.dart';
 import 'food_database_page.dart';
 
 class CreateMealPage extends StatefulWidget {
-  const CreateMealPage({Key? key}) : super(key: key);
+  final Map<String, dynamic>? existingMeal;
+  final String? mealId;
+  
+  const CreateMealPage({
+    Key? key,
+    this.existingMeal,
+    this.mealId,
+  }) : super(key: key);
 
   @override
   State<CreateMealPage> createState() => _CreateMealPageState();
@@ -25,6 +32,22 @@ class _CreateMealPageState extends State<CreateMealPage> {
   int get totalProtein => _mealItems.fold(0, (sum, item) => sum + (item['protein'] as int));
   int get totalCarbs => _mealItems.fold(0, (sum, item) => sum + (item['carbs'] as int));
   int get totalFat => _mealItems.fold(0, (sum, item) => sum + (item['fat'] as int));
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingMeal();
+  }
+
+  void _loadExistingMeal() {
+    if (widget.existingMeal != null) {
+      _mealNameController.text = widget.existingMeal!['name'] ?? '';
+      if (widget.existingMeal!['items'] != null) {
+        _mealItems.addAll(List<Map<String, dynamic>>.from(widget.existingMeal!['items']));
+      }
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
@@ -65,7 +88,6 @@ class _CreateMealPageState extends State<CreateMealPage> {
     }
 
     try {
-      // Get user ID from AuthenticationBloc
       final authController = Get.find<AuthController>();
       if (!authController.isAuthenticated) {
         AppDialogs.showErrorSnackbar(
@@ -76,11 +98,10 @@ class _CreateMealPageState extends State<CreateMealPage> {
       }
 
       AppDialogs.showLoadingDialog(
-        title: "Saving Meal",
-        message: "Creating your custom meal...",
+        title: widget.existingMeal != null ? "Updating Meal" : "Saving Meal",
+        message: widget.existingMeal != null ? "Updating your meal..." : "Creating your custom meal...",
       );
 
-      // Prepare meal data
       final mealData = {
         'name': _mealNameController.text,
         'items': _mealItems,
@@ -90,7 +111,6 @@ class _CreateMealPageState extends State<CreateMealPage> {
         'totalFat': totalFat,
       };
 
-      // Save to Firestore
       final result = await MealsRepo().saveMeal(authController.userId!, mealData);
 
       AppDialogs.hideDialog();
@@ -98,22 +118,21 @@ class _CreateMealPageState extends State<CreateMealPage> {
     if (result == QueryStatus.SUCCESS) {
         AppDialogs.showSuccessSnackbar(
             title: "Success",
-            message: "${_mealNameController.text} has been created!",
+            message: "${_mealNameController.text} has been ${widget.existingMeal != null ? 'updated' : 'created'}!",
         );
         
-        // Navigate back to FoodDatabasePage with "My meals" tab selected
-        Get.off(() => FoodDatabasePage(initialTabIndex: 1));
+        Get.back(result: true);
     } else {
         AppDialogs.showErrorSnackbar(
             title: "Error",
-            message: "Failed to save meal",
+            message: "Failed to ${widget.existingMeal != null ? 'update' : 'save'} meal",
         );
       }
     } catch (e) {
       AppDialogs.hideDialog();
       AppDialogs.showErrorSnackbar(
         title: "Error",
-        message: "Failed to save meal: $e",
+        message: "Failed to ${widget.existingMeal != null ? 'update' : 'save'} meal: $e",
       );
     }
   }
@@ -130,7 +149,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Create Meal',
+          widget.existingMeal != null ? 'Edit Meal' : 'Create Meal',
           style: TextStyle(
             color: context.textColor,
             fontSize: 20,
@@ -145,29 +164,15 @@ class _CreateMealPageState extends State<CreateMealPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Meal name input
               _buildMealNameInput(),
-
               SizedBox(height: 3.h),
-
-              // Calories box (full width)
               _buildCaloriesBox(),
-
               SizedBox(height: 2.h),
-
-              // Macros row
               _buildMacrosRow(),
-
               SizedBox(height: 3.h),
-
-              // Meal items section
               _buildMealItemsSection(),
-
               SizedBox(height: 3.h),
-
-              // Save button
               _buildSaveButton(),
-
               SizedBox(height: 2.h),
             ],
           ),
@@ -213,46 +218,36 @@ class _CreateMealPageState extends State<CreateMealPage> {
   Widget _buildCaloriesBox() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(5.w),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange.shade400, Colors.orange.shade600],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.tileColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          Text(
-            'Total Calories',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            '$totalCalories',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            'kcal',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+          Icon(Icons.local_fire_department, color: context.textColor, size: 40),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Calories',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.6),
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '$totalCalories',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: context.textColor,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -263,47 +258,49 @@ class _CreateMealPageState extends State<CreateMealPage> {
   Widget _buildMacrosRow() {
     return Row(
       children: [
-        Expanded(child: _buildMacroBox('Protein', totalProtein, 'g', Colors.blue)),
+        Expanded(child: _buildMacroBox('Protein', totalProtein, 'g', Colors.red)),
         SizedBox(width: 2.w),
-        Expanded(child: _buildMacroBox('Carbs', totalCarbs, 'g', Colors.green)),
+        Expanded(child: _buildMacroBox('Carbs', totalCarbs, 'g', Colors.orange)),
         SizedBox(width: 2.w),
-        Expanded(child: _buildMacroBox('Fats', totalFat, 'g', Colors.purple)),
+        Expanded(child: _buildMacroBox('Fats', totalFat, 'g', Colors.blue)),
       ],
     );
   }
 
   Widget _buildMacroBox(String label, int value, String unit, MaterialColor color) {
+    IconData icon;
+    if (label == 'Protein') {
+      icon = Icons.restaurant_menu;
+    } else if (label == 'Carbs') {
+      icon = Icons.grain;
+    } else {
+      icon = Icons.water_drop;
+    }
+
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 2.w),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: context.tileColor,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
+          Icon(icon, color: color, size: 28),
+          SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color.shade700,
+              color: context.textColor.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 0.5.h),
+          SizedBox(height: 4),
           Text(
-            '$value',
+            '$value$unit',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            unit,
-            style: TextStyle(
-              fontSize: 12,
-              color: color.shade600,
+              color: context.textColor,
             ),
           ),
         ],
@@ -331,19 +328,19 @@ class _CreateMealPageState extends State<CreateMealPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: Colors.black.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.green.shade200),
+                  border: Border.all(color: Colors.black.withOpacity(0.2)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add, color: Colors.green.shade600, size: 16),
+                    Icon(Icons.add, color: Colors.black, size: 16),
                     SizedBox(width: 4),
                     Text(
                       'Add Item',
                       style: TextStyle(
-                        color: Colors.green.shade600,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
@@ -477,7 +474,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
         ),
         child: Center(
           child: Text(
-            'Save Meal',
+            widget.existingMeal != null ? 'Update Meal' : 'Save Meal',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -503,7 +500,6 @@ class _CreateMealPageState extends State<CreateMealPage> {
       ),
       child: Column(
         children: [
-          // Handle bar
           Container(
             margin: EdgeInsets.only(top: 12),
             width: 40,
@@ -514,8 +510,6 @@ class _CreateMealPageState extends State<CreateMealPage> {
             ),
           ),
           SizedBox(height: 20),
-
-          // Title
           Text(
             'Add Food Item',
             style: TextStyle(
@@ -525,8 +519,6 @@ class _CreateMealPageState extends State<CreateMealPage> {
             ),
           ),
           SizedBox(height: 20),
-
-          // Search box
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -548,10 +540,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
               ),
             ),
           ),
-
           SizedBox(height: 20),
-
-          // Sample foods list
           Expanded(
             child: ListView(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -616,7 +605,7 @@ class _CreateMealPageState extends State<CreateMealPage> {
                 ],
               ),
             ),
-            Icon(Icons.add_circle, color: Colors.green.shade600, size: 28),
+            Icon(Icons.add_circle, color: Colors.black, size: 28),
           ],
         ),
       ),

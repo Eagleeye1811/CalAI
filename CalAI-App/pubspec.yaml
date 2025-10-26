@@ -66,6 +66,7 @@ flutter:
     - assets/lottie/
     - assets/png/
     - shorebird.yaml
+    - assets/png/google_logo.png
 
 # Splash Screen Configuration
 flutter_native_splash:

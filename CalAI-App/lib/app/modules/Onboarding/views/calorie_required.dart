@@ -116,7 +116,9 @@ class _DailyCalorieRequiredState extends State<DailyCalorieRequired>
                   value: _progress,
                   backgroundColor: context.borderColor,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.white 
+                        : Colors.black,
                   ),
                   minHeight: 4,
                   borderRadius: BorderRadius.circular(2),
@@ -273,7 +275,9 @@ class _DailyCalorieRequiredState extends State<DailyCalorieRequired>
                   Get.to(() => SignInScreen(user: updatedUserBasicInfo));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.white 
+                      : Colors.black,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -286,7 +290,9 @@ class _DailyCalorieRequiredState extends State<DailyCalorieRequired>
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.black 
+                        : Colors.white,
                   ),
                 ),
               ),

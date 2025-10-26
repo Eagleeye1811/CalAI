@@ -4,7 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:CalAI/app/components/buttons.dart';
 import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Auth/views/sign_in_screen.dart';
+import 'package:CalAI/app/modules/Onboarding/views/onboarding_progress_view.dart';
+
 
 class OnboardingHome extends StatefulWidget {
   const OnboardingHome({super.key});
@@ -48,7 +49,7 @@ class _OnboardingHomeState extends State<OnboardingHome> {
                 children: [
                   OnboardingPage(
                     svgAsset: 'assets/svg/welcome.svg',
-                    title: 'Welcome to MealAI',
+                    title: 'Welcome to CalAI',
                     message: 'Today is the day to start tracking your health.',
                   ),
                   OnboardingPage(
@@ -72,12 +73,8 @@ class _OnboardingHomeState extends State<OnboardingHome> {
                 dotWidth: 10,
                 dotHeight: 10,
                 spacing: 16,
-                dotColor: isDarkMode 
-                    ? MealAIColors.darkSecondaryVariant
-                    : MealAIColors.lightPrimaryVariant,
-                activeDotColor: isDarkMode
-                    ? MealAIColors.darkPrimary
-                    : MealAIColors.lightPrimary,
+                dotColor: Colors.grey.withOpacity(0.3),  // ← CHANGED TO GREY
+                activeDotColor: Colors.black,  // ← CHANGED TO BLACK
               ),
             ),
             const SizedBox(height: 24),
@@ -93,7 +90,7 @@ class _OnboardingHomeState extends State<OnboardingHome> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const SignInScreen()));
+                                  builder: (context) => const OnboardingQuestionaries()));
                           } else {
                             _pageController.nextPage(
                               duration: const Duration(milliseconds: 300),

@@ -14,6 +14,8 @@ class AddNutrientsPage extends StatefulWidget {
   final String description;
   final String servingSize;
   final String servingsPerContainer;
+  final Map<String, dynamic>? existingFood;
+  final String? foodId;
 
   const AddNutrientsPage({
     Key? key,
@@ -21,6 +23,8 @@ class AddNutrientsPage extends StatefulWidget {
     required this.description,
     required this.servingSize,
     required this.servingsPerContainer,
+    this.existingFood,
+    this.foodId,
   }) : super(key: key);
 
   @override
@@ -45,6 +49,33 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
   final TextEditingController _vitaminAController = TextEditingController(text: '0');
   final TextEditingController _vitaminCController = TextEditingController(text: '0');
   final TextEditingController _vitaminDController = TextEditingController(text: '0');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingFood();
+  }
+
+  void _loadExistingFood() {
+    if (widget.existingFood != null) {
+      _caloriesController.text = widget.existingFood!['calories']?.toString() ?? '0';
+      _proteinController.text = widget.existingFood!['protein']?.toString() ?? '0';
+      _carbsController.text = widget.existingFood!['carbs']?.toString() ?? '0';
+      _fatController.text = widget.existingFood!['fat']?.toString() ?? '0';
+      _fiberController.text = widget.existingFood!['fiber']?.toString() ?? '0';
+      _sugarController.text = widget.existingFood!['sugar']?.toString() ?? '0';
+      _sodiumController.text = widget.existingFood!['sodium']?.toString() ?? '0';
+      _saturatedFatController.text = widget.existingFood!['saturatedFat']?.toString() ?? '0';
+      _transFatController.text = widget.existingFood!['transFat']?.toString() ?? '0';
+      _cholesterolController.text = widget.existingFood!['cholesterol']?.toString() ?? '0';
+      _potassiumController.text = widget.existingFood!['potassium']?.toString() ?? '0';
+      _calciumController.text = widget.existingFood!['calcium']?.toString() ?? '0';
+      _ironController.text = widget.existingFood!['iron']?.toString() ?? '0';
+      _vitaminAController.text = widget.existingFood!['vitaminA']?.toString() ?? '0';
+      _vitaminCController.text = widget.existingFood!['vitaminC']?.toString() ?? '0';
+      _vitaminDController.text = widget.existingFood!['vitaminD']?.toString() ?? '0';
+    }
+  }
 
   @override
   void dispose() {
@@ -80,8 +111,8 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
       }
 
       AppDialogs.showLoadingDialog(
-        title: "Saving Food",
-        message: "Creating your custom food...",
+        title: widget.existingFood != null ? "Updating Food" : "Saving Food",
+        message: widget.existingFood != null ? "Updating your food..." : "Creating your custom food...",
       );
 
       // Prepare food data
@@ -116,22 +147,22 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
       if (result == QueryStatus.SUCCESS) {
         AppDialogs.showSuccessSnackbar(
           title: "Success",
-          message: "${widget.description} has been created!",
+          message: "${widget.description} has been ${widget.existingFood != null ? 'updated' : 'created'}!",
         );
         
-        // Navigate back to FoodDatabasePage with "My foods" tab selected
-        Get.off(() => FoodDatabasePage(initialTabIndex: 2));
+        // Navigate back with success result
+        Get.back(result: true);
       } else {
         AppDialogs.showErrorSnackbar(
           title: "Error",
-          message: "Failed to save food",
+          message: "Failed to ${widget.existingFood != null ? 'update' : 'save'} food",
         );
       }
     } catch (e) {
       AppDialogs.hideDialog();
       AppDialogs.showErrorSnackbar(
         title: "Error",
-        message: "Failed to save food: $e",
+        message: "Failed to ${widget.existingFood != null ? 'update' : 'save'} food: $e",
       );
     }
   }
@@ -148,7 +179,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Add Nutrients',
+          widget.existingFood != null ? 'Edit Nutrients' : 'Add Nutrients',
           style: TextStyle(
             color: context.textColor,
             fontSize: 20,
@@ -428,7 +459,7 @@ class _AddNutrientsPageState extends State<AddNutrientsPage> {
         ),
         child: Center(
           child: Text(
-            'Save Food',
+            widget.existingFood != null ? 'Update Food' : 'Save Food',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

@@ -829,24 +829,6 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
         },
       ),
       OnboardingModel(
-        title: "Track what you eat, instantly",
-        description:
-            "Snap a photo or log your meals to keep track of your nutrition.",
-        widgetBuilder: (context) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.camera_alt,
-                size: 60,
-                color: context.textColor,
-              ),
-              SizedBox(height: 2.h),
-            ],
-          );
-        },
-      ),
-      OnboardingModel(
         title: "Do you have any food allergies?",
         description: "Select all that apply to you.",
         widgetBuilder: (context) {
@@ -1079,8 +1061,8 @@ class _OnboardingQuestionariesState extends State<OnboardingQuestionaries> {
                       maxSteps: _totalPages,
                       progressType: LinearProgressBar.progressTypeLinear,
                       currentStep: _currentPage,
-                      progressColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: context.borderColor,
+                      progressColor: Colors.black,  // ← CHANGED TO BLACK
+                      backgroundColor: Colors.grey.withOpacity(0.2),  // ← CHANGED TO GREY
                       minHeight: 0.5.h,
                     ),
                   ),

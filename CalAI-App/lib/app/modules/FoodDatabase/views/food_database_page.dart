@@ -702,62 +702,336 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
   }
 
   Widget _buildMealCard(Map<String, dynamic> meal) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.tileColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  meal['name'] ?? 'Unnamed Meal',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: context.textColor,
+    return GestureDetector(
+      onTap: () async {
+        // Navigate to edit meal page
+        final result = await Get.to(() => CreateMealPage(
+          existingMeal: meal,
+          mealId: meal['id'],
+        ));
+        
+        // Refresh meals list if meal was updated
+        if (result == true) {
+          _loadMeals();
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.tileColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    meal['name'] ?? 'Unnamed Meal',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: context.textColor,
+                    ),
                   ),
                 ),
-              ),
-              Icon(Icons.add_circle_outline, color: context.textColor, size: 28),
-            ],
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
-              SizedBox(width: 4),
-              Text(
-                '${meal['totalCalories'] ?? 0} cal',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textColor.withOpacity(0.7),
+                GestureDetector(
+                  onTap: () {
+                    // Stop propagation to parent GestureDetector
+                    _logMealToHome(meal);
+                  },
+                  child: Icon(
+                    Icons.add_circle, 
+                    color: Colors.black, 
+                    size: 28,
+                  ),
                 ),
-              ),
-              SizedBox(width: 4),
-              Text(
-                '•',
-                style: TextStyle(color: context.textColor.withOpacity(0.5)),
-              ),
-              SizedBox(width: 4),
-              Text(
-                '${(meal['items'] as List?)?.length ?? 0} items',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textColor.withOpacity(0.6),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
+                SizedBox(width: 4),
+                Text(
+                  '${meal['totalCalories'] ?? 0} cal',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.7),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                SizedBox(width: 4),
+                Text(
+                  '•',
+                  style: TextStyle(color: context.textColor.withOpacity(0.5)),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  '${(meal['items'] as List?)?.length ?? 0} items',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _logMealToHome(Map<String, dynamic> meal) async {
+    try {
+      final authController = Get.find<AuthController>();
+      final scannerController = Get.find<ScannerController>();
+
+      if (!authController.isAuthenticated) {
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "User not authenticated",
+        );
+        return;
+      }
+
+      AppDialogs.showLoadingDialog(
+        title: "Adding to Log",
+        message: "Adding meal to your daily log...",
+      );
+
+      final now = DateTime.now();
+
+      // Create a simple NutritionRecord for the meal with ingredients
+      final nutritionRecord = NutritionRecord(
+        recordTime: now,
+        nutritionOutput: NutritionOutput(
+          response: NutritionResponse(
+            message: 'Custom meal from database',
+            foodName: meal['name'] ?? 'Custom Meal',
+            ingredients: [
+              Ingredient(
+                name: meal['name'] ?? 'Custom Meal',
+                calories: meal['totalCalories'] ?? 0,
+                protein: meal['totalProtein'] ?? 0,
+                carbs: meal['totalCarbs'] ?? 0,
+                fat: meal['totalFat'] ?? 0,
+                fiber: 0,
+                sugar: 0,
+                sodium: 0,
+              ),
+            ],
+          ),
+        ),
+        processingStatus: ProcessingStatus.COMPLETED,
+        entrySource: EntrySource.FOOD_DATABASE,
+      );
+
+      // Add to scanner controller's transient state
+      scannerController.addRecord(nutritionRecord);
+
+      // Get existing records for today
+      final persistedForDay = await NutritionRecordRepo().getNutritionData(authController.userId!, now);
+
+      // Merge with transient records
+      final mergedRecords = List<NutritionRecord>.from(persistedForDay.dailyRecords);
+      mergedRecords.add(nutritionRecord);
+
+      // Recalculate totals
+      int totalConsumedCalories = 0;
+      int totalConsumedProtein = 0;
+      int totalConsumedFat = 0;
+      int totalConsumedCarb = 0;
+
+      for (final record in mergedRecords) {
+        if (record.isExercise == true) {
+          continue;
+        }
+        final resp = record.nutritionOutput?.response;
+        if (resp != null && resp.ingredients != null) {
+          for (final ing in resp.ingredients!) {
+            totalConsumedCalories += ing.calories ?? 0;
+            totalConsumedProtein += ing.protein ?? 0;
+            totalConsumedFat += ing.fat ?? 0;
+            totalConsumedCarb += ing.carbs ?? 0;
+          }
+        }
+      }
+
+      // Create DailyNutritionRecords
+      final dailyRecordID = NutritionRecordRepo().getRecordId(now);
+      final dailyNutritionRecords = DailyNutritionRecords(
+        dailyRecords: mergedRecords,
+        recordDate: now,
+        recordId: dailyRecordID,
+        dailyConsumedCalories: totalConsumedCalories,
+        dailyConsumedProtein: totalConsumedProtein,
+        dailyConsumedFat: totalConsumedFat,
+        dailyConsumedCarb: totalConsumedCarb,
+      );
+
+      // Save to database
+      final result = await NutritionRecordRepo().saveNutritionData(
+        dailyNutritionRecords,
+        authController.userId!,
+      );
+
+      AppDialogs.hideDialog();
+
+      if (result == QueryStatus.SUCCESS) {
+        // Update scanner controller's reactive values
+        scannerController.consumedCalories.value = totalConsumedCalories;
+        scannerController.consumedProtein.value = totalConsumedProtein;
+        scannerController.consumedCarb.value = totalConsumedCarb;
+        scannerController.consumedFat.value = totalConsumedFat;
+
+        AppDialogs.showSuccessSnackbar(
+          title: "Success",
+          message: "${meal['name']} added to your log!",
+        );
+      } else {
+        // Remove from transient state on failure
+        scannerController.removeRecord(nutritionRecord);
+
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "Failed to add meal to log",
+        );
+      }
+    } catch (e) {
+      AppDialogs.hideDialog();
+      AppDialogs.showErrorSnackbar(
+        title: "Error",
+        message: "Failed to add meal: $e",
+      );
+    }
+  }
+
+  Future<void> _logFoodToHome(Map<String, dynamic> food) async {
+    try {
+      final authController = Get.find<AuthController>();
+      final scannerController = Get.find<ScannerController>();
+
+      if (!authController.isAuthenticated) {
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "User not authenticated",
+        );
+        return;
+      }
+
+      AppDialogs.showLoadingDialog(
+        title: "Adding to Log",
+        message: "Adding food to your daily log...",
+      );
+
+      final now = DateTime.now();
+
+      // Create a simple NutritionRecord for the food
+      final nutritionRecord = NutritionRecord(
+        recordTime: now,
+        nutritionOutput: NutritionOutput(
+          response: NutritionResponse(
+            message: 'Custom food from database',
+            foodName: food['description'] ?? 'Custom Food',
+            ingredients: [
+              Ingredient(
+                name: food['description'] ?? 'Custom Food',
+                calories: food['calories'] ?? 0,
+                protein: food['protein'] ?? 0,
+                carbs: food['carbs'] ?? 0,
+                fat: food['fat'] ?? 0,
+                fiber: food['fiber'] ?? 0,
+                sugar: food['sugar'] ?? 0,
+                sodium: food['sodium'] ?? 0,
+              ),
+            ],
+          ),
+        ),
+        processingStatus: ProcessingStatus.COMPLETED,
+        entrySource: EntrySource.FOOD_DATABASE,
+      );
+
+      // Add to scanner controller's transient state
+      scannerController.addRecord(nutritionRecord);
+
+      // Get existing records for today
+      final persistedForDay = await NutritionRecordRepo().getNutritionData(authController.userId!, now);
+
+      // Merge with transient records
+      final mergedRecords = List<NutritionRecord>.from(persistedForDay.dailyRecords);
+      mergedRecords.add(nutritionRecord);
+
+      // Recalculate totals
+      int totalConsumedCalories = 0;
+      int totalConsumedProtein = 0;
+      int totalConsumedFat = 0;
+      int totalConsumedCarb = 0;
+
+      for (final record in mergedRecords) {
+        if (record.isExercise == true) {
+          continue;
+        }
+        final resp = record.nutritionOutput?.response;
+        if (resp != null && resp.ingredients != null) {
+          for (final ing in resp.ingredients!) {
+            totalConsumedCalories += ing.calories ?? 0;
+            totalConsumedProtein += ing.protein ?? 0;
+            totalConsumedFat += ing.fat ?? 0;
+            totalConsumedCarb += ing.carbs ?? 0;
+          }
+        }
+      }
+
+      // Create DailyNutritionRecords
+      final dailyRecordID = NutritionRecordRepo().getRecordId(now);
+      final dailyNutritionRecords = DailyNutritionRecords(
+        dailyRecords: mergedRecords,
+        recordDate: now,
+        recordId: dailyRecordID,
+        dailyConsumedCalories: totalConsumedCalories,
+        dailyConsumedProtein: totalConsumedProtein,
+        dailyConsumedFat: totalConsumedFat,
+        dailyConsumedCarb: totalConsumedCarb,
+      );
+
+      // Save to database
+      final result = await NutritionRecordRepo().saveNutritionData(
+        dailyNutritionRecords,
+        authController.userId!,
+      );
+
+      AppDialogs.hideDialog();
+
+      if (result == QueryStatus.SUCCESS) {
+        // Update scanner controller's reactive values
+        scannerController.consumedCalories.value = totalConsumedCalories;
+        scannerController.consumedProtein.value = totalConsumedProtein;
+        scannerController.consumedCarb.value = totalConsumedCarb;
+        scannerController.consumedFat.value = totalConsumedFat;
+
+        AppDialogs.showSuccessSnackbar(
+          title: "Success",
+          message: "${food['description']} added to your log!",
+        );
+      } else {
+        // Remove from transient state on failure
+        scannerController.removeRecord(nutritionRecord);
+
+        AppDialogs.showErrorSnackbar(
+          title: "Error",
+          message: "Failed to add food to log",
+        );
+      }
+    } catch (e) {
+      AppDialogs.hideDialog();
+      AppDialogs.showErrorSnackbar(
+        title: "Error",
+        message: "Failed to add food: $e",
+      );
+    }
   }
 
   Widget _buildMyFoodsTab() {
@@ -820,60 +1094,84 @@ class _FoodDatabasePageState extends State<FoodDatabasePage> {
   }
 
   Widget _buildCustomFoodCard(Map<String, dynamic> food) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.tileColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  food['description'] ?? 'Unnamed Food',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: context.textColor,
+    return GestureDetector(
+      onTap: () async {
+        // Navigate to edit food page
+        final result = await Get.to(() => CreateFoodPage(
+          existingFood: food,
+          foodId: food['id'],
+        ));
+        
+        // Refresh foods list if food was updated
+        if (result == true) {
+          _loadCustomFoods();
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.tileColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    food['description'] ?? 'Unnamed Food',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: context.textColor,
+                    ),
                   ),
                 ),
-              ),
-              Icon(Icons.add_circle_outline, color: context.textColor, size: 28),
-            ],
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
-              SizedBox(width: 4),
-              Text(
-                '${food['calories'] ?? 0} cal',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textColor.withOpacity(0.7),
+                GestureDetector(
+                  onTap: () {
+                    // Stop propagation to parent GestureDetector
+                    _logFoodToHome(food);
+                  },
+                  child: Icon(
+                    Icons.add_circle, 
+                    color: Colors.black, 
+                    size: 28,
+                  ),
                 ),
-              ),
-              SizedBox(width: 4),
-              Text(
-                '•',
-                style: TextStyle(color: context.textColor.withOpacity(0.5)),
-              ),
-              SizedBox(width: 4),
-              Text(
-                food['servingSize'] ?? '',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textColor.withOpacity(0.6),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.local_fire_department_outlined, size: 16, color: context.textColor.withOpacity(0.7)),
+                SizedBox(width: 4),
+                Text(
+                  '${food['calories'] ?? 0} cal',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.7),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                SizedBox(width: 4),
+                Text(
+                  '•',
+                  style: TextStyle(color: context.textColor.withOpacity(0.5)),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  food['servingSize'] ?? '',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textColor.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

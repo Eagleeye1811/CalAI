@@ -43,3 +43,6 @@ logs/
 # Node modules (if any Node.js)
 node_modules/
 EOF
+
+# Protect keystore credentials
+android/key.properties

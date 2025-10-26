@@ -344,49 +344,6 @@ class NutritionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMacroNutrientBadge(BuildContext context, String label,
-      String value, Color color, IconData icon) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: 12,
-          ),
-          SizedBox(width: 4),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                label,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: color.withOpacity(0.8),
-                  fontSize: 6.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildExerciseCard(BuildContext context) {
     final exercise = nutritionRecord.exerciseRecord!;
     

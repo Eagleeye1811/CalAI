@@ -47,10 +47,6 @@ class _NutritionDetailPageState extends State<NutritionDetailPage> {
     super.initState();
     _checkIfSaved();
     
-    // If editing existing record, set initial serving amount and store original values
-    if (widget.existingRecord != null) {
-      final record = widget.existingRecord!;
-    }
   }
 
   Future<void> _checkIfSaved() async {

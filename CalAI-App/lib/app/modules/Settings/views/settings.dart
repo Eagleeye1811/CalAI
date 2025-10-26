@@ -9,6 +9,7 @@ import 'package:CalAI/app/modules/Settings/views/adjust_goals.dart';
 import 'package:CalAI/app/repo/firebase_user_repo.dart';
 import 'weight_history_view.dart';
 import 'edit_profile.dart';
+import 'package:CalAI/app/modules/Onboarding/views/onboarding_progress_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -761,8 +762,82 @@ class _SettingsViewState extends State<SettingsView> {
   // Logout Button
   Widget _buildLogoutButton() {
     return InkWell(
-      onTap: () {
-        // REMOVED: SignInBloc - implement auth logic differently.add(const SignOutRequired());
+      onTap: () async {
+        // Show confirmation dialog
+        final bool? confirm = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              backgroundColor: context.cardColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text(
+                'Logout',
+                style: TextStyle(
+                  color: context.textColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                ),
+              ),
+              content: Text(
+                'Are you sure you want to logout?',
+                style: TextStyle(
+                  color: context.textColor,
+                  fontSize: 16,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: context.textColor.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+
+        // If user confirmed logout
+        if (confirm == true) {
+          try {
+            // Sign out from Firebase
+            await authController.signOut();
+            
+            // Navigate to onboarding screen and remove all previous routes
+            if (mounted) {
+              Get.offAll(() => const OnboardingQuestionaries());
+            }
+          } catch (e) {
+            // Show error if logout fails
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Logout failed: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 2.h),
@@ -915,100 +990,4 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  Widget _buildPersonalStat(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 18,
-            color: context.textColor,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: context.textColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavigationItem(
-    String title, {
-    String? subtitle,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: context.textColor,
-                  ),
-                ),
-                if (subtitle != null)
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: context.textColor.withOpacity(0.7),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: context.textColor.withOpacity(0.5),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleItem(
-      String title, String subtitle, bool value, Function(bool) onChanged) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: context.textColor,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textColor.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          thumbColor: WidgetStateProperty.all(context.textColor),
-        ),
-      ],
-    );
-  }
 }

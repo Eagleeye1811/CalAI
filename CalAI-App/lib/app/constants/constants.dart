@@ -1,7 +1,7 @@
 import 'dart:math';
 
 class AppConstants {
-  static String appName = "MealAI";
+  static String appName = "CalAI";
 
   static final List<String> nutritionFunFacts = [
     "Drinking water before meals can help you eat fewer calories and may be effective for weight loss.",
@@ -47,8 +47,8 @@ class AppConstants {
 }
 
 class AppInfo {
-  static String appName = "MealAI";
+  static String appName = "CalAI";
 
   static String appDescription =
-      "MealAI is an AI-powered nutrition app that helps you get healthier by providing personalized meal plans and nutrition advice.";
+    "CalAI is your AI-powered nutrition companion that helps you track meals, monitor health, and achieve your fitness goals with intelligent insights.";
 }

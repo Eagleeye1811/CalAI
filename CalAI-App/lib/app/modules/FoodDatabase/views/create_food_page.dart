@@ -6,7 +6,14 @@ import 'package:CalAI/app/constants/colors.dart';
 import 'add_nutrients_page.dart';
 
 class CreateFoodPage extends StatefulWidget {
-  const CreateFoodPage({Key? key}) : super(key: key);
+  final Map<String, dynamic>? existingFood;
+  final String? foodId;
+  
+  const CreateFoodPage({
+    Key? key,
+    this.existingFood,
+    this.foodId,
+  }) : super(key: key);
 
   @override
   State<CreateFoodPage> createState() => _CreateFoodPageState();
@@ -17,6 +24,21 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _servingSizeController = TextEditingController();
   final TextEditingController _servingsPerContainerController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingFood();
+  }
+
+  void _loadExistingFood() {
+    if (widget.existingFood != null) {
+      _brandNameController.text = widget.existingFood!['brandName'] ?? '';
+      _descriptionController.text = widget.existingFood!['description'] ?? '';
+      _servingSizeController.text = widget.existingFood!['servingSize'] ?? '';
+      _servingsPerContainerController.text = widget.existingFood!['servingsPerContainer']?.toString() ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -79,6 +101,8 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
       description: _descriptionController.text,
       servingSize: _servingSizeController.text,
       servingsPerContainer: _servingsPerContainerController.text,
+      existingFood: widget.existingFood,
+      foodId: widget.foodId,
     ));
   }
 
@@ -94,7 +118,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Create Custom Food',
+          widget.existingFood != null ? 'Edit Food' : 'Create Custom Food',
           style: TextStyle(
             color: context.textColor,
             fontSize: 20,

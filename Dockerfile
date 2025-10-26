@@ -1,5 +1,4 @@
 # Stage 1: Build the Flutter web app
-# Use a stable Flutter SDK image from Google
 FROM dart:stable AS build
 
 # Install Flutter
@@ -15,18 +14,17 @@ ENV PATH="/usr/local/flutter/bin:${PATH}"
 # Set working directory
 WORKDIR /app
 
-# Copy project files and get dependencies
-COPY pubspec.* ./
+# [FIX] Copy pubspec from the 'CalAI-App' subfolder
+COPY CalAI-App/pubspec.* ./
 RUN flutter pub get
 
-# Copy the rest of the project source
-COPY . .
+# [FIX] Copy the rest of the project source from the 'CalAI-App' subfolder
+COPY CalAI-App/ .
 
 # Build the web application in release mode
 RUN flutter build web --release
 
 # Stage 2: Serve the built app with Nginx
-# Use a lightweight Nginx image
 FROM nginx:alpine
 
 # Copy the Nginx configuration file

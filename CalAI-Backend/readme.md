@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/5d6269d6-3f9c-4568-8c7a-9a393ac5595d" alt="CalAI Logo" width="200"/>
+ 
 
 # **CalAI**
 

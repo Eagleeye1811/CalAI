@@ -1,4 +1,4 @@
-import 'package:CalAI/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user.dart';
 
 class EnhancedUserNutrition {
   static const double MIN_CALORIES_FEMALE = 1200;

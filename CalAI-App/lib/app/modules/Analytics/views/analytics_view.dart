@@ -1,14 +1,14 @@
-import 'package:CalAI/app/components/empty.dart';
+import 'package:calai/app/components/empty.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Analytics/model/analytics.dart';
-import 'package:CalAI/app/controllers/user_controller.dart';
-import 'package:CalAI/app/repo/nutrition_record_repo.dart';
-import 'package:CalAI/app/utility/registry_service.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Analytics/model/analytics.dart';
+import 'package:calai/app/controllers/user_controller.dart';
+import 'package:calai/app/repo/nutrition_record_repo.dart';
+import 'package:calai/app/utility/registry_service.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
 import 'package:get/get.dart';
 
 class AnalyticsView extends StatefulWidget {

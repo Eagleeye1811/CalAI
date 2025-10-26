@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:CalAI/app/components/buttons.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Onboarding/views/onboarding_progress_view.dart';
+import 'package:calai/app/components/buttons.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Onboarding/views/onboarding_progress_view.dart';
 
 
 class OnboardingHome extends StatefulWidget {

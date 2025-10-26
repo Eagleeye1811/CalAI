@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/controllers/user_controller.dart';
-import 'package:CalAI/app/modules/Scanner/views/enhanced_scan_view.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/controllers/user_controller.dart';
+import 'package:calai/app/modules/Scanner/views/enhanced_scan_view.dart';
 
 enum ScanType { scanFood, barcode, foodLabel, gallery }
 

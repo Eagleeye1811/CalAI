@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:CalAI/app/models/Auth/user_repo.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user_repo.dart';
+import 'package:calai/app/models/Auth/user.dart';
 
 enum AuthStatus { authenticated, unauthenticated, unknown }
 

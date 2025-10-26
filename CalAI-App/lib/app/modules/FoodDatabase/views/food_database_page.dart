@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/components/dialogs.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/repo/nutrition_record_repo.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/components/dialogs.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/repo/nutrition_record_repo.dart';
 import 'nutrition_detail_page.dart';
-import 'package:CalAI/app/repo/saved_foods_repo.dart';
+import 'package:calai/app/repo/saved_foods_repo.dart';
 import 'create_meal_page.dart';
-import 'package:CalAI/app/repo/custom_foods_repo.dart';
+import 'package:calai/app/repo/custom_foods_repo.dart';
 import 'create_food_page.dart';
-import 'package:CalAI/app/repo/meals_repo.dart';
+import 'package:calai/app/repo/meals_repo.dart';
 import 'manual_food_entry_page.dart';
 
 class FoodDatabasePage extends StatefulWidget {

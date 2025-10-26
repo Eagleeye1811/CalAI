@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/modules/Exercise/controllers/describe_exercise_controller.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/modules/Exercise/controllers/describe_exercise_controller.dart';
 import 'workout_result_page.dart';
 
 class DescribeExercisePage extends StatefulWidget {

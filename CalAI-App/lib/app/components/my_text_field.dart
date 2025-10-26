@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 
 class MyTextField extends StatelessWidget {
 	final TextEditingController controller;

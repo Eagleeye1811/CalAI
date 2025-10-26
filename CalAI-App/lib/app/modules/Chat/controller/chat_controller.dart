@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:CalAI/app/models/Agent/agent_response.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/repo/agent_service.dart';
-import 'package:CalAI/app/utils/url_parser.dart';
+import 'package:calai/app/models/Agent/agent_response.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/repo/agent_service.dart';
+import 'package:calai/app/utils/url_parser.dart';
 
 class ChatController extends GetxController {
   final AgentService _agentService = AgentService();

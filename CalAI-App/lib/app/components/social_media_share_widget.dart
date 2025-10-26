@@ -7,11 +7,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sizer/sizer.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/utility/date_utility.dart';
-import 'package:CalAI/app/components/dialogs.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/utility/date_utility.dart';
+import 'package:calai/app/components/dialogs.dart';
 
 class SocialMediaShareWidget extends StatefulWidget {
   final NutritionRecord nutritionRecord;

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/modules/Auth/views/sign_in_screen.dart';
-import 'package:CalAI/app/utility/user_utility.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/modules/Auth/views/sign_in_screen.dart';
+import 'package:calai/app/utility/user_utility.dart';
 
 import 'package:get/get.dart';
 class DailyCalorieRequired extends StatefulWidget {

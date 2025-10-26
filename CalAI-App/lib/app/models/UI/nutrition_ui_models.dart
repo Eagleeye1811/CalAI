@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/services/nutrition_service.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/services/nutrition_service.dart';
 
 /// UI configuration for health score display
 class HealthScoreConfig {

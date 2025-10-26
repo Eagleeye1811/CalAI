@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/modules/Auth/views/sign_in_screen.dart';
-import 'package:CalAI/app/modules/Auth/views/sign_up_screen.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/modules/Auth/views/sign_in_screen.dart';
+import 'package:calai/app/modules/Auth/views/sign_up_screen.dart';
 
 import 'package:get/get.dart';
 class WelcomeScreen extends StatefulWidget {

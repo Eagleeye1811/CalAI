@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:CalAI/app/constants/enums.dart';
+import 'package:calai/app/constants/enums.dart';
 
 class MealsRepo {
   final usersCollection = FirebaseFirestore.instance.collection('users');

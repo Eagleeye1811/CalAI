@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/components/dialogs.dart';
-import 'package:CalAI/app/repo/meals_repo.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/constants/enums.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/components/dialogs.dart';
+import 'package:calai/app/repo/meals_repo.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/constants/enums.dart';
 import 'food_database_page.dart';
 
 class CreateMealPage extends StatefulWidget {

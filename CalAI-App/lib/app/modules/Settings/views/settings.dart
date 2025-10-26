@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/controllers/theme_controller.dart';
-import 'package:CalAI/app/modules/Settings/views/adjust_goals.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/controllers/theme_controller.dart';
+import 'package:calai/app/modules/Settings/views/adjust_goals.dart';
+import 'package:calai/app/repo/firebase_user_repo.dart';
 import 'weight_history_view.dart';
 import 'edit_profile.dart';
-import 'package:CalAI/app/modules/Onboarding/views/onboarding_progress_view.dart';
+import 'package:calai/app/modules/Onboarding/views/onboarding_progress_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});

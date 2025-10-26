@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 
 class AppDialogs {
   /// Show a minimal adding dialog

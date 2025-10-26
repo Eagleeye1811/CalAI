@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/models/AI/exercise_record.dart';
-import 'package:CalAI/app/constants/enums.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/models/AI/exercise_record.dart';
+import 'package:calai/app/constants/enums.dart';
 
 class WorkoutResultPage extends StatefulWidget {
   final String exerciseType;

@@ -1,20 +1,20 @@
 import 'dart:io';
 
-import 'package:CalAI/app/controllers/user_controller.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/components/dialogs.dart';
+import 'package:calai/app/controllers/user_controller.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/components/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/models/AI/nutrition_input.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
-import 'package:CalAI/app/repo/meal_ai_repo.dart';
-import 'package:CalAI/app/repo/nutrition_record_repo.dart';
-import 'package:CalAI/app/repo/storage_service.dart';
-import 'package:CalAI/app/utility/image_utility.dart';
-import 'package:CalAI/app/utility/registry_service.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/models/AI/nutrition_input.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/modules/Scanner/views/scan_view.dart';
+import 'package:calai/app/repo/meal_ai_repo.dart';
+import 'package:calai/app/repo/nutrition_record_repo.dart';
+import 'package:calai/app/repo/storage_service.dart';
+import 'package:calai/app/utility/image_utility.dart';
+import 'package:calai/app/utility/registry_service.dart';
 
 class ScannerController extends GetxController {
   RxInt maximumCalories = 0.obs;

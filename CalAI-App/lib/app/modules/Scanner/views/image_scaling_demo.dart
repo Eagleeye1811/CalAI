@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:before_after/before_after.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/utility/image_utility.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/utility/image_utility.dart';
 
 class ImageDownscaleDemo extends StatefulWidget {
   final String imagePath;

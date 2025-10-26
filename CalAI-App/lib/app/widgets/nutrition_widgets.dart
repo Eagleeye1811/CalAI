@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/models/Agent/agent_response.dart';
-import 'package:CalAI/app/models/UI/nutrition_ui_models.dart';
-import 'package:CalAI/app/services/nutrition_service.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/models/Agent/agent_response.dart';
+import 'package:calai/app/models/UI/nutrition_ui_models.dart';
+import 'package:calai/app/services/nutrition_service.dart';
+import 'package:calai/app/constants/colors.dart';
 
 class NutritionWidgetService {
   /// Builds a nutrition card from response data

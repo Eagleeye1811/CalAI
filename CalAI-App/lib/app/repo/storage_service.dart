@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:CalAI/app/config/environment.dart';
+import 'package:calai/app/config/environment.dart';
 
 class StorageService {
   /// Upload image to backend server (free, no Firebase Storage needed)

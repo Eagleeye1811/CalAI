@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Scanner/views/scan_view.dart';
 import 'exercise_options_sheet.dart';
 import 'scan_options_sheet.dart';
-import 'package:CalAI/app/modules/FoodDatabase/views/food_database_page.dart';
-import 'package:CalAI/app/modules/FoodDatabase/views/saved_foods_page.dart';
-import 'package:CalAI/app/modules/Scanner/views/enhanced_scan_view.dart';
-import 'package:CalAI/app/modules/Chat/Views/chat_view.dart';  
+import 'package:calai/app/modules/FoodDatabase/views/food_database_page.dart';
+import 'package:calai/app/modules/FoodDatabase/views/saved_foods_page.dart';
+import 'package:calai/app/modules/Scanner/views/enhanced_scan_view.dart';
+import 'package:calai/app/modules/Chat/Views/chat_view.dart';  
 
 
 class ActionMenuBottomSheet extends StatelessWidget {

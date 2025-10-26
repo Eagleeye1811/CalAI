@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/repo/saved_foods_repo.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/repo/saved_foods_repo.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
 import 'nutrition_detail_page.dart';
-import 'package:CalAI/app/constants/enums.dart';
+import 'package:calai/app/constants/enums.dart';
 
 class SavedFoodsPage extends StatefulWidget {
   const SavedFoodsPage({Key? key}) : super(key: key);

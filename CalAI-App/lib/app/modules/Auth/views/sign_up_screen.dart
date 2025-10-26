@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user.dart';
 import '../../../components/my_text_field.dart';
 
 class SignUpScreen extends StatefulWidget {

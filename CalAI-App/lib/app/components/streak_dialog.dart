@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 
 class StreakDialog extends StatelessWidget {
   final int streakCount;

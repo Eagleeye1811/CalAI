@@ -1,15 +1,15 @@
-import 'package:CalAI/app/modules/Analytics/views/analytics_view.dart';
-import 'package:CalAI/app/modules/Chat/Views/chat_view.dart';
+import 'package:calai/app/modules/Analytics/views/analytics_view.dart';
+import 'package:calai/app/modules/Chat/Views/chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/controllers/user_controller.dart';
+import 'package:calai/app/controllers/user_controller.dart';
 import 'package:lottie/lottie.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Home/views/home_view.dart';
-import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
-import 'package:CalAI/app/modules/Settings/views/settings.dart';  
-import 'package:CalAI/app/modules/DashBoard/view/widgets/action_menu_bottom_sheet.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Home/views/home_view.dart';
+import 'package:calai/app/modules/Scanner/views/scan_view.dart';
+import 'package:calai/app/modules/Settings/views/settings.dart';  
+import 'package:calai/app/modules/DashBoard/view/widgets/action_menu_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

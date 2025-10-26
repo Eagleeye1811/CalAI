@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
+import 'package:calai/app/repo/firebase_user_repo.dart';
 
 class WeightHistoryView extends StatefulWidget {
   final String userId;

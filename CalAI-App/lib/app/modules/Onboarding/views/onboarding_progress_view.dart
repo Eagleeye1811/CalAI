@@ -5,16 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/components/buttons.dart';
-import 'package:CalAI/app/components/height_picker.dart';
-import 'package:CalAI/app/components/tiles.dart';
-import 'package:CalAI/app/components/weight_picker.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/constants/constants.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/models/Onboarding/onboarding_model.dart';
-import 'package:CalAI/app/modules/Onboarding/views/calorie_required.dart';
-import 'package:CalAI/app/utility/user_utility.dart';
+import 'package:calai/app/components/buttons.dart';
+import 'package:calai/app/components/height_picker.dart';
+import 'package:calai/app/components/tiles.dart';
+import 'package:calai/app/components/weight_picker.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/constants/constants.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/models/Onboarding/onboarding_model.dart';
+import 'package:calai/app/modules/Onboarding/views/calorie_required.dart';
+import 'package:calai/app/utility/user_utility.dart';
 
 class OnboardingQuestionaries extends StatefulWidget {
   const OnboardingQuestionaries({super.key});

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/models/Auth/user_repo.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user_repo.dart';
 
 class UserController extends GetxController {
   // ====================

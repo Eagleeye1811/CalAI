@@ -21,22 +21,22 @@ def migrate_file(filepath):
             content
         )
         content = re.sub(
-            r"import 'package:CalAI/app/modules/Auth/blocs/authentication_bloc/authentication_bloc\.dart';\s*\n",
-            "import 'package:CalAI/app/controllers/auth_controller.dart';\n",
+            r"import 'package:calai/app/modules/Auth/blocs/authentication_bloc/authentication_bloc\.dart';\s*\n",
+            "import 'package:calai/app/controllers/auth_controller.dart';\n",
             content
         )
         content = re.sub(
-            r"import 'package:CalAI/app/modules/Auth/blocs/my_user_bloc/my_user_bloc\.dart';\s*\n",
-            "import 'package:CalAI/app/controllers/user_controller.dart';\n",
+            r"import 'package:calai/app/modules/Auth/blocs/my_user_bloc/my_user_bloc\.dart';\s*\n",
+            "import 'package:calai/app/controllers/user_controller.dart';\n",
             content
         )
         content = re.sub(
-            r"import 'package:CalAI/app/modules/Auth/blocs/my_user_bloc/my_user_state\.dart';\s*\n",
+            r"import 'package:calai/app/modules/Auth/blocs/my_user_bloc/my_user_state\.dart';\s*\n",
             "",
             content
         )
         content = re.sub(
-            r"import 'package:CalAI/app/modules/Auth/blocs/sign_in_bloc/sign_in_bloc\.dart';\s*\n",
+            r"import 'package:calai/app/modules/Auth/blocs/sign_in_bloc/sign_in_bloc\.dart';\s*\n",
             "",
             content
         )

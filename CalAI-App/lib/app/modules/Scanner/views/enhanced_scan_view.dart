@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/modules/DashBoard/view/widgets/scan_options_sheet.dart';
-import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/modules/DashBoard/view/widgets/scan_options_sheet.dart';
+import 'package:calai/app/modules/Scanner/views/scan_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class EnhancedScanView extends StatefulWidget {

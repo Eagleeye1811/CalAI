@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:CalAI/app/models/AI/nutrition_input.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/config/environment.dart'; // 🆕 Import environment config
+import 'package:calai/app/models/AI/nutrition_input.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/config/environment.dart'; // 🆕 Import environment config
 
 class AiRepository {
   Future<NutritionOutput> getNutritionData(

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:async';
-import 'package:CalAI/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:CalAI/app/models/Agent/agent_response.dart';
-import 'package:CalAI/app/models/Agent/chat_message_request.dart';
-import 'package:CalAI/app/config/environment.dart'; // 🆕 Import environment config
+import 'package:calai/app/models/Agent/agent_response.dart';
+import 'package:calai/app/models/Agent/chat_message_request.dart';
+import 'package:calai/app/config/environment.dart'; // 🆕 Import environment config
 
 class AgentService {
   // 🆕 Use Environment.backendUrl instead of hardcoded URL

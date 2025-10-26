@@ -27,10 +27,10 @@ find . -name "*.dart" -type f | while read file; do
         
         # Perform replacements
         sed -i '' "s|import 'package:flutter_bloc/flutter_bloc.dart';||g" "$file"
-        sed -i '' "s|import 'package:CalAI/app/modules/Auth/blocs/authentication_bloc/authentication_bloc.dart';|import 'package:CalAI/app/controllers/auth_controller.dart';|g" "$file"
-        sed -i '' "s|import 'package:CalAI/app/modules/Auth/blocs/my_user_bloc/my_user_bloc.dart';|import 'package:CalAI/app/controllers/user_controller.dart';|g" "$file"
-        sed -i '' "s|import 'package:CalAI/app/modules/Auth/blocs/my_user_bloc/my_user_state.dart';||g" "$file"
-        sed -i '' "s|import 'package:CalAI/app/modules/Auth/blocs/sign_in_bloc/sign_in_bloc.dart';||g" "$file"
+        sed -i '' "s|import 'package:calai/app/modules/Auth/blocs/authentication_bloc/authentication_bloc.dart';|import 'package:calai/app/controllers/auth_controller.dart';|g" "$file"
+        sed -i '' "s|import 'package:calai/app/modules/Auth/blocs/my_user_bloc/my_user_bloc.dart';|import 'package:calai/app/controllers/user_controller.dart';|g" "$file"
+        sed -i '' "s|import 'package:calai/app/modules/Auth/blocs/my_user_bloc/my_user_state.dart';||g" "$file"
+        sed -i '' "s|import 'package:calai/app/modules/Auth/blocs/sign_in_bloc/sign_in_bloc.dart';||g" "$file"
         
         sed -i '' "s|final authState = context.read<AuthenticationBloc>().state;|final authController = Get.find<AuthController>();|g" "$file"
         sed -i '' "s|if (authState.user == null)|if (!authController.isAuthenticated)|g" "$file"

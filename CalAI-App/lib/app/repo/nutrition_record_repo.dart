@@ -1,7 +1,7 @@
-import 'package:CalAI/app/modules/Analytics/model/analytics.dart';
+import 'package:calai/app/modules/Analytics/model/analytics.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
 
 class NutritionRecordRepo {
   final usersCollection = FirebaseFirestore.instance.collection('users');

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 import 'add_nutrients_page.dart';
 
 class CreateFoodPage extends StatefulWidget {

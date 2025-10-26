@@ -1,7 +1,7 @@
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/models/AI/nutrition_input.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/models/AI/exercise_record.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/models/AI/nutrition_input.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/models/AI/exercise_record.dart';
 
 
 class NutritionRecord {

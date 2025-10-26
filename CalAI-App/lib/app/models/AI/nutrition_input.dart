@@ -1,4 +1,4 @@
-import 'package:CalAI/app/modules/Scanner/views/scan_view.dart';
+import 'package:calai/app/modules/Scanner/views/scan_view.dart';
 
 class NutritionInputQuery {
   final String? imageUrl;

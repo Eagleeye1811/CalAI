@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/components/dialogs.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/constants/constants.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/models/Auth/user_repo.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/modules/DashBoard/view/dashboard.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
-import 'package:CalAI/app/utility/registry_service.dart';
+import 'package:calai/app/components/dialogs.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/constants/constants.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/models/Auth/user_repo.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/modules/DashBoard/view/dashboard.dart';
+import 'package:calai/app/repo/firebase_user_repo.dart';
+import 'package:calai/app/utility/registry_service.dart';
 
 class SignInScreen extends StatefulWidget {
   final UserBasicInfo? user;

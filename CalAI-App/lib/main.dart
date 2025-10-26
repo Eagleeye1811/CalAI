@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/controllers/theme_controller.dart';
-import 'package:CalAI/app/modules/DashBoard/view/dashboard.dart';
-import 'package:CalAI/app/modules/Onboarding/views/onboarding_home.dart';
-import 'package:CalAI/app/providers/remoteconfig.dart';
-import 'package:CalAI/app/utility/registry_service.dart';
-import 'package:CalAI/firebase_options.dart';
-import 'package:CalAI/app/config/environment.dart';
-import 'package:CalAI/app/repo/agent_service.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/controllers/theme_controller.dart';
+import 'package:calai/app/modules/DashBoard/view/dashboard.dart';
+import 'package:calai/app/modules/Onboarding/views/onboarding_home.dart';
+import 'package:calai/app/providers/remoteconfig.dart';
+import 'package:calai/app/utility/registry_service.dart';
+import 'package:calai/firebase_options.dart';
+import 'package:calai/app/config/environment.dart';
+import 'package:calai/app/repo/agent_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {

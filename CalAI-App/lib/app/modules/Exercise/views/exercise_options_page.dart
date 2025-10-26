@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 import 'run_exercise_page.dart';
 import 'weight_lifting_exercise_page.dart';
 import 'describe_exercise_page.dart';

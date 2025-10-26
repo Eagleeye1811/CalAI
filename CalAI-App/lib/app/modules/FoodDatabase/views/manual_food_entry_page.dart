@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/components/dialogs.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/repo/nutrition_record_repo.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/components/dialogs.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/repo/nutrition_record_repo.dart';
 
 class ManualFoodEntryPage extends StatefulWidget {
   const ManualFoodEntryPage({Key? key}) : super(key: key);

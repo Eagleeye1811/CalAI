@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:CalAI/app/providers/theme_provider.dart' show textTheme;
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/providers/theme_provider.dart' show textTheme;
+import 'package:calai/app/constants/colors.dart';
 
 class ThemeController extends GetxController {
   static ThemeController get to => Get.find();

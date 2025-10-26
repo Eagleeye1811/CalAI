@@ -1,24 +1,24 @@
-import 'package:CalAI/app/components/dialogs.dart';
-import 'package:CalAI/app/constants/enums.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
-import 'package:CalAI/app/repo/nutrition_record_repo.dart';
+import 'package:calai/app/components/dialogs.dart';
+import 'package:calai/app/constants/enums.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/repo/nutrition_record_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'dart:io';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/AI/nutrition_output.dart';
-import 'package:CalAI/app/models/AI/nutrition_record.dart';
-import 'package:CalAI/app/utility/date_utility.dart';
-import 'package:CalAI/app/repo/saved_foods_repo.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/AI/nutrition_output.dart';
+import 'package:calai/app/models/AI/nutrition_record.dart';
+import 'package:calai/app/utility/date_utility.dart';
+import 'package:calai/app/repo/saved_foods_repo.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
 import 'package:gal/gal.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:CalAI/app/components/social_media_share_widget.dart';
+import 'package:calai/app/components/social_media_share_widget.dart';
 
 class NutritionView extends StatefulWidget {
   final NutritionRecord nutritionRecord;

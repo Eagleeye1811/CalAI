@@ -1,4 +1,4 @@
-import 'package:CalAI/app/models/Agent/agent_response.dart';
+import 'package:calai/app/models/Agent/agent_response.dart';
 
 class NutritionService {
   /// Extracts nutrition data from agent response tool returns

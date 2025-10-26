@@ -1,9 +1,9 @@
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/models/Auth/user.dart';
-import 'package:CalAI/app/repo/firebase_user_repo.dart';
-import 'package:CalAI/app/components/buttons.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/models/Auth/user.dart';
+import 'package:calai/app/repo/firebase_user_repo.dart';
+import 'package:calai/app/components/buttons.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sizer/sizer.dart';

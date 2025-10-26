@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/controllers/auth_controller.dart';
-import 'package:CalAI/app/modules/Scanner/controller/scanner_controller.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/controllers/auth_controller.dart';
+import 'package:calai/app/modules/Scanner/controller/scanner_controller.dart';
 
 enum ScanMode { food, barcode, gallery }
 

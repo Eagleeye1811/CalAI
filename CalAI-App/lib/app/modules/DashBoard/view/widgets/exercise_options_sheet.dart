@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CalAI/app/constants/colors.dart';
-import 'package:CalAI/app/modules/Exercise/views/exercise_options_page.dart';
+import 'package:calai/app/constants/colors.dart';
+import 'package:calai/app/modules/Exercise/views/exercise_options_page.dart';
 
 class ExerciseOptionsSheet extends StatelessWidget {
   const ExerciseOptionsSheet({Key? key}) : super(key: key);

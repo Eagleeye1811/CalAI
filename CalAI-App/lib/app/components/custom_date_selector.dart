@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
-import 'package:CalAI/app/constants/colors.dart';
+import 'package:calai/app/constants/colors.dart';
 
 class CustomDateSelector extends StatelessWidget {
   final DateTime selectedDate;

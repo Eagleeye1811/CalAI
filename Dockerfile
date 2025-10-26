@@ -21,6 +21,9 @@ RUN flutter pub get
 # [FIX] Copy the rest of the project source from the 'CalAI-App' subfolder
 COPY CalAI-App/ .
 
+# [NEW FIX] Enable web support for the project
+RUN flutter create . --platforms web
+
 # Build the web application in release mode
 RUN flutter build web --release
 
